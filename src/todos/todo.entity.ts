@@ -1,10 +1,16 @@
+import { IsEmail, IsNotEmpty, } from "class-validator";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity({name: 'todos'})
+@Entity({ name: 'todos' })
 export class Todo {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @IsEmail()
     @Column()
-    title: string;
+    email: string;
+
+    @IsNotEmpty()
+    @Column()
+    password: string;
 }
