@@ -1,4 +1,4 @@
-import { IsEmail, IsIn, IsNotEmpty } from 'class-validator';
+import { IsBoolean, IsEmail, IsIn, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateUserDto {
     @IsEmail()
@@ -19,8 +19,8 @@ export class CreateUserDto {
     @IsNotEmpty()
     isshow: boolean;
 
-    online: boolean;
-
-    // @IsNotEmpty()
+    @IsOptional() // Nếu online không cần thiết trong request
+    @IsBoolean()  // Kiểm tra kiểu dữ liệu boolean
+    online?: boolean; // Dấu hỏi chỉ ra rằng đây là tùy chọn
     created_at: number;
 }

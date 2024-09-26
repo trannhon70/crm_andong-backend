@@ -3,17 +3,23 @@ import { CreateUserDto } from "./dtos/create-user.dto";
 import { UsersService } from "./users.service";
 
 
-@Controller('user/create')
+@Controller('user')
 export class UserController {
     constructor (
         private readonly usersService: UsersService
     ){}
 
-    @Post()
-    create(@Body() body: CreateUserDto){
-        return this.usersService.create(body);
+    @Post('create')
+    async create(@Body() body: CreateUserDto){
+        const user = await this.usersService.create(body);
+        return {
+            statusCode: 1,
+            message: 'create success!',
+            data: user
+        };
     }
 
+    
     // @Get()
     // findAll(
     //     @Query('page') page: string = '1',
