@@ -27,7 +27,7 @@ export class UserController {
         // console.log("Dữ liệu đăng nhập:", data); // Ghi log phản hồi
         return res.json({
             statusCode: 1,
-            message: 'Login thành công!',
+            message: 'Đăng nhập thành công!',
             token: data.token,
             user: data.user
         });
