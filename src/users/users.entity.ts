@@ -6,6 +6,9 @@ export class Users {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column()
+    role: string;
+
     @IsEmail()
     @Column()
     email: string;

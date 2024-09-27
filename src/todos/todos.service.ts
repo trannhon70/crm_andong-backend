@@ -11,8 +11,6 @@ export class TodosService {
     ){}
 
     async create(dto: CreateTodoDto){
-        console.log(dto, 'dto');
-        
         const todo = this.todoRepository.create(dto);
         return await this.todoRepository.save(todo)
     }
