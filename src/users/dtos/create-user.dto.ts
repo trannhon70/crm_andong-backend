@@ -2,7 +2,7 @@ import { IsBoolean, IsEmail, IsIn, IsNotEmpty, IsOptional } from 'class-validato
 
 export class CreateUserDto {
     @IsNotEmpty()
-    role : string
+    role_id : number
     @IsEmail()
     email: string;
 

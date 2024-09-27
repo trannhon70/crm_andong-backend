@@ -7,7 +7,7 @@ export class Users {
     id: number;
 
     @Column()
-    role: string;
+    role_id: number;
 
     @IsEmail()
     @Column()

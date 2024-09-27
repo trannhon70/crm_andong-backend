@@ -26,7 +26,7 @@ export class UsersService {
         const hashPassword = await bcrypt.hash(body.password , saltOrRounds)
         
         const data : any = {
-            role: body.role,
+            role: body.role_id,
             email: body.email,
             password: hashPassword,
             fullName: body.fullName,
@@ -65,7 +65,7 @@ export class UsersService {
             language: user.language,
             isshow: user.isshow,
             online: user.online,
-            role: user.role,
+            role: user.role_id,
         };
        
         const token = this.jwtService.sign(payload);

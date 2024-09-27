@@ -6,28 +6,24 @@ import { UsersService } from "./users.service";
 import { roleMiddleware } from "src/common/middleware/role.middleware";
 import { AuthMiddleware } from "src/common/middleware/auth.middleware";
 import { LoggerMiddleware } from "src/common/middleware/logger.middleware";
-import { JwtModule, JwtService } from "@nestjs/jwt";
+import { CustomJwtModule } from "src/common/auth/auth.module";
 
 
 @Module({
     imports:[
       TypeOrmModule.forFeature([Users]),
-      JwtModule.register({
-        secret: 'secretKey', // Đặt secret key cho JWT
-        signOptions: { expiresIn: '1h' }, // Token sẽ hết hạn trong 1 giờ
-      }),
+      CustomJwtModule,
     ],
     controllers: [UserController],
     providers:[UsersService],
 })
-
+ 
 // export class UsersModule{}
-export class UsersModule implements NestModule{
-    constructor(private readonly jwtService: JwtService) {}
-    configure(consumer: MiddlewareConsumer) {
-        consumer
-          .apply(AuthMiddleware, LoggerMiddleware, roleMiddleware(['admin'], this.jwtService)) 
-        //   .forRoutes('*'); // Áp dụng middleware cho tất cả các route
-          .forRoutes({ path: 'user/create', method: RequestMethod.POST });
-      }
+export class UsersModule implements NestModule {
+  
+  configure(consumer: MiddlewareConsumer) {
+      consumer
+        .apply(AuthMiddleware, LoggerMiddleware ,roleMiddleware(['1'])) 
+        .forRoutes({ path: 'user/create', method: RequestMethod.POST }); // Apply middleware to all other routes
+  }
 }

@@ -1,9 +1,12 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthMiddleware } from './common/middleware/auth.middleware';
+import { LoggerMiddleware } from './common/middleware/logger.middleware';
+import { RolesModule } from './roles/roles.module';
 import { TodosModule } from './todos/todos.module';
 import { UsersModule } from './users/users.module';
 
@@ -25,9 +28,20 @@ import { UsersModule } from './users/users.module';
       inject:[ConfigService],
     }),
     TodosModule,
-    UsersModule
+    UsersModule,
+    RolesModule
   ],
   controllers: [AppController],
   providers: [AppService ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  
+  configure(consumer: MiddlewareConsumer) {
+      consumer
+        .apply(AuthMiddleware, LoggerMiddleware) 
+        .exclude(
+          { path: 'user/login', method: RequestMethod.POST } // Exclude login route
+        )
+        
+  }
+}
