@@ -1,13 +1,18 @@
-import { IsEmail, IsIn, IsNotEmpty, } from "class-validator";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { IsEmail, IsIn, IsNotEmpty } from "class-validator";
+import { Roles } from "src/roles/roles.entity";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: 'users' })
 export class Users {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
-    role_id: number;
+    @ManyToOne(() => Roles, (role) => role.users, { eager: true })
+    @JoinColumn({ name: 'roleId' }) // Đảm bảo ánh xạ với cột roleId
+    role: Roles;
+
+    @Column({ name: 'roleId' }) // Đặt tên cột là roleId
+    roleId: number; // Khóa ngoại để lưu ID của vai trò
 
     @IsEmail()
     @Column()
@@ -36,9 +41,6 @@ export class Users {
     @Column({ type: 'boolean' })
     online: boolean;
 
-    // @IsNotEmpty()
     @Column()
     created_at: number;
-
-
 }

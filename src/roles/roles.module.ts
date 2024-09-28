@@ -7,21 +7,27 @@ import { roleMiddleware } from "src/common/middleware/role.middleware";
 import { RoleController } from "./roles.controller";
 import { Roles } from "./roles.entity";
 import { RolesService } from "./roles.service";
+import { Users } from "src/users/users.entity";
+import { UsersService } from "src/users/users.service";
 
 
 @Module({
     imports:[
-        TypeOrmModule.forFeature([Roles]),
+        TypeOrmModule.forFeature([Roles, Users]),
         CustomJwtModule,
     ],
     controllers: [RoleController],
-    providers:[RolesService],
+    providers:[RolesService, UsersService],
 })
+
+
 export class RolesModule implements NestModule {
   
     configure(consumer: MiddlewareConsumer) {
         consumer
           .apply(AuthMiddleware, LoggerMiddleware ,roleMiddleware(['1'])) 
-          .forRoutes({ path: 'role/create', method: RequestMethod.POST }); 
+          .forRoutes(
+            // { path: 'role/create', method: RequestMethod.POST }
+        ); 
     }
   }
