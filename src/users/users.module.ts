@@ -25,9 +25,9 @@ export class UsersModule implements NestModule {
   
   configure(consumer: MiddlewareConsumer) {
       consumer
-        .apply(AuthMiddleware, LoggerMiddleware ,roleMiddleware(['1'])) 
+        .apply(AuthMiddleware, LoggerMiddleware ,roleMiddleware(['admin'])) 
         .forRoutes(
-          // { path: 'user/create', method: RequestMethod.POST }
+          { path: 'user/create', method: RequestMethod.POST }
         ); // Apply middleware to all other routes
   }
 }
