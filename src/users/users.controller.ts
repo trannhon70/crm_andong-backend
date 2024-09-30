@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Res } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Put, Req, Res } from "@nestjs/common";
 import { Response } from 'express';
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { LoginUserDto } from "./dtos/login-user.dto";
@@ -58,6 +58,22 @@ export class UserController {
                 message: 'Error retrieving user data',
                 error: error.message
             });
+        }
+    }
+
+    @Put('update-user/:id')
+    async UpdateUserId(@Param('id') id: number, @Body() body: any, @Res() res: any) {
+        try {
+            const data = await this.usersService.UpdateUserId(id, body);
+            
+            return res.status(200).json({
+                statusCode: 1,
+                message: 'update user successfully!',
+                data: data
+            });
+        } catch (error) {
+            console.log(error);
+            
         }
     }
 
