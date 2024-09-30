@@ -13,23 +13,23 @@ let saltOrRounds = 10;
 
 export class UsersService {
     constructor(
-        @InjectRepository(Users) 
+        @InjectRepository(Users)
         private readonly userRepository: Repository<Users>,
-        @InjectRepository(Roles) 
+        @InjectRepository(Roles)
         private readonly roleRepository: Repository<Roles>,
         private readonly jwtService: JwtService // Inject JwtService
-    ){}
+    ) { }
 
-    async create(body: CreateUserDto){
+    async create(body: CreateUserDto) {
         const roleExists = await this.roleRepository.findOne({ where: { id: body.roleId } });
-        const check = await this.userRepository.findOne({ where: { email: body.email }});
-        if(check){
+        const check = await this.userRepository.findOne({ where: { email: body.email } });
+        if (check) {
             throw new BadRequestException('Email đã được đăng ký, vui lòng đăng ký mail khác!');
         }
-       
-        const hashPassword = await bcrypt.hash(body.password , saltOrRounds)
-        
-        const data : any = {
+
+        const hashPassword = await bcrypt.hash(body.password, saltOrRounds)
+
+        const data: any = {
             role: roleExists,
             email: body.email,
             password: hashPassword,
@@ -40,7 +40,7 @@ export class UsersService {
             online: body.online,
             created_at: currentTimestamp,
         }
-        
+
         const todo = this.userRepository.create(data);
         return await this.userRepository.save(todo)
     }
@@ -52,17 +52,17 @@ export class UsersService {
             },
             relations: ['role'], // Liên kết với bảng Roles
         });
-    
+
         if (!user) {
             throw new BadRequestException('Email không tồn tại!');
         }
-    
+
         const isMatch = await bcrypt.compare(body.password, user.password);
-    
+
         if (!isMatch) {
             throw new BadRequestException('Password không đúng');
         }
-    
+
         const payload = {
             email: user.email,
             id: user.id,
@@ -72,7 +72,7 @@ export class UsersService {
             online: user.online,
             role: user.role, // Thông tin vai trò được lấy từ bảng Roles
         };
-    
+
         const token = this.jwtService.sign(payload);
         return {
             token: token,
@@ -82,6 +82,37 @@ export class UsersService {
             }
         }
     }
-    
+
+    async getByIdUser(req: any) {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+
+        if (!token) {
+            throw new Error('Authorization token is missing');
+        }
+
+        try {
+            const decoded = await this.jwtService.verify(token); // Assuming you use JWT
+
+            const userId = decoded.id; // Decoded token should contain user ID
+
+            // Fetch user data based on the userId
+            const user = await this.userRepository.findOne(
+                { 
+                    where: { id: userId }, 
+                    select: ['id', 'email',  'fullName', 'avatar', 'language', 'isshow', 'online', "role", 'created_at'] 
+                },
+            );
+
+            if (!user) {
+                throw new Error('User not found');
+            }
+
+            return user;
+        } catch (error) {
+            throw new Error('Invalid token or user not found');
+        }
+    }
+
 
 }

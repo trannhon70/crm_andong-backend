@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, Res } from "@nestjs/common";
 import { Response } from 'express';
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { LoginUserDto } from "./dtos/login-user.dto";
@@ -33,5 +33,32 @@ export class UserController {
         });
     }
 
+    @Get('get-by-user')
+    async getByIdUser( @Req() req: any, @Res() res: any) {
+        try {
+            const data = await this.usersService.getByIdUser(req);
+            
+            return res.status(200).json({
+                statusCode: 1,
+                message: 'User data retrieved successfully!',
+                data: data
+            });
+        } catch (error) {
+            if (error.message === 'Invalid token or user not found') {
+                return res.status(404).json({
+                    statusCode: 0,
+                    message: 'User not found', 
+                    error: error.message
+                });
+            }
+    
+            // Generic error response
+            return res.status(500).json({
+                statusCode: 0,
+                message: 'Error retrieving user data',
+                error: error.message
+            });
+        }
+    }
 
 }
