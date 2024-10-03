@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Res } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Query, Res } from "@nestjs/common";
 import { RoleDto } from "./dtos/role.dto";
 import { RolesService } from "./roles.service";
 
@@ -18,6 +18,31 @@ export class RoleController {
             message: 'Tạo vai trò thành công!',
             data: data,
         };
+    }
+
+    @Get('get-paging')
+     async getpaging(@Query() queryDto: any){
+        const data = await this.rolesService.getpaging(queryDto);
+        return {
+            statusCode: 1,
+            message: 'get paging role success',
+            data: data,
+        };
+    }
+
+    @Delete('delete/:id')
+    async deleteRoleId(@Param('id') id: number){
+        try {
+            const data = await this.rolesService.deleteRoleId(id);
+            return {
+                statusCode: 1,
+                message: 'delete role success!',
+                data: data
+            }
+        } catch (error) {
+            console.log(error);
+            
+        }
     }
     
    
