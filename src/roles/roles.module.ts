@@ -25,9 +25,9 @@ export class RolesModule implements NestModule {
   
     configure(consumer: MiddlewareConsumer) {
         consumer
-          .apply(AuthMiddleware, LoggerMiddleware ,roleMiddleware(['1'])) 
+          .apply(AuthMiddleware, LoggerMiddleware) 
           .forRoutes(
-            // { path: 'role/create', method: RequestMethod.POST }
+            { path: 'role/create', method: RequestMethod.POST }
         ); 
     }
   }

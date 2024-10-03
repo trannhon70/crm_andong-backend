@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, Res } from "@nestjs/common";
 import { RoleDto } from "./dtos/role.dto";
 import { RolesService } from "./roles.service";
 
@@ -10,8 +10,14 @@ export class RoleController {
     ){}
 
     @Post('create')
-    create(@Body() dto: RoleDto){
-        return this.rolesService.create(dto);
+     async create(@Body() dto: any){
+        
+        const data = await this.rolesService.create(dto);
+        return {
+            statusCode: 1,
+            message: 'Tạo vai trò thành công!',
+            data: data,
+        };
     }
     
    

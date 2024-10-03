@@ -9,6 +9,9 @@ export class Roles {
     @Column()
     name: string;
 
+    @Column({ type: 'text' })  
+    menu: string
+
     @Column()
     created_at: number;
 
