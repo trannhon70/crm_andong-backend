@@ -30,6 +30,16 @@ export class RoleController {
         };
     }
 
+    @Get('get-by-id/:id')
+     async getById(@Param('id') id: number){
+        const data = await this.rolesService.getById(id);
+        return {
+            statusCode: 1,
+            message: 'get role by id success!',
+            data: data,
+        };
+    }
+
     @Delete('delete/:id')
     async deleteRoleId(@Param('id') id: number){
         try {

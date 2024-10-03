@@ -63,4 +63,13 @@ export class RolesService {
             return this.roleRepository.delete(id)
         }
     }
+
+    async getById (id: number) {
+        if(id){
+            const result = await this.roleRepository.findOne({
+                where: {id}
+            })
+            return result
+        }
+    }
 }
