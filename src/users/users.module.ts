@@ -9,6 +9,10 @@ import { LoggerMiddleware } from "src/common/middleware/logger.middleware";
 import { CustomJwtModule } from "src/common/auth/auth.module";
 import { Roles } from "src/roles/roles.entity";
 import { RolesService } from "src/roles/roles.service";
+import { Hospitals } from "src/hospital/hospital.entity";
+import { HospitalsService } from "src/hospital/hospital.service";
+import { HospitalsModule } from "src/hospital/hospital.module";
+import { HospitalController } from "src/hospital/hospital.controller";
 
 
 @Module({
@@ -18,6 +22,7 @@ import { RolesService } from "src/roles/roles.service";
     ],
     controllers: [UserController],
     providers:[UsersService, RolesService],
+    exports: [TypeOrmModule],
 })
  
 // export class UsersModule{}

@@ -9,6 +9,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { RolesModule } from './roles/roles.module';
 import { TodosModule } from './todos/todos.module';
 import { UsersModule } from './users/users.module';
+import { HospitalsModule } from './hospital/hospital.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { UsersModule } from './users/users.module';
     }),
     TodosModule,
     UsersModule,
-    RolesModule
+    RolesModule,
+    HospitalsModule
   ],
   controllers: [AppController],
   providers: [AppService ],

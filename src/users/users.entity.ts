@@ -1,18 +1,26 @@
 import { IsEmail, IsIn, IsNotEmpty } from "class-validator";
+import { Hospitals } from "src/hospital/hospital.entity";
 import { Roles } from "src/roles/roles.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity({ name: 'users' })
+@Entity({ name: 'users' })  // Đảm bảo tên bảng nhất quán
 export class Users {
     @PrimaryGeneratedColumn()
     id: number;
 
     @ManyToOne(() => Roles, (role) => role.users, { eager: true })
-    @JoinColumn({ name: 'roleId' }) // Đảm bảo ánh xạ với cột roleId
+    @JoinColumn({ name: 'roleId' })
     role: Roles;
 
-    @Column({ name: 'roleId' }) // Đặt tên cột là roleId
-    roleId: number; // Khóa ngoại để lưu ID của vai trò
+    @Column({ name: 'roleId' })
+    roleId: number;
+
+    @ManyToOne(() => Hospitals, (hospital) => hospital.users, { eager: true })
+    @JoinColumn({ name: 'hospitalId' })
+    hospital: Hospitals;
+
+    @Column({ name: 'hospitalId' })
+    hospitalId: number;
 
     @IsEmail()
     @Column()
@@ -41,6 +49,6 @@ export class Users {
     @Column({ type: 'boolean' })
     online: boolean;
 
-    @Column()
+    @Column()  
     created_at: number;
 }
