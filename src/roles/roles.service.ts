@@ -72,4 +72,17 @@ export class RolesService {
             return result
         }
     }
+
+    async updateRole (id: number, body:any) {
+        const role = await this.roleRepository.findOne({
+            where:{id}
+        });
+
+        if (!role) {
+            throw new Error('Role not found');
+        }
+
+        Object.assign(role, body);
+        return await this.roleRepository.save(role);
+    }
 }

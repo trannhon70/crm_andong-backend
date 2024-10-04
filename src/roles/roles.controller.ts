@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, Res } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Res } from "@nestjs/common";
 import { RoleDto } from "./dtos/role.dto";
 import { RolesService } from "./roles.service";
 
@@ -54,6 +54,19 @@ export class RoleController {
             
         }
     }
-    
+    @Put('update/:id')
+    async updateRole(@Param('id') id: number, @Body() body: any) {
+        try {
+                const data = await this.rolesService.updateRole(id, body)
+                return {
+                    statusCode: 1,
+                    message: 'update role success!',
+                    data: data
+                }
+        } catch (error) {
+            console.log(error);
+            
+        }
+    }
    
 }
