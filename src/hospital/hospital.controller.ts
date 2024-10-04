@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, Req } from "@nestjs/common";
 import { HospitalsService } from "./hospital.service";
+import { HospitalDto } from "./dtos/hospital.dto";
 
 @Controller('hospital')
 export class HospitalController {
@@ -7,10 +8,18 @@ export class HospitalController {
         private readonly hospitalsService: HospitalsService
     ){}
 
-    @Post()
-    create(@Body() dto: any){
-        return this.hospitalsService.create(dto);
+    @Post('create')
+    create(@Body() body: HospitalDto,  @Req() req: any){
+        return this.hospitalsService.create(body, req);
     }
 
-   
+    @Get('get-paging')
+    async getpaging(@Query() queryDto: any){
+       const data = await this.hospitalsService.getpaging(queryDto);
+       return {
+           statusCode: 1,
+           message: 'get paging hospital success',
+           data: data,
+       };
+   }
 }

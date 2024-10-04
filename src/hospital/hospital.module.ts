@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CustomJwtModule } from "src/common/auth/auth.module";
 import { HospitalController } from "./hospital.controller";
@@ -14,7 +14,7 @@ import { UsersModule } from "src/users/users.module";
 
 @Module({
     imports:[
-        TypeOrmModule.forFeature([Hospitals]),
+        TypeOrmModule.forFeature([Hospitals, Users]),
         CustomJwtModule,
         UsersModule 
     ],
@@ -27,6 +27,8 @@ export class HospitalsModule implements NestModule{
     configure(consumer: MiddlewareConsumer) {
         consumer
           .apply(AuthMiddleware, LoggerMiddleware) 
-          .forRoutes(); 
+          .forRoutes(
+            { path: 'hospital/get-paging', method: RequestMethod.GET },
+          ); 
     }
 }

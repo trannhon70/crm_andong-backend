@@ -10,8 +10,10 @@ export class Hospitals {
     name: string;
 
     @Column()
-    phone: number;
-
+    phone: string;
+    
+    @Column()
+    author: string
 
     @Column()  // Nếu bạn đang lưu trữ timestamps
     created_at: number;

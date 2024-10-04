@@ -9,11 +9,12 @@ import { Roles } from "./roles.entity";
 import { RolesService } from "./roles.service";
 import { Users } from "src/users/users.entity";
 import { UsersService } from "src/users/users.service";
+import { Hospitals } from "src/hospital/hospital.entity";
 
 
 @Module({
     imports:[
-        TypeOrmModule.forFeature([Roles, Users]),
+        TypeOrmModule.forFeature([Roles, Users, Hospitals]),
         CustomJwtModule,
     ],
     controllers: [RoleController],

@@ -8,6 +8,7 @@ import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { LoginUserDto } from "./dtos/login-user.dto";
 import { JwtService } from "@nestjs/jwt";
 import { Roles } from "src/roles/roles.entity";
+import { Hospitals } from "src/hospital/hospital.entity";
 
 let saltOrRounds = 10;
 
@@ -17,6 +18,8 @@ export class UsersService {
         private readonly userRepository: Repository<Users>,
         @InjectRepository(Roles)
         private readonly roleRepository: Repository<Roles>,
+        @InjectRepository(Hospitals)
+        private readonly hospitalsRepository: Repository<Hospitals>,
         private readonly jwtService: JwtService // Inject JwtService
     ) { }
 
@@ -25,6 +28,11 @@ export class UsersService {
         const check = await this.userRepository.findOne({ where: { email: body.email } });
         if (check) {
             throw new BadRequestException('Email đã được đăng ký, vui lòng đăng ký mail khác!');
+        }
+
+        const hospital = await this.hospitalsRepository.findOne({ where: { id: body.hospitalId } });
+        if (!hospital) {
+            throw new BadRequestException('Hospital does not exist');
         }
 
         const hashPassword = await bcrypt.hash(body.password, saltOrRounds)
@@ -38,6 +46,7 @@ export class UsersService {
             language: body.language,
             isshow: body.isshow,
             online: body.online,
+            hospitalId: body.hospitalId,
             created_at: currentTimestamp,
         }
 
