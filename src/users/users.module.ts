@@ -30,6 +30,9 @@ export class UsersModule implements NestModule {
         .apply(AuthMiddleware, LoggerMiddleware ) 
         .forRoutes(
           { path: 'user/create', method: RequestMethod.POST },
+          { path: 'user/get-paging', method: RequestMethod.GET },
+          { path: 'user/update-user/:id', method: RequestMethod.GET },
+          { path: 'user/get-by-user', method: RequestMethod.GET },
         ); // Apply middleware to all other routes
   }
 }

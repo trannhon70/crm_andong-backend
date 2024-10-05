@@ -15,12 +15,15 @@ export class Users {
     @Column({ name: 'roleId' })
     roleId: number;
 
-    @ManyToOne(() => Hospitals, (hospital) => hospital.users, { eager: true })
-    @JoinColumn({ name: 'hospitalId' })
-    hospital: Hospitals;
+    // @ManyToOne(() => Hospitals, (hospital) => hospital.users, { eager: true })
+    // @JoinColumn({ name: 'hospitalId' })
+    // hospital: Hospitals;
 
-    @Column({ name: 'hospitalId' })
-    hospitalId: number;
+    // @Column({ name: 'hospitalId' })
+    // hospitalId: number;
+    
+    @Column({ type: 'text' })  
+    hospitalId: string;
 
     @IsEmail()
     @Column()

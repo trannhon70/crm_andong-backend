@@ -1,6 +1,6 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { Users } from "./users.entity";
-import { Repository } from "typeorm";
+import { Like, Repository } from "typeorm";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import * as bcrypt from 'bcrypt';
 import { currentTimestamp } from "utils/currentTimestamp";
@@ -28,11 +28,6 @@ export class UsersService {
         const check = await this.userRepository.findOne({ where: { email: body.email } });
         if (check) {
             throw new BadRequestException('Email đã được đăng ký, vui lòng đăng ký mail khác!');
-        }
-
-        const hospital = await this.hospitalsRepository.findOne({ where: { id: body.hospitalId } });
-        if (!hospital) {
-            throw new BadRequestException('Hospital does not exist');
         }
 
         const hashPassword = await bcrypt.hash(body.password, saltOrRounds)
@@ -128,6 +123,42 @@ export class UsersService {
         Object.assign(user, body);
         return await this.userRepository.save(user);
         
+    }
+
+    async getpaging(query: any) {
+        const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1; 
+        const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;  
+        const search = query.search ? query.search.trim() : '';
+        const isshow = query.isshow 
+        const language = query.language ? query.language.trim() : '';
+
+        
+
+        const skip = (pageIndex - 1) * pageSize; 
+        const where: any = {
+            ...(search && { fullName: Like(`%${search}%`) }), 
+            ...(language && { language }),  
+            ...(query.isshow  && { isshow }),  
+        };
+
+        const [result, total] = await this.userRepository.findAndCount({
+            select: ['id', 'email',  'fullName', 'avatar', 'language', 'isshow', 'online', "role", 'created_at'],
+            where,
+            skip: skip,
+            take: pageSize,
+            order: {
+                created_at: 'DESC', 
+            },
+            relations: ['role'],
+        });
+
+        return {
+            data: result,
+            total: total,
+            pageIndex: pageIndex,
+            pageSize: pageSize,
+            totalPages: Math.ceil(total / pageSize),
+        };
     }
 
 }

@@ -5,7 +5,7 @@ export class CreateUserDto {
     roleId : number
 
     @IsNotEmpty()
-    hospitalId : number
+    hospitalId : string
     
     @IsEmail()
     email: string;

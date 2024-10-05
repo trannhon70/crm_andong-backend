@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Req, Res } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Put, Query, Req, Res } from "@nestjs/common";
 import { Response } from 'express';
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { LoginUserDto } from "./dtos/login-user.dto";
@@ -74,6 +74,16 @@ export class UserController {
             console.log(error);
             
         }
+    }
+
+    @Get('get-paging')
+     async getpaging(@Query() queryDto: any){
+        const data = await this.usersService.getpaging(queryDto);
+        return {
+            statusCode: 1,
+            message: 'get paging user success',
+            data: data,
+        };
     }
 
 }

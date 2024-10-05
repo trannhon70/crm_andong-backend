@@ -18,7 +18,7 @@ export class Hospitals {
     @Column()  // Nếu bạn đang lưu trữ timestamps
     created_at: number;
 
-    @OneToMany(() => Users, (user) => user.hospital)  // Một bệnh viện có nhiều người dùng
-    users: Users[];
+    // @OneToMany(() => Users, (user) => user.hospital)  // Một bệnh viện có nhiều người dùng
+    // users: Users[];
 }
 
