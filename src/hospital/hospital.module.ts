@@ -29,6 +29,9 @@ export class HospitalsModule implements NestModule{
           .apply(AuthMiddleware, LoggerMiddleware) 
           .forRoutes(
             { path: 'hospital/get-paging', method: RequestMethod.GET },
+            { path: 'hospital/create', method: RequestMethod.POST },
+            { path: 'hospital/get-all', method: RequestMethod.GET },
+            { path: 'hospital/get-by-id/:id', method: RequestMethod.GET },
           ); 
     }
 }

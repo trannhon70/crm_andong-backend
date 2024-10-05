@@ -31,6 +31,7 @@ export class RolesModule implements NestModule {
             { path: 'role/create', method: RequestMethod.POST },
             { path: 'role/get-paging', method: RequestMethod.GET },
             { path: 'role/get-by-id/:id', method: RequestMethod.GET },
+            { path: 'role/get-all', method: RequestMethod.GET },
             { path: 'role/delete/:id', method: RequestMethod.DELETE },
             { path: 'role/update/:id', method: RequestMethod.PUT },
         ); 

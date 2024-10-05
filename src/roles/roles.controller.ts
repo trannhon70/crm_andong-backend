@@ -30,6 +30,16 @@ export class RoleController {
         };
     }
 
+    @Get('get-all')
+    async getAll(){
+       const data = await this.rolesService.getAll();
+       return {
+           statusCode: 1,
+           message: 'get all role success',
+           data: data,
+       };
+   }
+
     @Get('get-by-id/:id')
      async getById(@Param('id') id: number){
         const data = await this.rolesService.getById(id);

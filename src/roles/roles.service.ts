@@ -85,4 +85,14 @@ export class RolesService {
         Object.assign(role, body);
         return await this.roleRepository.save(role);
     }
+
+    async getAll () {
+        try {
+            const reuslt  = await this.roleRepository.find()
+            return reuslt
+        } catch (error) {
+            console.log(error);
+            
+        }
+    }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
 import { HospitalsService } from "./hospital.service";
 import { HospitalDto } from "./dtos/hospital.dto";
 
@@ -22,4 +22,24 @@ export class HospitalController {
            data: data,
        };
    }
+
+   @Get('get-all')
+    async getAll(){
+       const data = await this.hospitalsService.getAll();
+       return {
+           statusCode: 1,
+           message: 'get all hospital success',
+           data: data,
+       };
+   }
+
+   @Get('get-by-id/:id')
+   async getById(@Param('id') id: number){
+      const data = await this.hospitalsService.getById(id);
+      return {
+          statusCode: 1,
+          message: 'get role by id success!',
+          data: data,
+      };
+  }
 }

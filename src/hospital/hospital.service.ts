@@ -65,5 +65,20 @@ export class HospitalsService {
             totalPages: Math.ceil(total / pageSize),
         };
     }
+
+
+    async getById (id: number) {
+        if(id){
+            const result = await this.hospitalsRepository.findOne({
+                where: {id}
+            })
+            return result
+        }
+    }
+
+    async getAll () {
+        const result = await this.hospitalsRepository.find()
+        return result
+    }
    
 }
