@@ -165,4 +165,30 @@ export class UsersService {
         }
     }
 
+    async activeUser (id: number){
+        if(id){
+            const user = await this.userRepository.findOne({
+                where: { id },
+            });
+            if (user) {
+                user.isshow = true;
+                return this.userRepository.save(user);
+            } 
+        }
+    }
+
+    async unActiveUser (id: number) {
+        console.log(id);
+        
+        if(id){
+            const user = await this.userRepository.findOne({
+                where: { id },
+            });
+            if (user) {
+                user.isshow = false;
+                return this.userRepository.save(user);
+            } 
+        }
+    }
+
 }

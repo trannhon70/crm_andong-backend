@@ -100,4 +100,33 @@ export class UserController {
         }
     }
 
+    @Put('active-user/:id')
+    async activeUser(@Param('id') id:number){
+        try {
+            const data = await this.usersService.activeUser(id);
+            return {
+                statusCode: 1,
+                message: 'update user success!',
+                data: data,
+            }
+        } catch (error) {
+            
+        }
+    }
+
+    @Put('un-active-user/:id')
+    async unActiveUser(@Param('id') id:number){
+        try {
+            const data = await this.usersService.unActiveUser(id);
+            return {
+                statusCode: 1,
+                message: 'update user success!',
+                data: data,
+            }
+        } catch (error) {
+            
+        }
+    }
+
+
 }
