@@ -132,8 +132,6 @@ export class UsersService {
         const isshow = query.isshow 
         const language = query.language ? query.language.trim() : '';
 
-        
-
         const skip = (pageIndex - 1) * pageSize; 
         const where: any = {
             ...(search && { fullName: Like(`%${search}%`) }), 
@@ -159,6 +157,12 @@ export class UsersService {
             pageSize: pageSize,
             totalPages: Math.ceil(total / pageSize),
         };
+    }
+
+    async deleteUser (id: number){
+        if(id){
+            return this.userRepository.delete(id)
+        }
     }
 
 }

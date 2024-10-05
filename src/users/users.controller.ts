@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Query, Req, Res } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Res } from "@nestjs/common";
 import { Response } from 'express';
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { LoginUserDto } from "./dtos/login-user.dto";
@@ -81,9 +81,23 @@ export class UserController {
         const data = await this.usersService.getpaging(queryDto);
         return {
             statusCode: 1,
-            message: 'get paging user success',
+            message: 'get paging user success!',
             data: data,
         };
+    }
+
+    @Delete('delete-user/:id')
+    async deleteUser(@Param('id') id:number){
+        try {
+            const data = await this.usersService.deleteUser(id);
+            return {
+                statusCode: 1,
+                message: 'delete user success!',
+                data: data,
+            }
+        } catch (error) {
+            
+        }
     }
 
 }
