@@ -33,6 +33,9 @@ export class UsersModule implements NestModule {
           { path: 'user/get-paging', method: RequestMethod.GET },
           { path: 'user/update-user/:id', method: RequestMethod.GET },
           { path: 'user/get-by-user', method: RequestMethod.GET },
+          { path: 'user/active-user/:id', method: RequestMethod.PUT },
+          { path: 'user/un-active-user/:id', method: RequestMethod.PUT },
+          { path: 'user/delete-user/:id', method: RequestMethod.DELETE },
         ); // Apply middleware to all other routes
   }
 }

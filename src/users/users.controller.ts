@@ -77,8 +77,8 @@ export class UserController {
     }
 
     @Get('get-paging')
-     async getpaging(@Query() queryDto: any){
-        const data = await this.usersService.getpaging(queryDto);
+     async getpaging( @Req() req: any ,@Query() queryDto: any){
+        const data = await this.usersService.getpaging(req ,queryDto);
         return {
             statusCode: 1,
             message: 'get paging user success!',
@@ -128,5 +128,18 @@ export class UserController {
         }
     }
 
+    @Get('get-by-id/:id')
+    async fecthByIdUser(@Param('id') id: number){
+        try {
+            const data = await this.usersService.fecthByIdUser(id);
+            return {
+                statusCode: 1,
+                message: 'update user success!',
+                data: data,
+            }
+        } catch (error) {
+            
+        }
+    }
 
 }

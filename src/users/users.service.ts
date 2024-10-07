@@ -1,6 +1,6 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { Users } from "./users.entity";
-import { Like, Repository } from "typeorm";
+import { Like, Not, Repository } from "typeorm";
 import { CreateUserDto } from "./dtos/create-user.dto";
 import * as bcrypt from 'bcrypt';
 import { currentTimestamp } from "utils/currentTimestamp";
@@ -59,6 +59,10 @@ export class UsersService {
 
         if (!user) {
             throw new BadRequestException('Email không tồn tại!');
+        }
+
+        if(user.isshow === false) {
+            throw new BadRequestException('Tài khoản của bạn đã bị khóa, vui lòng liên hệ quản trị viên để được sử dụng tiếp!');
         }
 
         const isMatch = await bcrypt.compare(body.password, user.password);
@@ -125,7 +129,15 @@ export class UsersService {
         
     }
 
-    async getpaging(query: any) {
+    async getpaging(req: any ,query: any ) {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) {
+            throw new Error('Authorization token is missing');
+        }
+        const decoded = await this.jwtService.verify(token); // Assuming you use JWT
+        const userId = decoded.id;
+        
         const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1; 
         const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;  
         const search = query.search ? query.search.trim() : '';
@@ -134,6 +146,7 @@ export class UsersService {
 
         const skip = (pageIndex - 1) * pageSize; 
         const where: any = {
+            id: Not(userId),
             ...(search && { fullName: Like(`%${search}%`) }), 
             ...(language && { language }),  
             ...(query.isshow  && { isshow }),  
@@ -178,7 +191,6 @@ export class UsersService {
     }
 
     async unActiveUser (id: number) {
-        console.log(id);
         
         if(id){
             const user = await this.userRepository.findOne({
@@ -191,4 +203,12 @@ export class UsersService {
         }
     }
 
+    async fecthByIdUser( id: number){
+        if(id){
+            return this.userRepository.findOne({
+                select: ['id', 'email',  'fullName', 'avatar', 'language', 'isshow', 'online', "role", 'created_at', 'hospitalId'],
+                where: { id },
+            });
+        }
+    }
 }
