@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity({ name: 'hospitals' })
-export class Hospitals {
+@Entity({ name: 'diseases' })
+export class Diseases {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -9,12 +9,20 @@ export class Hospitals {
     name: string;
 
     @Column()
-    phone: string;
-    
-    @Column()
-    author: string;
+    userId: number;
 
+    @Column()
+    hospitalId: number; 
+
+    @Column()
+    departmentId: number
+
+    @Column()
+    isshow: boolean
+    
     @Column()
     created_at: number;
 
+   
 }
+  
