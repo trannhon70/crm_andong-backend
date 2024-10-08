@@ -37,6 +37,7 @@ export class UsersModule implements NestModule {
           { path: 'user/un-active-user/:id', method: RequestMethod.PUT },
           { path: 'user/delete-user/:id', method: RequestMethod.DELETE },
           { path: 'user/logout', method: RequestMethod.POST },
+          { path: 'reset-password/:id', method: RequestMethod.PUT },
         ); // Apply middleware to all other routes
   }
 }

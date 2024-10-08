@@ -270,4 +270,25 @@ export class UsersService {
             
         }
     }
+
+    async resetPassword(req : any, id : number, body : any){
+        if(id){
+            const user = await this.userRepository.findOne({
+                where: { id },
+            });
+            
+            const isMatch = await bcrypt.compare(body.password, user.password);
+
+            if (!isMatch) {
+                throw new BadRequestException('Mật khẩu gốc không đúng');
+            }
+            
+            const hashPassword = await bcrypt.hash(body.passwordnew, saltOrRounds)
+           
+            
+            user.password = hashPassword;
+            return this.userRepository.save(user);
+
+        }
+    }
 }

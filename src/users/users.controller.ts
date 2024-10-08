@@ -157,4 +157,23 @@ export class UserController {
         }
     }
 
+    @Put('reset-password/:id')
+    async resetPassword(@Req() req:any, @Param('id') id: number, @Body() body: any){
+        try {
+            const data = await this.usersService.resetPassword(req, id, body)
+            // console.log(data);
+            
+            return {
+                statusCode: 1,
+                message: 'reset password success!',
+                data: data,
+            }
+        } catch (error) {
+            return {
+                error: error.response,
+            }
+            
+        }
+    } 
+
 }
