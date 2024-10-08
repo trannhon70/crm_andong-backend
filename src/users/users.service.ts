@@ -71,6 +71,12 @@ export class UsersService {
             throw new BadRequestException('Password không đúng');
         }
 
+        // Cập nhật trạng thái online thành true
+        user.online = true;
+
+        // Lưu user vào cơ sở dữ liệu sau khi cập nhật
+        await this.userRepository.save(user);
+
         const payload = {
             email: user.email,
             id: user.id,
@@ -116,17 +122,47 @@ export class UsersService {
         }
     }
 
-    async UpdateUserId (id: number, body: any): Promise<any>{
+    async UpdateUserId(id: number, body: any): Promise<any> {
+        const roleExists = await this.roleRepository.findOne({ where: { id: body.roleId } });
+    
+    
         const user = await this.userRepository.findOne({
-            where: {id}
+            where: { id },
+            relations: ['role'], // Make sure you're loading relations, if required
         });
+        
         if (!user) {
             throw new NotFoundException(`User with ID ${id} not found`);
         }
-
-        Object.assign(user, body);
-        return await this.userRepository.save(user);
-        
+    
+        if (body.password) {
+            const hashPassword = await bcrypt.hash(body.password, saltOrRounds);
+            const data: any = {
+                email: body.email,
+                password: hashPassword,
+                fullName: body.fullName,
+                language: body.language,
+                isshow: body.isshow,
+                hospitalId: body.hospitalId,
+                role: roleExists, // Assign the whole role entity, not just the ID
+            };
+    
+            Object.assign(user, data);
+            return await this.userRepository.save(user);
+    
+        } else {
+            const data: any = {
+                email: body.email,
+                fullName: body.fullName,
+                language: body.language,
+                isshow: body.isshow,
+                hospitalId: body.hospitalId,
+                role: roleExists, // Assign the whole role entity
+            };
+    
+            Object.assign(user, data);
+            return await this.userRepository.save(user);
+        }
     }
 
     async getpaging(req: any ,query: any ) {
@@ -209,6 +245,29 @@ export class UsersService {
                 select: ['id', 'email',  'fullName', 'avatar', 'language', 'isshow', 'online', "role", 'created_at', 'hospitalId'],
                 where: { id },
             });
+        }
+    }
+
+    async logout(req: any) {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) {
+            throw new Error('Authorization token is missing');
+        }
+        try {
+            const decoded = await this.jwtService.verify(token); // Assuming you use JWT
+            const id = decoded.id;
+            const user = await this.userRepository.findOne({
+                where: { id },
+            });
+            if (user) {
+                user.online = false;
+                return this.userRepository.save(user);
+            } 
+            
+        } catch (error) {
+            console.log(error);
+            
         }
     }
 }

@@ -142,4 +142,19 @@ export class UserController {
         }
     }
 
+    @Post('logout')
+    async logout(@Req() req: any){
+        try {
+            const data = await this.usersService.logout(req)
+            return {
+                statusCode: 1,
+                message: 'logout user success!',
+                data: data,
+            }
+        } catch (error) {
+            console.log(error);
+            
+        }
+    }
+
 }
