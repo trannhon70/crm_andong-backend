@@ -23,7 +23,7 @@ export class RolesService {
         const data : RoleDto = {
             name: dto.name,
             menu: dto.menu,
-            created_at: currentTimestamp
+            created_at: currentTimestamp()
         }
         const todo = this.roleRepository.create(data);
         return await this.roleRepository.save(todo)

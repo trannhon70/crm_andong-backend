@@ -42,7 +42,7 @@ export class UsersService {
             isshow: body.isshow,
             online: body.online,
             hospitalId: body.hospitalId,
-            created_at: currentTimestamp,
+            created_at: currentTimestamp(),
         }
 
         const todo = this.userRepository.create(data);

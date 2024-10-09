@@ -31,7 +31,7 @@ export class HospitalsService {
             name: body.name,
             phone: body.phone,
             author: decoded.email,
-            created_at: currentTimestamp
+            created_at: currentTimestamp()
         }
         const todo = this.hospitalsRepository.create(data);
         return await this.hospitalsRepository.save(todo)

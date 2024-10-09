@@ -1,4 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Departments } from "src/department/department.entity";
+import { Hospitals } from "src/hospital/hospital.entity";
+import { Users } from "src/users/users.entity";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: 'diseases' })
 export class Diseases {
@@ -23,6 +26,13 @@ export class Diseases {
     @Column()
     created_at: number;
 
-   
+    @ManyToOne(() => Hospitals, (hospital) => hospital.id)
+    hospital: Hospitals;
+
+    @ManyToOne(() => Users, (user) => user.id)
+    user: Users;
+
+    @ManyToOne(() => Departments, (de) => de.id)
+    department: Departments;
 }
   

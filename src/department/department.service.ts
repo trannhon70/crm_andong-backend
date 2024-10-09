@@ -29,7 +29,7 @@ export class DepartmentsService {
             name: body.name,
             userId: userId,
             hospitalId: body.hospitalId,
-            created_at: currentTimestamp
+            created_at: currentTimestamp()
         }
         const todo = this.departmentRepository.create(data);
         return await this.departmentRepository.save(todo)

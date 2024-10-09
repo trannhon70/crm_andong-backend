@@ -7,11 +7,12 @@ import { Users } from "src/users/users.entity";
 import { DiseaseController } from "./disease.controller";
 import { DiseasesService } from "./disease.service";
 import { Diseases } from "./disease.entity";
+import { Hospitals } from "src/hospital/hospital.entity";
 
 
 @Module({
     imports:[
-        TypeOrmModule.forFeature([Users, Diseases]),
+        TypeOrmModule.forFeature([Users, Diseases, Hospitals]),
         CustomJwtModule,
     ],
     controllers: [DiseaseController],

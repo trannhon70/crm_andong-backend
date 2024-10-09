@@ -1,5 +1,5 @@
 
-import { Body, Controller, Post, Req } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, Req } from "@nestjs/common";
 import { DiseasesService } from "./disease.service";
 
 
@@ -20,4 +20,14 @@ export class DiseaseController {
            data: data,
        };
    }
-}
+
+   @Get('get-paging')
+     async getpaging(@Query() query: any){
+        const data = await this.diseasesService.getpaging(query);
+        return {
+            statusCode: 1,
+            message: 'get paging role success',
+            data: data,
+        };
+    }
+}   
