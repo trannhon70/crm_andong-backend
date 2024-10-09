@@ -34,4 +34,13 @@ export class DepartmentsService {
         const todo = this.departmentRepository.create(data);
         return await this.departmentRepository.save(todo)
     }
+
+    async getAllByIdHospital (req: any, id : number) {
+        
+        if(id){
+            return this.departmentRepository.find({
+                where:{hospitalId:id}
+            })
+        }
+    }
 }

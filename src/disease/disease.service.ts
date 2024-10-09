@@ -28,7 +28,7 @@ export class DiseasesService {
             name: body.name,
             userId: userId,
             hospitalId: body.hospitalId,
-            isshow:body.isshow,
+            isshow:true,
             created_at: currentTimestamp,
             departmentId: body.departmentId
         }

@@ -26,6 +26,7 @@ export class DepartmentsModule implements NestModule {
           .apply(AuthMiddleware, LoggerMiddleware) 
           .forRoutes(
             { path: 'department/create', method: RequestMethod.POST },
+            { path: 'department/get-all/:id', method: RequestMethod.GET },
           
         ); 
     }
