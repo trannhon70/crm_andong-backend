@@ -43,7 +43,10 @@ export class DiseasesService {
         const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1; 
         const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;  
         const search = query.search ? query.search.trim() : '';
-        const hospitalId = query.hospitalId
+        const hospitalId = query.hospitalId;
+        const isshow = query.isshow ;
+        console.log(isshow);
+        
         const skip = (pageIndex - 1) * pageSize;
     
         const qb = this.diseaseRepository.createQueryBuilder('disease')
@@ -55,6 +58,9 @@ export class DiseasesService {
             .orderBy('disease.id', 'DESC');
         if(hospitalId !== 0){
             qb.andWhere('disease.hospitalId = :hospitalId', { hospitalId });
+        }
+        if(isshow){
+            qb.andWhere('disease.isshow = :isshow', { isshow });
         }
         if (search) {
             qb.where('disease.name LIKE :search', { search: `%${search}%` });
