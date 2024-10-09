@@ -27,6 +27,9 @@ export class DiseasesModule implements NestModule {
           .apply(AuthMiddleware, LoggerMiddleware) 
           .forRoutes(
             { path: 'disease/create', method: RequestMethod.POST },
+            { path: 'disease/delete/:id', method: RequestMethod.DELETE },
+            { path: 'disease/get-paging', method: RequestMethod.GET },
+            { path: 'disease/get-by-id/:id', method: RequestMethod.GET },
           
         ); 
     }

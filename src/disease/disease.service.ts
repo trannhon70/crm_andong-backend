@@ -4,6 +4,7 @@ import { Like, Repository } from "typeorm";
 import { Diseases } from "./disease.entity";
 import { currentTimestamp } from "utils/currentTimestamp";
 import { Hospitals } from "src/hospital/hospital.entity";
+import { NotFoundException } from "@nestjs/common";
 
 
 export class DiseasesService {
@@ -25,8 +26,7 @@ export class DiseasesService {
 
         const decoded = await this.jwtService.verify(token); 
         const userId = decoded.id;
-       
-
+        
         const data : any = {
             name: body.name,
             userId: userId,
@@ -45,7 +45,6 @@ export class DiseasesService {
         const search = query.search ? query.search.trim() : '';
         const hospitalId = query.hospitalId;
         const isshow = query.isshow ;
-        console.log(isshow);
         
         const skip = (pageIndex - 1) * pageSize;
     
@@ -84,5 +83,37 @@ export class DiseasesService {
         };
     }
     
-    
+    async delete(id: number){
+        if(id){
+            return this.diseaseRepository.delete(id)
+        }
+    }
+
+    async getById (id: number) {
+        if(id){
+            return this.diseaseRepository.findOne({
+                where:{id}
+            })
+        }
+    }
+
+    async update(id:number, body: any){
+        if(id){
+            const disease = await this.diseaseRepository.findOne({
+                where: { id },
+            });
+
+            if(!disease){
+                throw new NotFoundException(`Disease with ID ${id} not found`);
+            }
+            
+            const data:any={
+                departmentId: body.departmentId,
+                name: body.name,
+            }
+
+            Object.assign(disease, data);
+            return await this.diseaseRepository.save(disease);
+        }
+    }
 }
