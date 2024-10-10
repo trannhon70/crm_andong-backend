@@ -27,6 +27,6 @@ async function bootstrap() {
     forbidNonWhitelisted: true, // Ném lỗi nếu có thuộc tính không hợp lệ
     transform: true, // Tự động chuyển đổi kiểu dữ liệu theo DTO
   }));
-  await app.listen(5000);
+  await app.listen(5001);
 }
 bootstrap();

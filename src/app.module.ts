@@ -12,6 +12,8 @@ import { UsersModule } from './users/users.module';
 import { HospitalsModule } from './hospital/hospital.module';
 import { DepartmentsModule } from './department/department.module';
 import { DiseasesModule } from './disease/disease.module';
+import { MediaModule } from './media/media.module';
+import { DoctorsModule } from './doctor/doctor.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { DiseasesModule } from './disease/disease.module';
     HospitalsModule,
     DepartmentsModule,
     DiseasesModule,
+    MediaModule,
+    DoctorsModule
   ],
   controllers: [AppController],
   providers: [AppService ],
