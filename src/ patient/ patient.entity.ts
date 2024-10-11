@@ -1,6 +1,7 @@
-import { IsIn } from "class-validator";
+import { IsIn, MaxLength } from "class-validator";
 import { Departments } from "src/department/department.entity";
 import { Diseases } from "src/disease/disease.entity";
+import { Doctor } from "src/doctor/doctor.entity";
 import { Hospitals } from "src/hospital/hospital.entity";
 import { Media } from "src/media/media.entity";
 import { Users } from "src/users/users.entity";
@@ -12,21 +13,24 @@ export class Patient {
     id: number;
 
     @Column()
-    fullName: string;
+    name: string;
 
+    //giới tính
     @Column()
-    @IsIn(['nam', 'nữ', 'không xác định'])
-    male: string
+    @IsIn(['NAM', 'NỮ', 'KHÔNG XÁC ĐỊNH'])
+    gender: string
 
     //tuổi
     @Column()
     yearOld: number;
 
-    @Column()
-    phone: number;
+    //số điện thoaị
+    @Column({ length: 12 })
+    @MaxLength(12, { message: 'Phone number can not exceed 12 characters' })
+    phone: string;
 
     //nội dung tư ván
-    @Column()
+    @Column({ type: 'text' })
     content: string;
 
     //bệnh
@@ -54,9 +58,9 @@ export class Patient {
     @Column()
     city:string
 
-    //số chuyên gia
+    //mã chuyên gia
     @Column()
-    expertNo: string
+    code: string
 
     //thời gian hen
     @Column()
@@ -67,39 +71,48 @@ export class Patient {
     reminderTime: number
 
     //ghi chú
-    @Column()
+    @Column({ type: 'text' })
     note: string
 
     //sua doi thời gian đăng ký
     @Column()
     editregistrationTime: number
 
+    // trạng thái
     @Column()
     @IsIn(['chờ đợi', 'đã đến', 'chưa đến', 'không xác định'])
     status: string
 
-    
-    ////
+    // bác sĩ
+    @Column()
+    doctorId: number
+    @ManyToOne(() => Doctor, (doc) => doc.id)
+    doctor: Doctor;
 
+    //người tạo
     @Column()
     userId: number;
-
-    @Column()
-    hospitalId: number; 
-
-    
-
-    @Column()
-    isshow: boolean
-    
-    @Column()
-    created_at: number;
-
-    @ManyToOne(() => Hospitals, (hospital) => hospital.id)
-    hospital: Hospitals;
-
     @ManyToOne(() => Users, (user) => user.id)
     user: Users;
 
+    //bệnh viện 
+    @Column()
+    hospitalId: number; 
+    @ManyToOne(() => Hospitals, (hospital) => hospital.id)
+    hospital: Hospitals;
+
+    @Column({ type: 'text' })
+    chat:string
+
+    //ngày tạo
+    @Column()
+    created_at: number;
+
+    //mục điều trị
+    @Column({ type: 'text' })
+    treatment:string
     
+    //hồ sơ tiếp nhận
+    @Column({ type: 'text' })
+    record:string
 }
