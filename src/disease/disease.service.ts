@@ -9,14 +9,14 @@ import { NotFoundException } from "@nestjs/common";
 
 export class DiseasesService {
     constructor(
-        @InjectRepository(Diseases) 
+        @InjectRepository(Diseases)
         private readonly diseaseRepository: Repository<Diseases>,
-        @InjectRepository(Hospitals) 
+        @InjectRepository(Hospitals)
         private readonly hospitalRepository: Repository<Hospitals>,
         private readonly jwtService: JwtService
-    ){}
+    ) { }
 
-    async create(req : any, body: any){
+    async create(req: any, body: any) {
 
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
@@ -24,14 +24,14 @@ export class DiseasesService {
             throw new Error('Authorization token is missing');
         }
 
-        const decoded = await this.jwtService.verify(token); 
+        const decoded = await this.jwtService.verify(token);
         const userId = decoded.id;
-        
-        const data : any = {
+
+        const data: any = {
             name: body.name,
             userId: userId,
             hospitalId: body.hospitalId,
-            isshow:true,
+            isshow: true,
             created_at: currentTimestamp(),
             departmentId: body.departmentId
         }
@@ -40,14 +40,34 @@ export class DiseasesService {
     }
 
     async getpaging(query: any) {
-        const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1; 
-        const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;  
+        const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1;
+        const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;
         const search = query.search ? query.search.trim() : '';
         const hospitalId = query.hospitalId;
-        const isshow = query.isshow ;
-        
+        const isshow = query.isshow;
+
         const skip = (pageIndex - 1) * pageSize;
-    
+
+        let whereCondition = '';
+        const parameters: any = {};
+
+        if (hospitalId !== 0) {
+            whereCondition += 'disease.hospitalId = :hospitalId';
+            parameters.hospitalId = hospitalId;
+        }
+
+        if (search) {
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'disease.name LIKE :search';
+            parameters.search = `%${search}%`;
+        }
+
+        if (isshow) {
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'disease.isshow = :isshow';
+            parameters.isshow = isshow;
+        }
+
         const qb = this.diseaseRepository.createQueryBuilder('disease')
             .leftJoinAndSelect('disease.hospital', 'hospital')
             .leftJoinAndSelect('disease.user', 'user')
@@ -55,18 +75,12 @@ export class DiseasesService {
             .skip(skip)
             .take(pageSize)
             .orderBy('disease.id', 'DESC');
-        if(hospitalId !== 0){
-            qb.andWhere('disease.hospitalId = :hospitalId', { hospitalId });
-        }
-        if(isshow){
-            qb.andWhere('disease.isshow = :isshow', { isshow });
-        }
-        if (search) {
-            qb.where('disease.name LIKE :search', { search: `%${search}%` });
+        if (whereCondition) {
+            qb.where(whereCondition, parameters);
         }
 
         const [result, total] = await qb.getManyAndCount();
-    
+
         return {
             data: result.map(disease => ({
                 ...disease,
@@ -82,32 +96,32 @@ export class DiseasesService {
             totalPages: Math.ceil(total / pageSize),
         };
     }
-    
-    async delete(id: number){
-        if(id){
+
+    async delete(id: number) {
+        if (id) {
             return this.diseaseRepository.delete(id)
         }
     }
 
-    async getById (id: number) {
-        if(id){
+    async getById(id: number) {
+        if (id) {
             return this.diseaseRepository.findOne({
-                where:{id}
+                where: { id }
             })
         }
     }
 
-    async update(id:number, body: any){
-        if(id){
+    async update(id: number, body: any) {
+        if (id) {
             const disease = await this.diseaseRepository.findOne({
                 where: { id },
             });
 
-            if(!disease){
+            if (!disease) {
                 throw new NotFoundException(`Disease with ID ${id} not found`);
             }
-            
-            const data:any={
+
+            const data: any = {
                 departmentId: body.departmentId,
                 name: body.name,
             }

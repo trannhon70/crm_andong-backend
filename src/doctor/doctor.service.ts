@@ -8,28 +8,28 @@ import { NotFoundException } from "@nestjs/common";
 
 export class DoctorsService {
     constructor(
-        @InjectRepository(Doctor) 
+        @InjectRepository(Doctor)
         private readonly doctorRepository: Repository<Doctor>,
-        
+
         private readonly jwtService: JwtService
-    ){}
+    ) { }
 
 
-    async create (req:any, body:any){
+    async create(req: any, body: any) {
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
         if (!token) {
             throw new Error('Authorization token is missing');
         }
 
-        const decoded = await this.jwtService.verify(token); 
+        const decoded = await this.jwtService.verify(token);
         const userId = decoded.id;
-        
-        const data : any = {
+
+        const data: any = {
             name: body.name,
             userId: userId,
             hospitalId: body.hospitalId,
-            doctor_office:body.doctor_office,
+            doctor_office: body.doctor_office,
             created_at: currentTimestamp(),
         }
         const todo = this.doctorRepository.create(data);
@@ -37,32 +37,44 @@ export class DoctorsService {
     }
 
     async getpaging(query: any) {
-        const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1; 
-        const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;  
+        const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1;
+        const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;
         const search = query.search ? query.search.trim() : '';
         const hospitalId = query.hospitalId;
-        const isshow = query.isshow ;
-        
+        const isshow = query.isshow;
+
         const skip = (pageIndex - 1) * pageSize;
-    
+
+        let whereCondition = '';
+        const parameters: any = {};
+
+        if (hospitalId !== 0) {
+            whereCondition += 'doctor.hospitalId = :hospitalId';
+            parameters.hospitalId = hospitalId;
+        }
+
+        if (search) {
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'doctor.name LIKE :search';
+            parameters.search = `%${search}%`;
+        }
+        if (isshow) {
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'doctor.isshow = :isshow';
+            parameters.isshow = isshow;
+        }
         const qb = this.doctorRepository.createQueryBuilder('doctor')
             .leftJoinAndSelect('doctor.hospital', 'hospital')
             .leftJoinAndSelect('doctor.user', 'user')
             .skip(skip)
             .take(pageSize)
             .orderBy('doctor.id', 'DESC');
-        if(hospitalId !== 0){
-            qb.andWhere('doctor.hospitalId = :hospitalId', { hospitalId });
-        }
-        if(isshow){
-            qb.andWhere('doctor.isshow = :isshow', { isshow });
-        }
-        if (search) {
-            qb.where('doctor.name LIKE :search', { search: `%${search}%` });
-        }
 
+        if (whereCondition) {
+            qb.where(whereCondition, parameters);
+        }
         const [result, total] = await qb.getManyAndCount();
-    
+
         return {
             data: result.map(disease => ({
                 ...disease,
@@ -79,31 +91,31 @@ export class DoctorsService {
         };
     }
 
-    async delete(id: number){
-        if(id){
+    async delete(id: number) {
+        if (id) {
             return this.doctorRepository.delete(id)
         }
     }
 
-    async getById (id: number) {
-        if(id){
+    async getById(id: number) {
+        if (id) {
             return this.doctorRepository.findOne({
-                where:{id}
+                where: { id }
             })
         }
     }
 
-    async update(id:number, body: any){
-        if(id){
+    async update(id: number, body: any) {
+        if (id) {
             const disease = await this.doctorRepository.findOne({
                 where: { id },
             });
 
-            if(!disease){
+            if (!disease) {
                 throw new NotFoundException(`Doctor with ID ${id} not found`);
             }
-            
-            const data:any={
+
+            const data: any = {
                 doctor_office: body.doctor_office,
                 name: body.name,
             }
