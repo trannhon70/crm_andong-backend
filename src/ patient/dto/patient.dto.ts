@@ -22,6 +22,7 @@ export class PatientDto {
     mediaId: number
     //thành phố
     city:string
+    district:string
     //mã chuyên gia
     code: string
     //thời gian hen
@@ -43,4 +44,10 @@ export class PatientDto {
     chat:string
     //ngày tạo
     created_at: number;
+
+     //mục điều trị
+     treatment:string
+     
+     //hồ sơ tiếp nhận
+     record:string
 }

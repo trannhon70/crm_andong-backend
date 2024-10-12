@@ -36,6 +36,7 @@ export class PatientService {
             departmentId: body.departmentId,
             mediaId: body.mediaId,
             city: body.city,
+            district: body.district,
             code: body.code,
             appointmentTime: body.appointmentTime,
             reminderTime: body.reminderTime,
@@ -47,9 +48,11 @@ export class PatientService {
             chat: body.chat,
             userId: userId,
             created_at: currentTimestamp(),
+            treatment: body.treatment,
+            record: body.record,
            
         }
         const todo = this.patientRepository.create(data);
         return await this.patientRepository.save(todo)
     }
-}
+} 

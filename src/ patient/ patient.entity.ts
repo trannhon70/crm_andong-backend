@@ -57,6 +57,8 @@ export class Patient {
     //thành phố
     @Column()
     city:string
+    @Column()
+    district:string
 
     //mã chuyên gia
     @Column()
@@ -101,6 +103,7 @@ export class Patient {
     @ManyToOne(() => Hospitals, (hospital) => hospital.id)
     hospital: Hospitals;
 
+    //hồ sơ thăm khám qua điện thoại 
     @Column({ type: 'text' })
     chat:string
 
