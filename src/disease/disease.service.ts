@@ -111,6 +111,18 @@ export class DiseasesService {
         }
     }
 
+    async getByIdDepartment(query: any) {
+        const {hospitalId, departmentId} = query
+        if (hospitalId && departmentId) {
+            return this.diseaseRepository.find({
+                where: { 
+                    hospitalId :hospitalId ,
+                    departmentId :departmentId ,
+                 }
+            })
+        }
+    }
+
     async update(id: number, body: any) {
         if (id) {
             const disease = await this.diseaseRepository.findOne({

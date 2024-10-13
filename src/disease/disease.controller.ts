@@ -53,6 +53,17 @@ export class DiseaseController {
         };
     }
 
+    @Get('get-by-id-department')
+    async getByIdDepartment(@Query() query: any) {
+
+        const data = await this.diseasesService.getByIdDepartment(query);
+        return {
+            statusCode: 1,
+            message: 'get by id department suscess!',
+            data: data,
+        };
+    }
+
     @Put('update/:id')
     async update(@Param('id') id: number,@Body() body: any){
         const data = await this.diseasesService.update(id,body);

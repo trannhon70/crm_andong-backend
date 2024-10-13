@@ -16,6 +16,7 @@ import { MediaModule } from './media/media.module';
 import { DoctorsModule } from './doctor/doctor.module';
 import { PatientsModule } from './ patient/patient.module';
 import { CityModule } from './city/city.module';
+import { DistrictModule } from './district/district.module';
 
 @Module({
   imports: [
@@ -43,7 +44,8 @@ import { CityModule } from './city/city.module';
     MediaModule,
     DoctorsModule,
     PatientsModule,
-    CityModule
+    CityModule,
+    DistrictModule
   ],
   controllers: [AppController],
   providers: [AppService ],

@@ -1,6 +1,8 @@
 import { IsIn, MaxLength } from "class-validator";
+import { City } from "src/city/city.entity";
 import { Departments } from "src/department/department.entity";
 import { Diseases } from "src/disease/disease.entity";
+import { District } from "src/district/district.entity";
 import { Doctor } from "src/doctor/doctor.entity";
 import { Hospitals } from "src/hospital/hospital.entity";
 import { Media } from "src/media/media.entity";
@@ -56,9 +58,15 @@ export class Patient {
 
     //thành phố
     @Column()
-    city:string
+    cityId:number
+    @ManyToOne(() => City, (ci) => ci.id)
+    city: City;
+
     @Column()
-    district:string
+    districtId:number
+    @ManyToOne(() => District, (dis) => dis.id)
+    district: District;
+
 
     //mã chuyên gia
     @Column()

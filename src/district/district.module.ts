@@ -1,32 +1,32 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { CustomJwtModule } from "src/common/auth/auth.module";
 import { Users } from "src/users/users.entity";
-import { City } from "./city.entity";
+import { District } from "./district.entity";
+import { CustomJwtModule } from "src/common/auth/auth.module";
 import { AuthMiddleware } from "src/common/middleware/auth.middleware";
 import { LoggerMiddleware } from "src/common/middleware/logger.middleware";
-import { cityController } from "./city.controller";
-import { CityService } from "./city.service";
+import { City } from "src/city/city.entity";
+import { districtController } from "./district.controller";
+import { DistrictService } from "./district.service";
 
 
 @Module({
     imports:[
-        TypeOrmModule.forFeature([Users,City ]),
+        TypeOrmModule.forFeature([Users,District, City ]),
         CustomJwtModule,
     ],
-    controllers: [cityController],
-    providers:[CityService],
+    controllers: [districtController],
+    providers:[DistrictService],
     exports:[]
 })
 
-export class CityModule implements NestModule {
+export class DistrictModule implements NestModule {
   
     configure(consumer: MiddlewareConsumer) {
         consumer
           .apply(AuthMiddleware, LoggerMiddleware) 
           .forRoutes(
-            { path: 'city/create', method: RequestMethod.POST },
-            { path: 'city/get-all', method: RequestMethod.POST },
+            { path: 'district/create', method: RequestMethod.POST },
            
         ); 
     }

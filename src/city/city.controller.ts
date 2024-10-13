@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req } from "@nestjs/common";
 import { CityService } from "./city.service";
 
 
@@ -18,4 +18,14 @@ export class cityController {
             data: data,
         };
     }
+
+    @Get('get-all')
+    async getAll(){
+       const data = await this.cityService.getAll();
+       return {
+           statusCode: 1,
+           message: 'get all city success',
+           data: data,
+       };
+   }
 }
