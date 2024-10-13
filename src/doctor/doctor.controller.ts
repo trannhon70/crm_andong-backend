@@ -60,4 +60,15 @@ export class DiseaseController {
             data: data,
         };
     }
+
+    @Get('get-all')
+    async getAll() {
+
+        const data = await this.doctorsService.getAll();
+        return {
+            statusCode: 1,
+            message: 'get all doctor suscess!',
+            data: data,
+        };
+    }
 }

@@ -32,4 +32,9 @@ export class MediaService {
         const todo = this.mediaRepository.create(data);
         return await this.mediaRepository.save(todo)
     }
+
+    async getall() {
+        const result = await this.mediaRepository.find();
+        return result;
+    }
 }

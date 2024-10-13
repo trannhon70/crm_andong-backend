@@ -124,4 +124,8 @@ export class DoctorsService {
             return await this.doctorRepository.save(disease);
         }
     }
+
+    async getAll () {
+        return await this.doctorRepository.find()
+    }
 }

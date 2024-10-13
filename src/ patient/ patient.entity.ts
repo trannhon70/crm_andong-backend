@@ -90,7 +90,7 @@ export class Patient {
 
     // trạng thái
     @Column()
-    @IsIn(['chờ đợi', 'đã đến', 'chưa đến', 'không xác định'])
+    @IsIn(['CHỜ ĐỢI', 'ĐÃ ĐẾN', 'CHƯA ĐẾN', 'KHÔNG XÁC ĐỊNH'])
     status: string
 
     // bác sĩ
