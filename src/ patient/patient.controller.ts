@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req } from "@nestjs/common";
 import { PatientService } from "./patient.service";
 import { PatientDto } from "./dto/patient.dto";
 
@@ -36,8 +36,30 @@ export class PatientController {
        const data = await this.patientService.getById(id);
        return {
            statusCode: 1,
-           message: 'get role by id success!',
+           message: 'get patient by id success!',
            data: data,
        };
    }
+
+   @Delete('delete/:id')
+   async delete(@Param('id') id: number) {
+
+       const data = await this.patientService.delete(id);
+       return {
+           statusCode: 1,
+           message: 'delete patient suscess!',
+           data: data,
+       };
+   }
+
+   @Put('update/:id')
+   async update(@Req() req: any ,@Param('id') id: number,@Body() body: any){
+       const data = await this.patientService.update(req, id,body);
+       return {
+           statusCode: 1,
+           message: 'update disease suscess!',
+           data: data,
+       };
+   }
+   
 }

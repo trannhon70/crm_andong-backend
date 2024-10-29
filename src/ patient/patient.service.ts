@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { Patient } from "./ patient.entity";
 import { currentTimestamp } from "utils/currentTimestamp";
 import { PatientDto } from "./dto/patient.dto";
+import { NotFoundException } from "@nestjs/common";
 
 
 
@@ -119,6 +120,60 @@ export class PatientService {
                 where: {id}
             })
             return result
+        }
+    }
+
+    async delete(id: number) {
+        if (id) {
+            return this.patientRepository.delete(id)
+        }
+    }
+
+    async update(req: any ,id: number, body: any) {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) {
+            throw new Error('Authorization token is missing');
+        }
+
+        const decoded = await this.jwtService.verify(token);
+        const userId = decoded.id;
+
+        if (id) {
+            const patient = await this.patientRepository.findOne({
+                where: { id },
+            });
+
+            if (!patient) {
+                throw new NotFoundException(`patient with ID ${id} not found`);
+            }
+
+            const data: any = {
+                name: body?.name,
+                gender: body?.gender,
+                yearOld: body?.yearOld,
+                phone: body?.phone,
+                content: body?.content,
+                diseasesId: body?.diseasesId,
+                departmentId: body?.departmentId,
+                mediaId: body?.mediaId,
+                cityId: body?.cityId,
+                districtId: body?.districtId,
+                code: body?.code,
+                appointmentTime: body?.appointmentTime,
+                reminderTime: body?.reminderTime,
+                note: body?.note,
+                editregistrationTime: body?.editregistrationTime,
+                status: body?.status,
+                doctorId: body?.doctorId,
+                hospitalId: body?.hospitalId,
+                chat: JSON.stringify(body?.chat),
+                treatment:JSON.stringify( body?.treatment),
+                record: body.record,
+            }
+
+            Object.assign(patient, data);
+            return await this.patientRepository.save(patient);
         }
     }
 } 
