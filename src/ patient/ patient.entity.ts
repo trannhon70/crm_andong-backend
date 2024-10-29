@@ -32,7 +32,7 @@ export class Patient {
     phone: string;
 
     //nội dung tư ván
-    @Column({ type: 'text' })
+    @Column({ type: 'text',nullable: true })
     content: string;
 
     //bệnh
@@ -62,7 +62,7 @@ export class Patient {
     @ManyToOne(() => City, (ci) => ci.id)
     city: City;
 
-    @Column()
+    @Column({nullable: true})
     districtId:number
     @ManyToOne(() => District, (dis) => dis.id)
     district: District;
@@ -81,7 +81,7 @@ export class Patient {
     reminderTime: number
 
     //ghi chú
-    @Column({ type: 'text' })
+    @Column({ type: 'text',nullable: true })
     note: string
 
     //sua doi thời gian đăng ký
@@ -89,12 +89,12 @@ export class Patient {
     editregistrationTime: number
 
     // trạng thái
-    @Column()
+    @Column({ nullable: true })
     @IsIn(['CHỜ ĐỢI', 'ĐÃ ĐẾN', 'CHƯA ĐẾN', 'KHÔNG XÁC ĐỊNH'])
     status: string
 
     // bác sĩ
-    @Column()
+    @Column({ nullable: true })
     doctorId: number
     @ManyToOne(() => Doctor, (doc) => doc.id)
     doctor: Doctor;
@@ -112,7 +112,7 @@ export class Patient {
     hospital: Hospitals;
 
     //hồ sơ thăm khám qua điện thoại 
-    @Column({ type: 'text' })
+    @Column({ type: 'text' ,nullable: true})
     chat:string
 
     //ngày tạo
@@ -120,10 +120,10 @@ export class Patient {
     created_at: number;
 
     //mục điều trị
-    @Column({ type: 'text' })
+    @Column({ type: 'text',nullable: true })
     treatment:string
     
     //hồ sơ tiếp nhận
-    @Column({ type: 'text' })
+    @Column({ type: 'text' ,nullable: true})
     record:string
 }
