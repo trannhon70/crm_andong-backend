@@ -17,6 +17,7 @@ import { DoctorsModule } from './doctor/doctor.module';
 import { PatientsModule } from './ patient/patient.module';
 import { CityModule } from './city/city.module';
 import { DistrictModule } from './district/district.module';
+import { ChatPatientsModule } from './chatPatient/chatPatient.module';
 
 @Module({
   imports: [
@@ -45,7 +46,8 @@ import { DistrictModule } from './district/district.module';
     DoctorsModule,
     PatientsModule,
     CityModule,
-    DistrictModule
+    DistrictModule,
+    ChatPatientsModule
   ],
   controllers: [AppController],
   providers: [AppService ],

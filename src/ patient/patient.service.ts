@@ -5,6 +5,7 @@ import { Patient } from "./ patient.entity";
 import { currentTimestamp } from "utils/currentTimestamp";
 import { PatientDto } from "./dto/patient.dto";
 import { NotFoundException } from "@nestjs/common";
+import { ChatPatient } from "src/chatPatient/chatPatient.entity";
 
 
 
@@ -12,6 +13,8 @@ export class PatientService {
     constructor(
         @InjectRepository(Patient)
         private readonly patientRepository: Repository<Patient>,
+        @InjectRepository(ChatPatient)
+        private readonly ChatPatientRepository: Repository<ChatPatient>,
 
         private readonly jwtService: JwtService
     ) { }
@@ -89,6 +92,8 @@ export class PatientService {
             .leftJoinAndSelect('patient.user', 'user')
             .leftJoinAndSelect('patient.hospital', 'hospital')
             .leftJoinAndSelect('patient.media', 'media')
+            .leftJoinAndSelect('patient.chatPatients', 'chatPatients')
+            .leftJoinAndSelect('chatPatients.user', 'chatUser')
             .skip(skip)
             .take(pageSize)
             .orderBy('patient.id', 'DESC');
@@ -105,7 +110,11 @@ export class PatientService {
                 user: {
                     ...patient.user,
                     password: undefined // Exclude the password field
-                }
+                },
+                chatPatients: patient.chatPatients.map(chatPatient => ({
+                    ...chatPatient,
+                    user: chatPatient.user ? { fullName: chatPatient.user.fullName } : null // Include only fullName
+                }))
             })),
             total: total,
             pageIndex: pageIndex,
@@ -148,6 +157,7 @@ export class PatientService {
                 throw new NotFoundException(`patient with ID ${id} not found`);
             }
 
+            
             const data: any = {
                 name: body?.name,
                 gender: body?.gender,
@@ -167,10 +177,21 @@ export class PatientService {
                 status: body?.status,
                 doctorId: body?.doctorId,
                 hospitalId: body?.hospitalId,
-                chat: JSON.stringify(body?.chat),
                 treatment:JSON.stringify( body?.treatment),
                 record: body.record,
+            } 
+            // chat: JSON.stringify(body?.chat),
+            if( body.chat !== null){
+                const chatPatient= {
+                    name: body?.chat,
+                    created_at: currentTimestamp(),
+                    userId: userId,
+                    patientId: patient.id
+                } as any
+                const chat = this.ChatPatientRepository.create(chatPatient);
+                await this.ChatPatientRepository.save(chat)
             }
+           
 
             Object.assign(patient, data);
             return await this.patientRepository.save(patient);

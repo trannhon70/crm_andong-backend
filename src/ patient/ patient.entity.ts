@@ -1,4 +1,5 @@
 import { IsIn, MaxLength } from "class-validator";
+import { ChatPatient } from "src/chatPatient/chatPatient.entity";
 import { City } from "src/city/city.entity";
 import { Departments } from "src/department/department.entity";
 import { Diseases } from "src/disease/disease.entity";
@@ -7,7 +8,7 @@ import { Doctor } from "src/doctor/doctor.entity";
 import { Hospitals } from "src/hospital/hospital.entity";
 import { Media } from "src/media/media.entity";
 import { Users } from "src/users/users.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: 'patient' })
 export class Patient {
@@ -114,6 +115,9 @@ export class Patient {
     //hồ sơ thăm khám qua điện thoại 
     @Column({ type: 'text' ,nullable: true})
     chat:string
+
+    @OneToMany(() => ChatPatient, (chatPatient) => chatPatient.patient)
+    chatPatients: ChatPatient[];
 
     //ngày tạo
     @Column()
