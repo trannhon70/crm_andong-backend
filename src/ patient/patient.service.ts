@@ -6,6 +6,8 @@ import { currentTimestamp } from "utils/currentTimestamp";
 import { PatientDto } from "./dto/patient.dto";
 import { NotFoundException } from "@nestjs/common";
 import { ChatPatient } from "src/chatPatient/chatPatient.entity";
+import { extname } from "path";
+import { v4 as uuidv4 } from "uuid";
 
 
 
@@ -123,12 +125,20 @@ export class PatientService {
         };
     }
 
-    async getById (id: number) {
-        if(id){
-            const result = await this.patientRepository.findOne({
-                where: {id}
-            })
-            return result
+    async getById(id: number) {
+        if (id) {
+            const result = await this.patientRepository.createQueryBuilder('patient')
+                .leftJoinAndSelect('patient.chatPatients', 'chatPatients') // Join with chatPatients
+                .leftJoinAndSelect('chatPatients.user', 'chatUser') // Join with user related to chatPatients
+                .where('patient.id = :id', { id })
+                .select([
+                    'patient', // Select all columns from the patient table
+                    'chatPatients', // Select all columns from chatPatients
+                    'chatUser.fullName' // Select only the fullName column from chatUser
+                ])
+                .getOne();
+            
+            return result;
         }
     }
 
@@ -181,7 +191,7 @@ export class PatientService {
                 record: body.record,
             } 
             // chat: JSON.stringify(body?.chat),
-            if( body.chat !== null){
+            if (body.chat !== null && body.chat !== undefined && body.chat !== '') {
                 const chatPatient= {
                     name: body?.chat,
                     created_at: currentTimestamp(),
@@ -196,5 +206,29 @@ export class PatientService {
             Object.assign(patient, data);
             return await this.patientRepository.save(patient);
         }
+    }
+
+    async uploadFile(file: Express.Multer.File, id: number) {
+        const fileExt = extname(file.originalname);
+        const filename = `${file.fieldname}-${uuidv4()}${fileExt}`;
+        const filePath = `./uploads/${filename}`;
+
+        if(id){
+            const patient = await this.patientRepository.findOne({
+                where: { id },
+            });
+
+            if (!patient) {
+                throw new NotFoundException(`patient with ID ${id} not found`);
+            }
+            const data: any = {
+                file: filename
+            } 
+
+            Object.assign(patient, data);
+            return await this.patientRepository.save(patient);
+        }
+
+       
     }
 } 

@@ -1,4 +1,5 @@
 import { IsIn, MaxLength } from "class-validator";
+import { Patient } from "src/ patient/ patient.entity";
 import { ChatPatient } from "src/chatPatient/chatPatient.entity";
 import { City } from "src/city/city.entity";
 import { Departments } from "src/department/department.entity";
@@ -10,10 +11,14 @@ import { Media } from "src/media/media.entity";
 import { Users } from "src/users/users.entity";
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity({ name: 'patient' })
-export class Patient {
+
+@Entity({ name: 'history-patient' })
+export class HistoryPatient {
     @PrimaryGeneratedColumn()
     id: number;
+    
+    @Column()
+    patientId: number
 
     @Column()
     name: string;

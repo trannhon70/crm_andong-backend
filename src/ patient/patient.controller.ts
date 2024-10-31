@@ -1,6 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { PatientService } from "./patient.service";
 import { PatientDto } from "./dto/patient.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage } from "multer";
 
 
 @Controller('patient')
@@ -61,5 +63,26 @@ export class PatientController {
            data: data,
        };
    }
+
+   @Post('upload/:id')
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './uploads',
+            filename: (req, file, callback) => {
+                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+                const fileExt = file.originalname.split('.').pop();
+                const filename = `${file.fieldname}-${uniqueSuffix}.${fileExt}`;
+                callback(null, filename);
+            }
+        })
+    }))
+    async uploadFile(@UploadedFile() file: Express.Multer.File,@Param('id') id: number) {
+        const fileData = await this.patientService.uploadFile(file, id);
+        return {
+            statusCode: 1,
+            message: 'File uploaded successfully!',
+            data: fileData,
+        };
+    }
    
 }
