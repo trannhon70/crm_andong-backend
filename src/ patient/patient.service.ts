@@ -8,6 +8,7 @@ import { NotFoundException } from "@nestjs/common";
 import { ChatPatient } from "src/chatPatient/chatPatient.entity";
 import { extname } from "path";
 import { v4 as uuidv4 } from "uuid";
+import { HistoryPatient } from "src/historyPatient/historyPatient.entity";
 
 
 
@@ -17,6 +18,8 @@ export class PatientService {
         private readonly patientRepository: Repository<Patient>,
         @InjectRepository(ChatPatient)
         private readonly ChatPatientRepository: Repository<ChatPatient>,
+        @InjectRepository(HistoryPatient)
+        private readonly historyPatientRepository: Repository<HistoryPatient>,
 
         private readonly jwtService: JwtService
     ) { }
@@ -57,10 +60,41 @@ export class PatientService {
             created_at: currentTimestamp(),
             treatment: body?.treatment,
             record: body.record,
-
         }
+
         const todo = this.patientRepository.create(data);
-        return await this.patientRepository.save(todo)
+       const result : any =  await this.patientRepository.save(todo)
+        
+       const dataHis: any = {
+        name: result?.name,
+        gender: result?.gender,
+        yearOld: result?.yearOld,
+        phone: result?.phone,
+        content: result?.content,
+        diseasesId: result?.diseasesId,
+        departmentId: result?.departmentId,
+        mediaId: result?.mediaId,
+        cityId: result?.cityId,
+        districtId: result?.districtId,
+        code: result?.code,
+        appointmentTime: result?.appointmentTime,
+        reminderTime: result?.reminderTime,
+        note: result?.note,
+        editregistrationTime: result?.editregistrationTime,
+        status: result?.status,
+        doctorId: result?.doctorId,
+        hospitalId: result?.hospitalId,
+        chat: result?.chat,
+        userId: result?.userId,
+        created_at: result?.created_at,
+        treatment: result?.treatment,
+        record: result.record,
+        patientId: result.id
+    }
+
+        const history = this.historyPatientRepository.create(dataHis);
+        return await this.historyPatientRepository.save(history);
+      
     }
 
     async getpaging(req: any, query: any) {
@@ -190,6 +224,30 @@ export class PatientService {
                 treatment:JSON.stringify( body?.treatment),
                 record: body.record,
             } 
+
+            const dataHis = {
+                name: body?.name,
+                gender: body?.gender,
+                yearOld: body?.yearOld,
+                phone: body?.phone,
+                content: body?.content,
+                diseasesId: body?.diseasesId,
+                departmentId: body?.departmentId,
+                mediaId: body?.mediaId,
+                cityId: body?.cityId,
+                districtId: body?.districtId,
+                code: body?.code,
+                appointmentTime: body?.appointmentTime,
+                reminderTime: body?.reminderTime,
+                note: body?.note,
+                editregistrationTime: body?.editregistrationTime,
+                status: body?.status,
+                doctorId: body?.doctorId,
+                hospitalId: body?.hospitalId,
+                treatment:JSON.stringify( body?.treatment),
+                record: body.record,
+                userId: userId,
+            }
             // chat: JSON.stringify(body?.chat),
             if (body.chat !== null && body.chat !== undefined && body.chat !== '') {
                 const chatPatient= {
@@ -201,12 +259,14 @@ export class PatientService {
                 const chat = this.ChatPatientRepository.create(chatPatient);
                 await this.ChatPatientRepository.save(chat)
             }
-           
+            
+            const history = this.historyPatientRepository.create(dataHis);
+            await this.historyPatientRepository.save(history);
 
             Object.assign(patient, data);
             return await this.patientRepository.save(patient);
-        }
-    }
+        } 
+    } 
 
     async uploadFile(file: Express.Multer.File, id: number) {
         const fileExt = extname(file.originalname);
@@ -226,7 +286,39 @@ export class PatientService {
             } 
 
             Object.assign(patient, data);
-            return await this.patientRepository.save(patient);
+            const result = await this.patientRepository.save(patient);
+
+            const dataHis: any = {
+                name: result?.name,
+                gender: result?.gender,
+                yearOld: result?.yearOld,
+                phone: result?.phone,
+                content: result?.content,
+                diseasesId: result?.diseasesId,
+                departmentId: result?.departmentId,
+                mediaId: result?.mediaId,
+                cityId: result?.cityId,
+                districtId: result?.districtId,
+                code: result?.code,
+                appointmentTime: result?.appointmentTime,
+                reminderTime: result?.reminderTime,
+                note: result?.note,
+                editregistrationTime: result?.editregistrationTime,
+                status: result?.status,
+                doctorId: result?.doctorId,
+                hospitalId: result?.hospitalId,
+                chat: result?.chat,
+                userId: result?.userId,
+                created_at: result?.created_at,
+                treatment: result?.treatment,
+                record: result.record,
+                patientId: result.id,
+                file: result.file,
+            }
+
+            const history = this.historyPatientRepository.create(dataHis);
+           return await this.historyPatientRepository.save(history);
+            
         }
 
        

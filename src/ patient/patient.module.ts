@@ -8,11 +8,12 @@ import { Patient } from "./ patient.entity";
 import { PatientController } from "./patient.controller";
 import { PatientService } from "./patient.service";
 import { ChatPatient } from "src/chatPatient/chatPatient.entity";
+import { HistoryPatient } from "src/historyPatient/historyPatient.entity";
 
 
 @Module({
     imports:[
-        TypeOrmModule.forFeature([Users, Patient, ChatPatient]),
+        TypeOrmModule.forFeature([Users, Patient, ChatPatient, HistoryPatient]),
         CustomJwtModule,
     ],
     controllers: [PatientController],
