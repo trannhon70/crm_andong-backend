@@ -89,7 +89,8 @@ export class PatientService {
         created_at: result?.created_at,
         treatment: result?.treatment,
         record: result.record,
-        patientId: result.id
+        patientId: result.id,
+        action: 'THÊM',
     }
 
         const history = this.historyPatientRepository.create(dataHis);
@@ -194,9 +195,52 @@ export class PatientService {
         }
     }
 
-    async delete(id: number) {
+    async delete(req: any ,id: number) {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) {
+            throw new Error('Authorization token is missing');
+        }
+
+        const decoded = await this.jwtService.verify(token);
+        const userId = decoded.id;
+
         if (id) {
-            return this.patientRepository.delete(id)
+            const result = await this.patientRepository.findOne({
+                where: { id },
+            });
+            const dataHis = {
+                name: result?.name,
+                gender: result?.gender,
+                yearOld: result?.yearOld,
+                phone: result?.phone,
+                content: result?.content,
+                diseasesId: result?.diseasesId,
+                departmentId: result?.departmentId,
+                mediaId: result?.mediaId,
+                cityId: result?.cityId,
+                districtId: result?.districtId,
+                code: result?.code,
+                appointmentTime: result?.appointmentTime,
+                reminderTime: result?.reminderTime,
+                note: result?.note,
+                editregistrationTime: result?.editregistrationTime,
+                status: result?.status,
+                doctorId: result?.doctorId,
+                hospitalId: result?.hospitalId,
+                treatment:JSON.stringify( result?.treatment),
+                record: result.record,
+                userId: userId,
+                patientId: result.id,
+                action: 'XÓA',
+                created_at: currentTimestamp(),
+            }
+
+            const history = this.historyPatientRepository.create(dataHis);
+            await this.historyPatientRepository.save(history);
+
+            return await this.patientRepository.delete(id)
+            
         }
     }
 
@@ -243,29 +287,7 @@ export class PatientService {
                 record: body.record,
             } 
 
-            const dataHis = {
-                name: body?.name,
-                gender: body?.gender,
-                yearOld: body?.yearOld,
-                phone: body?.phone,
-                content: body?.content,
-                diseasesId: body?.diseasesId,
-                departmentId: body?.departmentId,
-                mediaId: body?.mediaId,
-                cityId: body?.cityId,
-                districtId: body?.districtId,
-                code: body?.code,
-                appointmentTime: body?.appointmentTime,
-                reminderTime: body?.reminderTime,
-                note: body?.note,
-                editregistrationTime: body?.editregistrationTime,
-                status: body?.status,
-                doctorId: body?.doctorId,
-                hospitalId: body?.hospitalId,
-                treatment:JSON.stringify( body?.treatment),
-                record: body.record,
-                userId: userId,
-            }
+            
             // chat: JSON.stringify(body?.chat),
             if (body.chat !== null && body.chat !== undefined && body.chat !== '') {
                 const chatPatient= {
@@ -278,11 +300,40 @@ export class PatientService {
                 await this.ChatPatientRepository.save(chat)
             }
             
-            const history = this.historyPatientRepository.create(dataHis);
-            await this.historyPatientRepository.save(history);
+           
 
             Object.assign(patient, data);
-            return await this.patientRepository.save(patient);
+            const result =  await this.patientRepository.save(patient);
+
+            const dataHis = {
+                name: result?.name,
+                gender: result?.gender,
+                yearOld: result?.yearOld,
+                phone: result?.phone,
+                content: result?.content,
+                diseasesId: result?.diseasesId,
+                departmentId: result?.departmentId,
+                mediaId: result?.mediaId,
+                cityId: result?.cityId,
+                districtId: result?.districtId,
+                code: result?.code,
+                appointmentTime: result?.appointmentTime,
+                reminderTime: result?.reminderTime,
+                note: result?.note,
+                editregistrationTime: result?.editregistrationTime,
+                status: result?.status,
+                doctorId: result?.doctorId,
+                hospitalId: result?.hospitalId,
+                treatment:JSON.stringify( result?.treatment),
+                record: result.record,
+                userId: userId,
+                patientId: result.id,
+                action: 'CẬP NHẬT',
+                created_at: currentTimestamp(),
+            }
+
+            const history = this.historyPatientRepository.create(dataHis);
+            return await this.historyPatientRepository.save(history);
         } 
     } 
 

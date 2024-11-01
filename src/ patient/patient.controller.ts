@@ -19,7 +19,7 @@ export class PatientController {
 
         const data: any = await this.patientService.create(req, body);
         
-         this.appGateway.onNewMessage(data)
+        //  this.appGateway.onNewMessage(data)
         return {
             statusCode: 1,
             message: 'create patient suscess!',
@@ -48,9 +48,9 @@ export class PatientController {
    }
 
    @Delete('delete/:id')
-   async delete(@Param('id') id: number) {
+   async delete(@Req() req: any ,@Param('id') id: number) {
 
-       const data = await this.patientService.delete(id);
+       const data = await this.patientService.delete(req,id);
        return {
            statusCode: 1,
            message: 'delete patient suscess!',

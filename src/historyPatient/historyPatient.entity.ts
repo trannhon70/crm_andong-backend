@@ -139,4 +139,9 @@ export class HistoryPatient {
     //hồ sơ tiếp nhận
     @Column({ type: 'text' })
     file:string
+
+    //thao tác
+    @Column({ nullable: true })
+    @IsIn(['THÊM', 'XÓA', 'CẬP NHẬT'])
+    action: string
 }
