@@ -29,7 +29,12 @@ export class PatientsModule implements NestModule {
         consumer
           .apply(AuthMiddleware, LoggerMiddleware) 
           .forRoutes(
-            { path: 'disease/create', method: RequestMethod.POST },
+            { path: 'patient/create', method: RequestMethod.POST },
+            { path: 'patient/get-paging', method: RequestMethod.GET },
+            { path: 'patient/get-by-id/:id', method: RequestMethod.GET },
+            { path: 'patient/delete/:id', method: RequestMethod.DELETE },
+            { path: 'patient/update/:id', method: RequestMethod.PUT },
+            { path: 'patient/upload/:id', method: RequestMethod.POST },
            
         ); 
     }

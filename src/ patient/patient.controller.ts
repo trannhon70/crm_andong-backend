@@ -88,5 +88,15 @@ export class PatientController {
             data: fileData,
         };
     }
+
+    @Get('get-history-action/:id')
+    async getHistoryAction(@Param('id') id: number){
+       const data = await this.patientService.getHistoryAction(id);
+       return {
+           statusCode: 1,
+           message: 'get patient by id success!',
+           data: data,
+       };
+   }
    
 }

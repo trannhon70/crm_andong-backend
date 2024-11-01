@@ -19,6 +19,7 @@ import { CityModule } from './city/city.module';
 import { DistrictModule } from './district/district.module';
 import { ChatPatientsModule } from './chatPatient/chatPatient.module';
 import { GatewayModule } from './gateway/gateway.module';
+import { HistoryPatientsModule } from './historyPatient/historyPatient.module';
 
 @Module({
   imports: [
@@ -49,7 +50,8 @@ import { GatewayModule } from './gateway/gateway.module';
     CityModule,
     DistrictModule,
     ChatPatientsModule,
-    GatewayModule
+    GatewayModule,
+    HistoryPatientsModule
   ],
   controllers: [AppController],
   providers: [AppService ],
