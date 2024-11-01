@@ -162,10 +162,28 @@ export class PatientService {
     async getById(id: number) {
         if (id) {
             const result = await this.patientRepository.createQueryBuilder('patient')
-                .leftJoinAndSelect('patient.chatPatients', 'chatPatients') // Join with chatPatients
+                .leftJoinAndSelect('patient.diseases', 'diseases')
+                .leftJoinAndSelect('patient.department', 'department')
+                .leftJoinAndSelect('patient.city', 'city')
+                .leftJoinAndSelect('patient.district', 'district')
+                .leftJoinAndSelect('patient.doctor', 'doctor')
+                .leftJoinAndSelect('patient.user', 'user')
+                .leftJoinAndSelect('user.role', 'role')
+                .leftJoinAndSelect('patient.hospital', 'hospital')
+                .leftJoinAndSelect('patient.media', 'media')
+                .leftJoinAndSelect('patient.chatPatients', 'chatPatients')
                 .leftJoinAndSelect('chatPatients.user', 'chatUser') // Join with user related to chatPatients
                 .where('patient.id = :id', { id })
                 .select([
+                    'diseases',
+                    'department',
+                    'city',
+                    'district',
+                    'doctor',
+                    'user.fullName',
+                    'role.name',
+                    'hospital',
+                    'media',
                     'patient', // Select all columns from the patient table
                     'chatPatients', // Select all columns from chatPatients
                     'chatUser.fullName' // Select only the fullName column from chatUser
