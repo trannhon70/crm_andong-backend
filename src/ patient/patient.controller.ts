@@ -3,19 +3,23 @@ import { PatientService } from "./patient.service";
 import { PatientDto } from "./dto/patient.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
+import { MyGateway } from "src/gateway/gateway";
 
 
 @Controller('patient')
 
 export class PatientController {
     constructor(
-        private readonly patientService: PatientService
+        private readonly patientService: PatientService,
+        private readonly appGateway: MyGateway
     ) { }
 
     @Post('create')
     async create(@Req() req: any, @Body() body: any) {
 
-        const data = await this.patientService.create(req, body);
+        const data: any = await this.patientService.create(req, body);
+        
+         this.appGateway.onNewMessage(data)
         return {
             statusCode: 1,
             message: 'create patient suscess!',

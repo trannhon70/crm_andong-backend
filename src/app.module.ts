@@ -18,6 +18,7 @@ import { PatientsModule } from './ patient/patient.module';
 import { CityModule } from './city/city.module';
 import { DistrictModule } from './district/district.module';
 import { ChatPatientsModule } from './chatPatient/chatPatient.module';
+import { GatewayModule } from './gateway/gateway.module';
 
 @Module({
   imports: [
@@ -47,7 +48,8 @@ import { ChatPatientsModule } from './chatPatient/chatPatient.module';
     PatientsModule,
     CityModule,
     DistrictModule,
-    ChatPatientsModule
+    ChatPatientsModule,
+    GatewayModule
   ],
   controllers: [AppController],
   providers: [AppService ],

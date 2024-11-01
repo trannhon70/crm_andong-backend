@@ -6,6 +6,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  console.log(process.env.URL_DEV_PRODUCTION, process.env.URL_DEV_LOCALHOST);
   app.enableCors({
     origin: [process.env.URL_DEV_PRODUCTION, process.env.URL_DEV_LOCALHOST],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -27,6 +28,7 @@ async function bootstrap() {
     forbidNonWhitelisted: true, // Ném lỗi nếu có thuộc tính không hợp lệ
     transform: true, // Tự động chuyển đổi kiểu dữ liệu theo DTO
   }));
-  await app.listen(5001);
+
+  await app.listen(5001, () => console.log('Running on Port 5001'));
 }
 bootstrap();
