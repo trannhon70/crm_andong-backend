@@ -125,7 +125,10 @@ export class DoctorsService {
         }
     }
 
-    async getAll () {
-        return await this.doctorRepository.find()
+    async getAll (id: number) {
+        
+        return await this.doctorRepository.find({
+            where: {hospitalId : id}
+        })
     }
 }

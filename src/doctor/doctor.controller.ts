@@ -61,10 +61,10 @@ export class DiseaseController {
         };
     }
 
-    @Get('get-all')
-    async getAll() {
+    @Get('get-all/:id')
+    async getAll(@Param('id') id: number) {
 
-        const data = await this.doctorsService.getAll();
+        const data = await this.doctorsService.getAll(id);
         return {
             statusCode: 1,
             message: 'get all doctor suscess!',

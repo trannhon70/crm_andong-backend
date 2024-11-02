@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Req } from "@nestjs/common";
 import { MediaService } from "./media.service";
 
 
@@ -19,9 +19,9 @@ export class MediaController {
         };
     }
 
-    @Get('get-all')
-    async getpaging() {
-        const data = await this.mediasService.getall();
+    @Get('get-all/:id')
+    async getpaging(@Param('id') id: number) {
+        const data = await this.mediasService.getall(id);
         return {
             statusCode: 1,
             message: 'get paging all success',

@@ -33,8 +33,10 @@ export class MediaService {
         return await this.mediaRepository.save(todo)
     }
 
-    async getall() {
-        const result = await this.mediaRepository.find();
+    async getall(id: number) {
+        const result = await this.mediaRepository.find({
+            where: {hospitalId: id}
+        });
         return result;
     }
 }
