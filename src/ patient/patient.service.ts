@@ -102,7 +102,14 @@ export class PatientService {
         const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1;
         const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;
         const search = query.search ? query.search.trim() : '';
-        const hospitalId = query.hospitalId;
+        const hospitalId = query.hospitalId || 0;
+        const doctorId = query.doctorId || 0;
+        const status = query.status;
+        const departmentId = query.departmentId;
+        const diseasesId = query.diseasesId;
+        const mediaId = query.mediaId;
+        const created_at = query.created_at ? JSON.parse(query.created_at) : '';
+        const appointmentTime = query.appointmentTime ? JSON.parse(query.appointmentTime) : '';
 
         const skip = (pageIndex - 1) * pageSize;
 
@@ -116,9 +123,51 @@ export class PatientService {
 
         if (search) {
             if (whereCondition) whereCondition += ' AND ';
-            whereCondition += 'patient.name LIKE :search';
+            whereCondition += '(patient.name LIKE :search OR patient.phone LIKE :search OR patient.code LIKE :search)';
             parameters.search = `%${search}%`;
         }
+
+        if(doctorId){
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'patient.doctorId = :doctorId';
+            parameters.doctorId = doctorId;
+        }
+        if(status){
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'patient.status = :status';
+            parameters.status = status;
+        }
+
+        if(departmentId){
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'patient.departmentId = :departmentId';
+            parameters.departmentId = departmentId;
+        }
+
+        if(diseasesId){
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'patient.diseasesId = :diseasesId';
+            parameters.diseasesId = diseasesId;
+        }
+
+        if(mediaId){
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'patient.mediaId = :mediaId';
+            parameters.mediaId = mediaId;
+        }
+
+        if (created_at) {
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'patient.created_at BETWEEN :startDate AND :endDate';
+            parameters.startDate = created_at[0]; // Không cần dấu hỏi và dấu chấm
+            parameters.endDate = created_at[1] + 86399 ; // Tương tự
+        }
+        if (appointmentTime) {
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'patient.appointmentTime BETWEEN :startDate AND :endDate';
+            parameters.startDate = appointmentTime[0]; // Không cần dấu hỏi và dấu chấm
+            parameters.endDate = appointmentTime[1] + 86399 ; // Tương tự
+        } 
 
         const qb = this.patientRepository.createQueryBuilder('patient')
             .leftJoinAndSelect('patient.diseases', 'diseases')
