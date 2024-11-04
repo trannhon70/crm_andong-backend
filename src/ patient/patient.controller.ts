@@ -98,5 +98,25 @@ export class PatientController {
            data: data,
        };
    }
+
+   @Get('get-thong-ke-ngay-hien-tai')
+    async getThongKeNgayHienTai( @Req() req: any ,@Query() query: any){
+       const data = await this.patientService.getThongKeNgayHienTai(req, query);
+       return {
+           statusCode: 1,
+           message: 'get thong ke success!',
+           data: data,
+       };
+   }
+
+   @Get('get-thong-ke-all')
+    async getThongKeAll( @Req() req: any ,@Query() query: any){
+       const data = await this.patientService.getThongKeAll(req, query);
+       return {
+           statusCode: 1,
+           message: 'get thong ke success!',
+           data: data,
+       };
+   }
    
 }

@@ -473,4 +473,68 @@ export class PatientService {
             return result;
         }
     }
+
+    async getThongKeNgayHienTai(req: any, query: any) {
+        const hospitalId = Number(query.hospitalId) || 0;
+        let whereCondition = '';
+        const parameters: any = {};
+    
+        const currentDate = new Date();
+        const startDate = new Date(currentDate.setHours(0, 0, 0, 0));
+        const endDate = new Date(currentDate.setHours(23, 59, 59, 999));
+        
+        const startTimestamp = Math.floor(startDate.getTime() / 1000);
+        const endTimestamp = Math.floor(endDate.getTime() / 1000);
+        if (hospitalId !== 0) {
+            whereCondition += 'patient.hospitalId = :hospitalId';
+            parameters.hospitalId = hospitalId;
+        }
+        // Thêm điều kiện thời gian vào whereCondition
+        if (startTimestamp && endTimestamp) {
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'patient.created_at BETWEEN :startDate AND :endDate';
+            parameters.startDate = startTimestamp;
+            parameters.endDate = endTimestamp;
+        }
+    
+        const qb = this.patientRepository.createQueryBuilder('patient')
+            .where(whereCondition, parameters)
+            .orderBy('patient.id', 'DESC');
+    
+        const [result, total] = await qb.getManyAndCount();
+    
+        const daden = await this.patientRepository.createQueryBuilder('patient')
+            .where(whereCondition, parameters)
+            .andWhere('patient.status = :status', { status: 'ĐÃ ĐẾN' })
+            .getCount();
+            const chuaden = total - daden;
+        
+        return {  total, daden, chuaden };
+    }
+
+    async getThongKeAll(req: any, query: any) {
+        const hospitalId = Number(query.hospitalId) || 0;
+        let whereCondition = '';
+        const parameters: any = {};
+    
+        if (hospitalId !== 0) {
+            whereCondition += 'patient.hospitalId = :hospitalId';
+            parameters.hospitalId = hospitalId;
+        }
+       
+        const qb = this.patientRepository.createQueryBuilder('patient')
+            .where(whereCondition, parameters)
+            .orderBy('patient.id', 'DESC');
+    
+        const [result, total] = await qb.getManyAndCount();
+    
+        const daden = await this.patientRepository.createQueryBuilder('patient')
+            .where(whereCondition, parameters)
+            .andWhere('patient.status = :status', { status: 'ĐÃ ĐẾN' })
+            .getCount();
+            const chuaden = total - daden;
+        
+        return {  total, daden, chuaden };
+    }
+    
 } 
