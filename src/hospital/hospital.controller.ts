@@ -38,7 +38,7 @@ export class HospitalController {
       const data = await this.hospitalsService.getById(id);
       return {
           statusCode: 1,
-          message: 'get role by id success!',
+          message: 'get hospital by id success!',
           data: data,
       };
   }

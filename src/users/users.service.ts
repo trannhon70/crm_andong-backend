@@ -110,7 +110,7 @@ export class UsersService {
             const user = await this.userRepository.findOne(
                 { 
                     where: { id: userId }, 
-                    select: ['id', 'email',  'fullName', 'avatar', 'language', 'isshow', 'online', "role", 'created_at'] 
+                    select: ['id', 'email',  'fullName', 'avatar', 'language', 'isshow', 'online', "role", 'created_at', 'hospitalId'] 
                 },
             );
             if (!user) {
