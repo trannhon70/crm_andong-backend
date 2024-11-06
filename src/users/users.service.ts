@@ -291,4 +291,11 @@ export class UsersService {
 
         }
     }
+
+    async getAllUserOnline(req:any) {
+        const reuslt =  await this.userRepository.find({
+            where : {online: true}
+        })
+        return reuslt.length
+    }
 }

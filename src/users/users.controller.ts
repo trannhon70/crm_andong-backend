@@ -176,4 +176,19 @@ export class UserController {
         }
     } 
 
+    @Get('get-user-online')
+    async getAllUserOnline(@Req() req: any ){
+        try {
+            const data = await this.usersService.getAllUserOnline(req);
+            return {
+                statusCode: 1,
+                message: 'get all user online success!',
+                data: data,
+            }
+        } catch (error) {
+            console.log(error);
+            
+        }
+    }
+
 }
