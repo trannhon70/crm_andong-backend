@@ -53,6 +53,36 @@ export class PatientServiceStatistical {
         const yearlyStats = await executeQuery(yearly().startTimestamp, yearly().endTimestamp);
         const lastMonthStats = await executeQuery(lastMonth().startTimestamp, lastMonth().endTimestamp);
 
+        const createDateDecisionCondition = (start: number, end: number) => ({
+            where: (hospitalId ? 'patient.hospitalId = :hospitalId AND ' : '') +
+           'patient.status = :status AND ' + // Thêm "AND" và khoảng trắng
+           'patient.appointmentTime BETWEEN :startDate AND :endDate',
+                
+            parameters: {
+                hospitalId: hospitalId || undefined,
+                startDate: start,
+                endDate: end,
+                status: STATUS.KHONGXACDINH,
+            }
+        });
+
+        const executeQueryDecision = async (start: number, end: number) => {
+            const { where, parameters } = createDateDecisionCondition(start, end);
+            const [result] = await this.patientRepository.createQueryBuilder('patient')
+                .where(where, parameters)
+                .orderBy('patient.id', 'DESC')
+                .getManyAndCount();
+            return {
+                tong: result.length,
+                
+            };
+        };
+
+        const currentDateDecision = await executeQueryDecision(currentDate().startTimestamp, currentDate().endTimestamp);
+        const yesterdayDecision = await executeQueryDecision(yesterday().startTimestamp, yesterday().endTimestamp);
+        const thisMonthDecision = await executeQueryDecision(thisMonth().startTimestamp, thisMonth().endTimestamp);
+        const yearlyDecision = await executeQueryDecision(yearly().startTimestamp, yearly().endTimestamp);
+        const lastMonthDecision = await executeQueryDecision(lastMonth().startTimestamp, lastMonth().endTimestamp);
 
         return {
             TKDangKy: {
@@ -61,6 +91,13 @@ export class PatientServiceStatistical {
                 thisMonth: thisMonthStats,
                 yearly: yearlyStats,
                 lastMonth: lastMonthStats,
+            },
+            TKCuocHenChuaQuyetDinh: {
+                currentDate: currentDateDecision,
+                yesterday: yesterdayDecision,
+                thisMonth: thisMonthDecision,
+                yearly: yearlyDecision,
+                lastMonth: lastMonthDecision,
             }
         };
     }
