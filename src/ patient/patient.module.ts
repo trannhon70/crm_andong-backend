@@ -10,6 +10,7 @@ import { PatientService } from "./patient.service";
 import { ChatPatient } from "src/chatPatient/chatPatient.entity";
 import { HistoryPatient } from "src/historyPatient/historyPatient.entity";
 import { MyGateway } from "src/gateway/gateway";
+import { PatientServiceStatistical } from "./patient.serviceStatistical";
 
 
 @Module({
@@ -19,7 +20,7 @@ import { MyGateway } from "src/gateway/gateway";
        
     ],
     controllers: [PatientController],
-    providers:[PatientService, MyGateway],
+    providers:[PatientService, MyGateway, PatientServiceStatistical],
     exports:[]
 })
 
@@ -35,6 +36,11 @@ export class PatientsModule implements NestModule {
             { path: 'patient/delete/:id', method: RequestMethod.DELETE },
             { path: 'patient/update/:id', method: RequestMethod.PUT },
             { path: 'patient/upload/:id', method: RequestMethod.POST },
+            { path: 'patient/get-history-action/:id', method: RequestMethod.GET },
+            { path: 'patient/get-thong-ke-ngay-hien-tai', method: RequestMethod.GET },
+            { path: 'patient/get-thong-ke-all', method: RequestMethod.GET },
+            { path: 'patient/thong-ke-dang-ky', method: RequestMethod.GET },
+            { path: 'patient/danh-sach-xep-hang-tham-kham', method: RequestMethod.GET },
            
         ); 
     }

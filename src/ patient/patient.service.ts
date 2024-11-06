@@ -9,6 +9,7 @@ import { ChatPatient } from "src/chatPatient/chatPatient.entity";
 import { extname } from "path";
 import { v4 as uuidv4 } from "uuid";
 import { HistoryPatient } from "src/historyPatient/historyPatient.entity";
+import { STATUS } from "utils";
 
 
 
@@ -492,7 +493,7 @@ export class PatientService {
         // Thêm điều kiện thời gian vào whereCondition
         if (startTimestamp && endTimestamp) {
             if (whereCondition) whereCondition += ' AND ';
-            whereCondition += 'patient.created_at BETWEEN :startDate AND :endDate';
+            whereCondition += 'patient.appointmentTime BETWEEN :startDate AND :endDate';
             parameters.startDate = startTimestamp;
             parameters.endDate = endTimestamp;
         }
@@ -505,7 +506,7 @@ export class PatientService {
     
         const daden = await this.patientRepository.createQueryBuilder('patient')
             .where(whereCondition, parameters)
-            .andWhere('patient.status = :status', { status: 'ĐÃ ĐẾN' })
+            .andWhere('patient.status = :status', { status: STATUS.DADEN })
             .getCount();
             const chuaden = total - daden;
         
@@ -530,11 +531,11 @@ export class PatientService {
     
         const daden = await this.patientRepository.createQueryBuilder('patient')
             .where(whereCondition, parameters)
-            .andWhere('patient.status = :status', { status: 'ĐÃ ĐẾN' })
+            .andWhere('patient.status = :status', { status: STATUS.DADEN })
             .getCount();
             const chuaden = total - daden;
         
-        return {  total, daden, chuaden };
+        return {  total, daden, chuaden }; 
     }
     
 } 

@@ -4,6 +4,7 @@ import { PatientDto } from "./dto/patient.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { MyGateway } from "src/gateway/gateway";
+import { PatientServiceStatistical } from "./patient.serviceStatistical";
 
 
 @Controller('patient')
@@ -11,7 +12,8 @@ import { MyGateway } from "src/gateway/gateway";
 export class PatientController {
     constructor(
         private readonly patientService: PatientService,
-        private readonly appGateway: MyGateway
+        private readonly appGateway: MyGateway,
+        private readonly patientServiceStatistical: PatientServiceStatistical,
     ) { }
 
     @Post('create')
@@ -118,5 +120,26 @@ export class PatientController {
            data: data,
        };
    }
+
+   @Get('thong-ke-dang-ky')
+   async GetThongKeDangKy(@Req() req: any ,@Query() query: any){
+        const data = await this.patientServiceStatistical.GetThongKeDangKy(req, query);
+       return {
+           statusCode: 1,
+           message: 'get registration statistics success!',
+           data: data,
+       };
+   }
+
+   @Get('danh-sach-xep-hang-tham-kham')
+   async GetDanhSachXepHangThamKham(@Req() req: any ,@Query() query: any){
+        const data = await this.patientServiceStatistical.GetDanhSachXepHangThamKham(req, query);
+       return {
+           statusCode: 1,
+           message: 'get visit ranking list success!',
+           data: data,
+       };
+   }
+
    
 }

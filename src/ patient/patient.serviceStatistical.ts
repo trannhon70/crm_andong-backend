@@ -1,0 +1,137 @@
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Patient } from "./ patient.entity";
+import { ChatPatient } from "src/chatPatient/chatPatient.entity";
+import { HistoryPatient } from "src/historyPatient/historyPatient.entity";
+import { JwtService } from "@nestjs/jwt";
+import { currentDate, lastMonth, STATUS, thisMonth, yearly, yesterday } from "utils";
+import { Users } from "src/users/users.entity";
+
+
+export class PatientServiceStatistical {
+    constructor(
+        @InjectRepository(Patient)
+        private readonly patientRepository: Repository<Patient>,
+        @InjectRepository(ChatPatient)
+        private readonly ChatPatientRepository: Repository<ChatPatient>,
+        @InjectRepository(HistoryPatient)
+        private readonly historyPatientRepository: Repository<HistoryPatient>,
+        @InjectRepository(Users)
+        private readonly usersRepository: Repository<Users>,
+
+        private readonly jwtService: JwtService
+    ) { }
+
+    async GetThongKeDangKy(req: any, query: any) {
+        const hospitalId = Number(query.hospitalId) || 0;
+        const createDateCondition = (start: number, end: number) => ({
+            where: (hospitalId ? 'patient.hospitalId = :hospitalId AND ' : '') +
+                'patient.appointmentTime BETWEEN :startDate AND :endDate',
+            parameters: {
+                hospitalId: hospitalId || undefined,
+                startDate: start,
+                endDate: end
+            }
+        });
+
+        const executeQuery = async (start: number, end: number) => {
+            const { where, parameters } = createDateCondition(start, end);
+            const [result] = await this.patientRepository.createQueryBuilder('patient')
+                .where(where, parameters)
+                .orderBy('patient.id', 'DESC')
+                .getManyAndCount();
+            return {
+                tong: result.length,
+                daden: result.filter((item: any) => item.status === STATUS.DADEN).length,
+                chuaden: result.filter((item: any) => item.status !== STATUS.DADEN).length
+            };
+        };
+
+        const currentDateStats = await executeQuery(currentDate().startTimestamp, currentDate().endTimestamp);
+        const yesterdayStats = await executeQuery(yesterday().startTimestamp, yesterday().endTimestamp);
+        const thisMonthStats = await executeQuery(thisMonth().startTimestamp, thisMonth().endTimestamp);
+        const yearlyStats = await executeQuery(yearly().startTimestamp, yearly().endTimestamp);
+        const lastMonthStats = await executeQuery(lastMonth().startTimestamp, lastMonth().endTimestamp);
+
+
+        return {
+            TKDangKy: {
+                currentDate: currentDateStats,
+                yesterday: yesterdayStats,
+                thisMonth: thisMonthStats,
+                yearly: yearlyStats,
+                lastMonth: lastMonthStats,
+            }
+        };
+    }
+
+    async GetDanhSachXepHangThamKham(req: any, query: any) {
+        const hospitalId = Number(query.hospitalId) || 0;
+
+        const buildQuery = async (timeRange: { startTimestamp: number; endTimestamp: number }, status: string) => {
+            let whereCondition = '';
+            const parameters: any = {};
+
+            if (hospitalId !== 0) {
+                whereCondition += 'patient.hospitalId = :hospitalId';
+                parameters.hospitalId = hospitalId;
+            }
+
+            if (timeRange.startTimestamp && timeRange.endTimestamp) {
+                if (whereCondition) whereCondition += ' AND ';
+                whereCondition += 'patient.appointmentTime BETWEEN :startDate AND :endDate';
+                parameters.startDate = timeRange.startTimestamp;
+                parameters.endDate = timeRange.endTimestamp;
+            }
+
+            if(status !== ''){
+                if (whereCondition) whereCondition += ' AND ';
+                whereCondition += 'patient.status = :status';
+                parameters.status = status;
+            }
+
+            const qb = this.patientRepository.createQueryBuilder('patient')
+                .leftJoinAndSelect('patient.user', 'user')
+                .select('user.id', 'userId')
+                .addSelect('user.fullName', 'userName')
+                .addSelect('COUNT(patient.id)', 'count')
+                .groupBy('user.id')
+                .limit(5)
+                .orderBy('count', 'DESC');
+
+            if (whereCondition) {
+                qb.where(whereCondition, parameters);
+            }
+
+            const result = await qb.getRawMany();
+            return result.map((item, index) => ({
+                ...item,
+                stt: index + 1
+            }));
+        };
+
+        const DSXHDatChoThangNay = await buildQuery(thisMonth(), '');
+        const DSXHDatChoThangTruoc = await buildQuery(lastMonth(), '');
+        const DSXHThamKhamThangNay = await buildQuery(thisMonth(), STATUS.DADEN);
+        const DSXHThamKhamThangTruoc = await buildQuery(lastMonth(), STATUS.DADEN);
+
+        return {
+            DSXHDatChoThangNay: {
+                result: DSXHDatChoThangNay,
+                total: DSXHDatChoThangNay.length
+            },
+            DSXHDatChoThangTruoc: {
+                result: DSXHDatChoThangTruoc,
+                total: DSXHDatChoThangTruoc.length
+            },
+            DSXHThamKhamThangNay: {
+                result: DSXHThamKhamThangNay,
+                total: DSXHThamKhamThangNay.length
+            },
+            DSXHThamKhamThangTruoc: {
+                result: DSXHThamKhamThangTruoc,
+                total: DSXHThamKhamThangTruoc.length
+            }
+        };
+    }
+}
