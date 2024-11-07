@@ -171,5 +171,15 @@ export class PatientController {
     };
    }
 
+   @Get('thong-ke-tu-van')
+   async GetThongKeTuVan(@Req() req: any ,@Query() query: any){
+    const data = await this.patientServiceStatistical.GetThongKeTuVan(req, query);
+    return {
+        statusCode: 1,
+        message: 'get disease statistics success!',
+        data: data,
+    };
+   }
+
    
 }

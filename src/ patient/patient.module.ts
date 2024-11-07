@@ -46,6 +46,7 @@ export class PatientsModule implements NestModule {
             { path: 'patient/danh-sach-xep-hang-tham-kham', method: RequestMethod.GET },
             { path: 'patient/thong-ke-qua-kenh', method: RequestMethod.GET },
             { path: 'patient/thong-ke-khoa', method: RequestMethod.GET },
+            { path: 'patient/thong-ke-benh', method: RequestMethod.GET },
            
         ); 
     }

@@ -351,4 +351,66 @@ export class PatientServiceStatistical {
         }
     }
 
+    async GetThongKeTuVan (req: any, query: any) {
+        const hospitalId = Number(query.hospitalId) || 0;
+        const { startTimestamp: currentStart, endTimestamp: currentEnd } = currentDate();
+        const { startTimestamp: yesterdayStart, endTimestamp: yesterdayEnd } = yesterday();
+        const { startTimestamp: thisMonthStart, endTimestamp: thisMonthEnd } = thisMonth();
+        const { startTimestamp: lastMonthStart, endTimestamp: lastMonthEnd } = lastMonth();
+
+        if (hospitalId) {
+            const users = await this.usersRepository.find();
+            
+            const results = await  Promise.all(
+                users.map(async (item: any) => {
+                    const checkHospital = JSON.parse(item?.hospitalId)
+                    const check = checkHospital.filter(hos => hos === hospitalId)
+
+                    if(check.length === 1){
+                        const findPatientsByDate = async (start: number, end: number) => {
+                            return await this.patientRepository.find({
+                                where: {
+                                    userId: item.id,
+                                    hospitalId: hospitalId,
+                                    appointmentTime: Between(start, end)
+                                }
+                            });
+                        };
+                        const [currentDate, yesterday, thisMonth, lastMonth] = await Promise.all([
+                            findPatientsByDate(currentStart, currentEnd),
+                            findPatientsByDate(yesterdayStart, yesterdayEnd),
+                            findPatientsByDate(thisMonthStart, thisMonthEnd),
+                            findPatientsByDate(lastMonthStart, lastMonthEnd),
+                        ]);
+    
+                        return {
+                            name: item.fullName,
+                            currentDate: {
+                                dukien: currentDate.length,
+                                den: currentDate.filter(item => item.status === STATUS.DADEN).length || 0
+                            },
+                            yesterday: {
+                                dukien: yesterday.length,
+                                den: yesterday.filter(item => item.status === STATUS.DADEN).length || 0
+                            },
+                            thisMonth: {
+                                dukien: thisMonth.length,
+                                den: thisMonth.filter(item => item.status === STATUS.DADEN).length || 0
+                            },
+                            lastMonth: {
+                                dukien: lastMonth.length,
+                                den: lastMonth.filter(item => item.status === STATUS.DADEN).length || 0
+                            },
+                        };
+                    }
+                    
+                })
+            );
+
+            return results.filter(item => item);
+            
+
+        }
+    }
+
 }
