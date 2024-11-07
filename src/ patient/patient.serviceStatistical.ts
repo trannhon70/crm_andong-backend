@@ -7,6 +7,8 @@ import { JwtService } from "@nestjs/jwt";
 import { currentDate, lastMonth, STATUS, thisMonth, yearly, yesterday } from "utils";
 import { Users } from "src/users/users.entity";
 import { Media } from "src/media/media.entity";
+import { Departments } from "src/department/department.entity";
+import { Diseases } from "src/disease/disease.entity";
 
 
 export class PatientServiceStatistical {
@@ -21,6 +23,10 @@ export class PatientServiceStatistical {
         private readonly usersRepository: Repository<Users>,
         @InjectRepository(Media)
         private readonly mediaRepository: Repository<Media>,
+        @InjectRepository(Departments)
+        private readonly departmentsRepository: Repository<Departments>,
+        @InjectRepository(Diseases)
+        private readonly diseasesRepository: Repository<Diseases>,
 
 
         private readonly jwtService: JwtService
@@ -236,4 +242,113 @@ export class PatientServiceStatistical {
 
         }
     }
+
+    async GetThongKeKhoa (req: any, query: any) {
+        const hospitalId = Number(query.hospitalId) || 0;
+        const { startTimestamp: currentStart, endTimestamp: currentEnd } = currentDate();
+        const { startTimestamp: yesterdayStart, endTimestamp: yesterdayEnd } = yesterday();
+        const { startTimestamp: thisMonthStart, endTimestamp: thisMonthEnd } = thisMonth();
+        const { startTimestamp: lastMonthStart, endTimestamp: lastMonthEnd } = lastMonth();
+
+        if (hospitalId) {
+            const department = await this.departmentsRepository.find({
+                where: { hospitalId: hospitalId }
+            });
+            return Promise.all(
+                department.map(async (item: any) => {
+                    const findPatientsByDate = async (start: number, end: number) => {
+                        return await this.patientRepository.find({
+                            where: {
+                                departmentId: item.id,
+                                hospitalId: hospitalId,
+                                appointmentTime: Between(start, end)
+                            }
+                        });
+                    };
+                    const [currentDate, yesterday, thisMonth, lastMonth] = await Promise.all([
+                        findPatientsByDate(currentStart, currentEnd),
+                        findPatientsByDate(yesterdayStart, yesterdayEnd),
+                        findPatientsByDate(thisMonthStart, thisMonthEnd),
+                        findPatientsByDate(lastMonthStart, lastMonthEnd),
+                    ]);
+
+                    return {
+                        name: item.name,
+                        currentDate: {
+                            dukien: currentDate.length,
+                            den: currentDate.filter(item => item.status === STATUS.DADEN).length || 0
+                        },
+                        yesterday: {
+                            dukien: yesterday.length,
+                            den: yesterday.filter(item => item.status === STATUS.DADEN).length || 0
+                        },
+                        thisMonth: {
+                            dukien: thisMonth.length,
+                            den: thisMonth.filter(item => item.status === STATUS.DADEN).length || 0
+                        },
+                        lastMonth: {
+                            dukien: lastMonth.length,
+                            den: lastMonth.filter(item => item.status === STATUS.DADEN).length || 0
+                        },
+                    };
+                })
+            );
+
+        }
+    }
+
+    async GetThongKeBenh (req: any, query: any) {
+        const hospitalId = Number(query.hospitalId) || 0;
+        const { startTimestamp: currentStart, endTimestamp: currentEnd } = currentDate();
+        const { startTimestamp: yesterdayStart, endTimestamp: yesterdayEnd } = yesterday();
+        const { startTimestamp: thisMonthStart, endTimestamp: thisMonthEnd } = thisMonth();
+        const { startTimestamp: lastMonthStart, endTimestamp: lastMonthEnd } = lastMonth();
+
+        if (hospitalId) {
+            const diseases = await this.diseasesRepository.find({
+                where: { hospitalId: hospitalId }
+            });
+            return Promise.all(
+                diseases.map(async (item: any) => {
+                    const findPatientsByDate = async (start: number, end: number) => {
+                        return await this.patientRepository.find({
+                            where: {
+                                diseasesId: item.id,
+                                hospitalId: hospitalId,
+                                appointmentTime: Between(start, end)
+                            }
+                        });
+                    };
+                    const [currentDate, yesterday, thisMonth, lastMonth] = await Promise.all([
+                        findPatientsByDate(currentStart, currentEnd),
+                        findPatientsByDate(yesterdayStart, yesterdayEnd),
+                        findPatientsByDate(thisMonthStart, thisMonthEnd),
+                        findPatientsByDate(lastMonthStart, lastMonthEnd),
+                    ]);
+
+                    return {
+                        name: item.name,
+                        currentDate: {
+                            dukien: currentDate.length,
+                            den: currentDate.filter(item => item.status === STATUS.DADEN).length || 0
+                        },
+                        yesterday: {
+                            dukien: yesterday.length,
+                            den: yesterday.filter(item => item.status === STATUS.DADEN).length || 0
+                        },
+                        thisMonth: {
+                            dukien: thisMonth.length,
+                            den: thisMonth.filter(item => item.status === STATUS.DADEN).length || 0
+                        },
+                        lastMonth: {
+                            dukien: lastMonth.length,
+                            den: lastMonth.filter(item => item.status === STATUS.DADEN).length || 0
+                        },
+                    };
+                })
+            );
+
+        }
+    }
+
 }

@@ -151,5 +151,25 @@ export class PatientController {
     };
    }
 
+   @Get('thong-ke-khoa')
+   async GetThongKeKhoa(@Req() req: any ,@Query() query: any){
+    const data = await this.patientServiceStatistical.GetThongKeKhoa(req, query);
+    return {
+        statusCode: 1,
+        message: 'get science statistics success!',
+        data: data,
+    };
+   }
+
+   @Get('thong-ke-benh')
+   async GetThongKeBenh(@Req() req: any ,@Query() query: any){
+    const data = await this.patientServiceStatistical.GetThongKeBenh(req, query);
+    return {
+        statusCode: 1,
+        message: 'get disease statistics success!',
+        data: data,
+    };
+   }
+
    
 }

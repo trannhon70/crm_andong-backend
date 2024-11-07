@@ -12,11 +12,13 @@ import { HistoryPatient } from "src/historyPatient/historyPatient.entity";
 import { MyGateway } from "src/gateway/gateway";
 import { PatientServiceStatistical } from "./patient.serviceStatistical";
 import { Media } from "src/media/media.entity";
+import { Departments } from "src/department/department.entity";
+import { Diseases } from "src/disease/disease.entity";
 
 
 @Module({
     imports:[
-        TypeOrmModule.forFeature([Users, Patient, ChatPatient, HistoryPatient, Media]),
+        TypeOrmModule.forFeature([Users, Patient, ChatPatient, HistoryPatient, Media, Departments, Diseases]),
         CustomJwtModule,
        
     ],
@@ -42,6 +44,8 @@ export class PatientsModule implements NestModule {
             { path: 'patient/get-thong-ke-all', method: RequestMethod.GET },
             { path: 'patient/thong-ke-dang-ky', method: RequestMethod.GET },
             { path: 'patient/danh-sach-xep-hang-tham-kham', method: RequestMethod.GET },
+            { path: 'patient/thong-ke-qua-kenh', method: RequestMethod.GET },
+            { path: 'patient/thong-ke-khoa', method: RequestMethod.GET },
            
         ); 
     }
