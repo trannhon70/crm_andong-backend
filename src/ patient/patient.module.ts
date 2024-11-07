@@ -11,11 +11,12 @@ import { ChatPatient } from "src/chatPatient/chatPatient.entity";
 import { HistoryPatient } from "src/historyPatient/historyPatient.entity";
 import { MyGateway } from "src/gateway/gateway";
 import { PatientServiceStatistical } from "./patient.serviceStatistical";
+import { Media } from "src/media/media.entity";
 
 
 @Module({
     imports:[
-        TypeOrmModule.forFeature([Users, Patient, ChatPatient, HistoryPatient]),
+        TypeOrmModule.forFeature([Users, Patient, ChatPatient, HistoryPatient, Media]),
         CustomJwtModule,
        
     ],

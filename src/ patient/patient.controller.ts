@@ -141,5 +141,15 @@ export class PatientController {
        };
    }
 
+   @Get('thong-ke-qua-kenh')
+   async GetThongKeQuaKenh(@Req() req: any ,@Query() query: any){
+    const data = await this.patientServiceStatistical.GetThongKeQuaKenh(req, query);
+    return {
+        statusCode: 1,
+        message: 'get channel statistics success!',
+        data: data,
+    };
+   }
+
    
 }
