@@ -9,6 +9,7 @@ import { LoginUserDto } from "./dtos/login-user.dto";
 import { JwtService } from "@nestjs/jwt";
 import { Roles } from "src/roles/roles.entity";
 import { Hospitals } from "src/hospital/hospital.entity";
+import { HistoryLogin } from "src/historyLogin/historyLogin.entity";
 
 let saltOrRounds = 10;
 
@@ -20,8 +21,32 @@ export class UsersService {
         private readonly roleRepository: Repository<Roles>,
         @InjectRepository(Hospitals)
         private readonly hospitalsRepository: Repository<Hospitals>,
+        @InjectRepository(HistoryLogin)
+        private readonly historyLoginRepository: Repository<HistoryLogin>,
         private readonly jwtService: JwtService // Inject JwtService
     ) { }
+
+    private async saveHistoryLogin(
+        email: string | null,
+        password: string | null,
+        action: string,
+        ip: string,
+        
+        fullName?: string,
+        error?: string,
+    ) {
+        const dataHistory = {
+            email,
+            password,
+            action,
+            ip,
+            fullName,
+            error,
+            created_at: currentTimestamp(),
+        };
+        const history = this.historyLoginRepository.create(dataHistory);
+        await this.historyLoginRepository.save(history);
+    }
 
     async create(body: CreateUserDto) {
         const roleExists = await this.roleRepository.findOne({ where: { id: body.roleId } });
@@ -49,7 +74,7 @@ export class UsersService {
         return await this.userRepository.save(todo)
     }
 
-    async login(body: LoginUserDto) {
+    async login(body: LoginUserDto, ip: string) {
         const user = await this.userRepository.findOne({
             where: {
                 email: body.email
@@ -58,16 +83,19 @@ export class UsersService {
         });
 
         if (!user) {
+            await this.saveHistoryLogin(body.email, body.password, 'ERROR', ip, '', 'Email không tồn tại!');
             throw new BadRequestException('Email không tồn tại!');
         }
 
         if(user.isshow === false) {
+            await this.saveHistoryLogin(body.email, body.password, 'ERROR', ip, '', 'Tài khoản của bạn đã bị khóa, vui lòng liên hệ quản trị viên để được sử dụng tiếp!');
             throw new BadRequestException('Tài khoản của bạn đã bị khóa, vui lòng liên hệ quản trị viên để được sử dụng tiếp!');
         }
 
         const isMatch = await bcrypt.compare(body.password, user.password);
 
         if (!isMatch) {
+            await this.saveHistoryLogin(body.email, body.password, 'ERROR', ip, '', 'Password không đúng');
             throw new BadRequestException('Password không đúng');
         }
 
@@ -86,6 +114,8 @@ export class UsersService {
             online: user.online,
             role: user.role, // Thông tin vai trò được lấy từ bảng Roles
         };
+
+        await this.saveHistoryLogin('', '', 'SUCCESS', ip, user.fullName);
 
         const token = this.jwtService.sign(payload);
         return {

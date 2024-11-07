@@ -20,6 +20,7 @@ import { DistrictModule } from './district/district.module';
 import { ChatPatientsModule } from './chatPatient/chatPatient.module';
 import { GatewayModule } from './gateway/gateway.module';
 import { HistoryPatientsModule } from './historyPatient/historyPatient.module';
+import { HistoryLoginModule } from './historyLogin/historyLogin.module';
 
 @Module({
   imports: [
@@ -51,7 +52,8 @@ import { HistoryPatientsModule } from './historyPatient/historyPatient.module';
     DistrictModule,
     ChatPatientsModule,
     GatewayModule,
-    HistoryPatientsModule
+    HistoryPatientsModule,
+    HistoryLoginModule
   ],
   controllers: [AppController],
   providers: [AppService ],

@@ -3,6 +3,7 @@ import { Response } from 'express';
 import { CreateUserDto } from "./dtos/create-user.dto";
 import { LoginUserDto } from "./dtos/login-user.dto";
 import { UsersService } from "./users.service";
+import { ClientIp } from "src/common/checkIp";
 
 
 @Controller('user')
@@ -22,8 +23,8 @@ export class UserController {
     }
 
     @Post('login')
-    async login(@Body() body: LoginUserDto, @Res() res: Response) {
-        const data = await this.usersService.login(body);
+    async login(@Body() body: LoginUserDto,@ClientIp() ip: string, @Res() res: Response) {
+        const data = await this.usersService.login(body,ip);
         // console.log("Dữ liệu đăng nhập:", data); // Ghi log phản hồi
         return res.json({
             statusCode: 1,
