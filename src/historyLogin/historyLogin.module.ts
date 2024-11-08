@@ -20,7 +20,7 @@ import { HistoryLoginController } from "./historyLogin.controller";
     exports:[]
 })
 
-export class HistoryLoginModule implements NestModule {
+export class HistoryLoginModule implements NestModule { 
   
     configure(consumer: MiddlewareConsumer) {
         consumer
