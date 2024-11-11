@@ -80,5 +80,23 @@ export class HospitalsService {
         const result = await this.hospitalsRepository.find()
         return result
     }
-   
+
+    async update (id: number, body:any) {
+        const hospital = await this.hospitalsRepository.findOne({
+            where:{id}
+        }); 
+
+        if (!hospital) {
+            throw new Error('hospital not found');
+        }
+
+        Object.assign(hospital, body);
+        return await this.hospitalsRepository.save(hospital);
+    }
+    
+    async delete (id: number) {
+        if(id){
+            return this.hospitalsRepository.delete(id)
+        }
+    }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req } from "@nestjs/common";
 import { HospitalsService } from "./hospital.service";
 import { HospitalDto } from "./dtos/hospital.dto";
 
@@ -10,7 +10,12 @@ export class HospitalController {
 
     @Post('create')
     create(@Body() body: HospitalDto,  @Req() req: any){
-        return this.hospitalsService.create(body, req);
+        const data = this.hospitalsService.create(body, req);
+        return {
+            statusCode: 1,
+            message: 'create hospital suscess!',
+            data: data,
+        };
     }
 
     @Get('get-paging')
@@ -42,4 +47,34 @@ export class HospitalController {
           data: data,
       };
   }
+
+  @Put('update/:id')
+  async update(@Param('id') id: number, @Body() body: any) {
+      try {
+              const data = await this.hospitalsService.update(id, body)
+              return {
+                  statusCode: 1,
+                  message: 'update hospital success!',
+                  data: data
+              }
+      } catch (error) {
+          console.log(error);
+          
+      }
+  }
+
+  @Delete('delete/:id')
+    async delete(@Param('id') id: number){
+        try {
+            const data = await this.hospitalsService.delete(id);
+            return {
+                statusCode: 1,
+                message: 'delete hospital success!',
+                data: data
+            }
+        } catch (error) {
+            console.log(error);
+            
+        }
+    }
 }
