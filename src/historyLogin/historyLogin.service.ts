@@ -48,4 +48,10 @@ export class HistoryLoginService {
             totalPages: Math.ceil(total / pageSize),
         };
     }
+
+    async delete (id: number) {
+        if(id){
+            return this.historyLoginRepository.delete(id)
+        }
+    }
 }

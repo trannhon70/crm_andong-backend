@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from "@nestjs/common";
+import { Controller, Delete, Get, Param, Query } from "@nestjs/common";
 import { HistoryLoginService } from "./historyLogin.service";
 
 
@@ -16,4 +16,19 @@ export class HistoryLoginController {
            data: data,
        };
    }
+
+   @Delete('delete/:id')
+    async delete(@Param('id') id: number){
+        try {
+            const data = await this.historyLoginService.delete(id);
+            return {
+                statusCode: 1,
+                message: 'delete history login success!',
+                data: data
+            }
+        } catch (error) {
+            console.log(error);
+            
+        }
+    }
 }

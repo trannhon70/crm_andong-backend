@@ -41,7 +41,7 @@ export class HospitalsService {
         const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1; 
         const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;  
         const search = query.search ? query.search.trim() : '';
-
+        
         const skip = (pageIndex - 1) * pageSize; 
 
         const [result, total] = await this.hospitalsRepository.findAndCount({
@@ -52,7 +52,7 @@ export class HospitalsService {
             skip: skip,
             take: pageSize,
             order: {
-                created_at: 'ASC', 
+                created_at: 'DESC', 
             },
             // relations: ['users'],
         });
