@@ -66,3 +66,26 @@ export function lastMonth() {
 
     return { startTimestamp, endTimestamp };
 }
+
+export function listMonthYear () {
+    const currentYear = new Date().getFullYear();
+   const result = Array.from({ length: 12 }, (_, index) => {
+        const date = new Date();
+        date.setMonth(index); // Thiết lập tháng từ 0 (tháng 1) đến 11 (tháng 12)
+        date.setDate(1); // Thiết lập ngày là ngày đầu tiên của tháng
+        date.setHours(0, 0, 0, 0); // Thiết lập giờ về đầu ngày để có timestamp bắt đầu của tháng
+        const startOfMonth = new Date(currentYear, index, 1, 0, 0, 0, 0);
+        const startTimestamp = Math.floor(startOfMonth.getTime() / 1000);
+        const endOfMonth = new Date(currentYear, index + 1, 0, 23, 59, 59, 999);
+        const endTimestamp = Math.floor(endOfMonth.getTime() / 1000);
+
+        return {
+            month: date.getMonth() + 1,
+            year: date.getFullYear(),
+            startTimestamp,
+            endTimestamp
+        };
+    });
+
+    return result
+}

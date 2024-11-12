@@ -87,4 +87,14 @@ export class HospitalController {
            data: data,
        };
    }
+
+   @Get('bao-cao-xu-huong-hang-thang')
+    async getBaoCaoXuhuongHangThang(@Query() query: any){
+       const data = await this.hospitalsService.getBaoCaoXuhuongHangThang(query);
+       return {
+           statusCode: 1,
+           message: 'get hospital statistical success!',
+           data: data,
+       };
+   }
 }
