@@ -1,5 +1,4 @@
 import { IsIn, MaxLength } from "class-validator";
-import { Patient } from "src/ patient/ patient.entity";
 import { ChatPatient } from "src/chatPatient/chatPatient.entity";
 import { City } from "src/city/city.entity";
 import { Departments } from "src/department/department.entity";

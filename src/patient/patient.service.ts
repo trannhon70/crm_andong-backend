@@ -1,7 +1,7 @@
 import { JwtService } from "@nestjs/jwt";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Patient } from "./ patient.entity";
+import { Patient } from "./patient.entity";
 import { currentTimestamp } from "utils/currentTimestamp";
 import { PatientDto } from "./dto/patient.dto";
 import { NotFoundException } from "@nestjs/common";

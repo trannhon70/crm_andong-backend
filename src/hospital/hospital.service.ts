@@ -1,17 +1,26 @@
-import { InjectRepository } from "@nestjs/typeorm";
-import { Like, Repository } from "typeorm";
-import { Hospitals } from "./hospital.entity";
-import { HospitalDto } from "./dtos/hospital.dto";
 import { BadRequestException } from "@nestjs/common";
-import { currentTimestamp } from "utils/currentTimestamp";
 import { JwtService } from "@nestjs/jwt";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Patient } from "src/patient/patient.entity";
+import { Users } from "src/users/users.entity";
+import { Between, Like, Repository } from "typeorm";
+import { currentDate, lastMonth, STATUS, thisMonth, yesterday } from "utils";
+import { currentTimestamp } from "utils/currentTimestamp";
+import { HospitalDto } from "./dtos/hospital.dto";
+import { Hospitals } from "./hospital.entity";
+
 
 
 export class HospitalsService {
     constructor(
+        @InjectRepository(Patient) 
+        private readonly patientRepository: Repository<Patient>,  
         @InjectRepository(Hospitals) 
         private readonly hospitalsRepository: Repository<Hospitals>,
-        private readonly jwtService: JwtService 
+        private readonly jwtService: JwtService,
+        @InjectRepository(Users) 
+        private readonly usersRepository: Repository<Users>,
+     
     ){}
 
     async create(body: HospitalDto, req: any){
@@ -99,4 +108,73 @@ export class HospitalsService {
             return this.hospitalsRepository.delete(id)
         }
     }
+
+    async thongKeChiTietDichVuKhachHang() {
+        const hospitals = await this.hospitalsRepository.find();
+    
+        const getPatientStats = async (userId: number, hospitalId: number, startDate: number, endDate: number) => {
+            const patients = await this.patientRepository.find({
+                where: { userId, hospitalId, appointmentTime: Between(startDate, endDate) },
+            });
+    
+            return {
+                total: patients.length,
+                totalArrived: patients.filter(pa => pa.status === STATUS.DADEN).length,
+                totalNotArrived: patients.filter(pa => pa.status !== STATUS.DADEN).length,
+            };
+        };
+    
+        const result = await Promise.all(
+            hospitals.map(async (hospital: any) => {
+                const users = await this.usersRepository.find();
+                const usersInHospital = users.filter((user: any) => {
+                    try {
+                        const hospitalIds = JSON.parse(user.hospitalId);
+                        return Array.isArray(hospitalIds) && hospitalIds.includes(hospital.id);
+                    } catch (error) {
+                        console.error(`Failed to parse hospitalId for user ${user.id}:`, error);
+                        return false;
+                    }
+                });
+    
+                const statsDates = {
+                    today: currentDate(),
+                    yesterday: yesterday(),
+                    thisMonth: thisMonth(),
+                    lastMonth: lastMonth(),
+                };
+    
+                const usersWithPatients = await Promise.all(
+                    usersInHospital.map(async (item) => {
+                        const stats = await Promise.all(
+                            Object.keys(statsDates).map(async (key) => {
+                                const { startTimestamp, endTimestamp } = statsDates[key];
+                                const patientStats = await getPatientStats(item.id, hospital.id, startTimestamp, endTimestamp);
+                                return { [key]: patientStats };
+                            })
+                        );
+    
+                        const statsObject = stats.reduce((acc, stat) => ({ ...acc, ...stat }), {});
+    
+                        return {
+                            id: item.id,
+                            fullName: item.fullName,
+                            ...statsObject,
+                        };
+                    })
+                );
+    
+                return {
+                    ...hospital,
+                    users: {
+                        user: usersWithPatients,
+                        length: usersWithPatients.length,
+                    },
+                };
+            })
+        );
+    
+        return result;
+    }
+    
 }

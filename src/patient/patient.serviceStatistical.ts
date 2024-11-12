@@ -1,6 +1,6 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { Between, Repository } from "typeorm";
-import { Patient } from "./ patient.entity";
+import { Patient } from "./patient.entity";
 import { ChatPatient } from "src/chatPatient/chatPatient.entity";
 import { HistoryPatient } from "src/historyPatient/historyPatient.entity";
 import { JwtService } from "@nestjs/jwt";

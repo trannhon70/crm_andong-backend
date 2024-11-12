@@ -1,6 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Patient } from "src/ patient/ patient.entity";
 import { ChatPatient } from "src/chatPatient/chatPatient.entity";
 import { Users } from "src/users/users.entity";
 import { HistoryPatient } from "./historyPatient.entity";
@@ -9,6 +8,7 @@ import { AuthMiddleware } from "src/common/middleware/auth.middleware";
 import { LoggerMiddleware } from "src/common/middleware/logger.middleware";
 import { HistoryPatientController } from "./historyPatient.controller";
 import { HistoryPatientService } from "./historyPatient.service";
+import { Patient } from "src/patient/patient.entity";
 
 
 @Module({

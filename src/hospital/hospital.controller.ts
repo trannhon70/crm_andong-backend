@@ -77,4 +77,14 @@ export class HospitalController {
             
         }
     }
+
+    @Get('thong-ke-chi-tiet-dich-vu-khach-hang')
+    async thongKeChiTietDichVuKhachHang(){
+       const data = await this.hospitalsService.thongKeChiTietDichVuKhachHang();
+       return {
+           statusCode: 1,
+           message: 'get hospital statistical success!',
+           data: data,
+       };
+   }
 }

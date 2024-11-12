@@ -1,4 +1,4 @@
-import { Patient } from "src/ patient/ patient.entity";
+import { Patient } from "src/patient/patient.entity";
 import { Users } from "src/users/users.entity";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 

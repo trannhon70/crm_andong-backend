@@ -1,25 +1,26 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CustomJwtModule } from "src/common/auth/auth.module";
-import { HospitalController } from "./hospital.controller";
 import { AuthMiddleware } from "src/common/middleware/auth.middleware";
 import { LoggerMiddleware } from "src/common/middleware/logger.middleware";
-import { HospitalsService } from "./hospital.service";
-import { Hospitals } from "./hospital.entity";
+import { Patient } from "src/patient/patient.entity";
 import { Users } from "src/users/users.entity";
-import { UsersService } from "src/users/users.service";
 import { UsersModule } from "src/users/users.module";
+import { HospitalController } from "./hospital.controller";
+import { Hospitals } from "./hospital.entity";
+import { HospitalsService } from "./hospital.service";
 
 
 
 @Module({
     imports:[
-        TypeOrmModule.forFeature([Hospitals, Users]),
+        TypeOrmModule.forFeature([Hospitals, Users, Patient]),
         CustomJwtModule,
-        UsersModule 
+        UsersModule,
+         
     ],
     controllers: [HospitalController],
-    providers:[HospitalsService, UsersService],
+    providers:[HospitalsService],
     exports: [TypeOrmModule],
 })
 
