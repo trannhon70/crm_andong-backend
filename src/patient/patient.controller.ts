@@ -5,6 +5,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { MyGateway } from "src/gateway/gateway";
 import { PatientServiceStatistical } from "./patient.serviceStatistical";
+import { PatientServiceExport } from "./patient.serviceExport";
 
 
 @Controller('patient')
@@ -14,6 +15,7 @@ export class PatientController {
         private readonly patientService: PatientService,
         private readonly appGateway: MyGateway,
         private readonly patientServiceStatistical: PatientServiceStatistical,
+        private readonly patientServiceExport: PatientServiceExport,
     ) { }
 
     @Post('create')
@@ -181,5 +183,14 @@ export class PatientController {
     };
    }
 
+   @Get('xuat-du-lieu-benh-nhan')
+   async getXuatDuLieuBenhNhan(@Req() req: any ,@Query() query: any){
+    const data = await this.patientServiceExport.getXuatDuLieuBenhNhan(req, query);
+    return {
+        statusCode: 1,
+        message: 'get export data patient success!',
+        data: data,
+    };
+   }
    
 }

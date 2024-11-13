@@ -14,6 +14,7 @@ import { PatientServiceStatistical } from "./patient.serviceStatistical";
 import { Media } from "src/media/media.entity";
 import { Departments } from "src/department/department.entity";
 import { Diseases } from "src/disease/disease.entity";
+import { PatientServiceExport } from "./patient.serviceExport";
 
 
 @Module({
@@ -23,7 +24,7 @@ import { Diseases } from "src/disease/disease.entity";
        
     ],
     controllers: [PatientController],
-    providers:[PatientService, MyGateway, PatientServiceStatistical],
+    providers:[PatientService, MyGateway, PatientServiceStatistical, PatientServiceExport],
     exports:[]
 })
 
