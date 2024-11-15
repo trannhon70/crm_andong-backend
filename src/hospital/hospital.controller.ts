@@ -97,4 +97,14 @@ export class HospitalController {
            data: data,
        };
    }
+
+   @Post('bao-cao-do-hoa-tuy-chinh')
+    async getBaoCaoDoHoaTuyChinh(@Body() body: any){
+       const data = await this.hospitalsService.getBaoCaoDoHoaTuyChinh(body);
+       return {
+           statusCode: 1,
+           message: 'get custom graphical reports success!',
+           data: data,
+       };
+   }
 }

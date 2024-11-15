@@ -205,5 +205,37 @@ export class HospitalsService {
             return data;
         }
     }
+
+    async getBaoCaoDoHoaTuyChinh (body: any){
+         const {hospitalId, picker, time} = body;
+         if(hospitalId && time.length > 0){
+            if(picker === 'week' || picker === 'month' || picker === 'quarter' || picker === 'year'){
+                const data = await Promise.all(
+                    time.map(async(item:any)=>{
+                        const result = await this.patientRepository.find({
+                            where: {
+                                hospitalId: hospitalId,
+                                appointmentTime: Between(item.startTimestamp, item.endTimestamp)
+                            }
+                        });
+                        return {
+                            picker: picker,
+                            month: item.month,
+                            year: item.year,
+                            day: item.day,
+                            total: result.length,
+                            totalDaDen: result.filter(item => item.status === STATUS.DADEN).length,
+                            totalChuaDen: result.filter(item => item.status !== STATUS.DADEN).length,
+                        };
+                    })
+                )
+                return data
+            }
+         }else {
+            return {
+                message: 'HospitalId does not exist!'
+            }
+         }
+    }
     
 }   
