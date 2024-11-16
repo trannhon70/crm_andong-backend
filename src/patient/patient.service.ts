@@ -313,7 +313,6 @@ export class PatientService {
                 throw new NotFoundException(`patient with ID ${id} not found`);
             }
 
-            
             const data: any = {
                 name: body?.name,
                 gender: body?.gender,
@@ -334,7 +333,8 @@ export class PatientService {
                 doctorId: body?.doctorId,
                 hospitalId: body?.hospitalId,
                 treatment:JSON.stringify( body?.treatment),
-                record: body.record,
+                record: body?.record,
+                money: body?.money,
             } 
 
             
@@ -354,6 +354,7 @@ export class PatientService {
 
             Object.assign(patient, data);
             const result =  await this.patientRepository.save(patient);
+            
 
             const dataHis = {
                 name: result?.name,
@@ -380,6 +381,7 @@ export class PatientService {
                 patientId: result.id,
                 action: 'CẬP NHẬT',
                 created_at: currentTimestamp(),
+                money: result.money,
             }
 
             const history = this.historyPatientRepository.create(dataHis);

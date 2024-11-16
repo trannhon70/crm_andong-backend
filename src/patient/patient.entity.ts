@@ -134,4 +134,8 @@ export class Patient {
     //hồ sơ tiếp nhận
     @Column({ type: 'text' })
     file:string
+
+    //chi phí
+    @Column({ type: 'varchar', length: 125 })
+    money: string;
 }

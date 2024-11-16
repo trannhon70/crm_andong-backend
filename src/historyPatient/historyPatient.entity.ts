@@ -143,4 +143,8 @@ export class HistoryPatient {
     @Column({ nullable: true })
     @IsIn(['THÊM', 'XÓA', 'CẬP NHẬT'])
     action: string
+
+    //chi phí
+    @Column({ type: 'varchar', length: 125 })
+    money: string;
 }
