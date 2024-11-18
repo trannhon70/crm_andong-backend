@@ -21,6 +21,7 @@ import { GatewayModule } from './gateway/gateway.module';
 import { HistoryPatientsModule } from './historyPatient/historyPatient.module';
 import { HistoryLoginModule } from './historyLogin/historyLogin.module';
 import { PatientsModule } from './patient/patient.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -53,7 +54,8 @@ import { PatientsModule } from './patient/patient.module';
     ChatPatientsModule,
     GatewayModule,
     HistoryPatientsModule,
-    HistoryLoginModule
+    HistoryLoginModule,
+    NotificationModule
   ],
   controllers: [AppController],
   providers: [AppService ],

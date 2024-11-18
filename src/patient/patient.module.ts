@@ -15,11 +15,12 @@ import { Media } from "src/media/media.entity";
 import { Departments } from "src/department/department.entity";
 import { Diseases } from "src/disease/disease.entity";
 import { PatientServiceExport } from "./patient.serviceExport";
+import { Notification } from "src/notification/notification.entity";
 
 
 @Module({
     imports:[
-        TypeOrmModule.forFeature([Users, Patient, ChatPatient, HistoryPatient, Media, Departments, Diseases]),
+        TypeOrmModule.forFeature([Users, Patient, ChatPatient, HistoryPatient, Media, Departments, Diseases, Notification]),
         CustomJwtModule,
        
     ],

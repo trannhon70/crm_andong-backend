@@ -10,6 +10,8 @@ import { extname } from "path";
 import { v4 as uuidv4 } from "uuid";
 import { HistoryPatient } from "src/historyPatient/historyPatient.entity";
 import { STATUS } from "utils";
+import { Notification } from "src/notification/notification.entity";
+import { Users } from "src/users/users.entity";
 
 
 
@@ -21,9 +23,15 @@ export class PatientService {
         private readonly ChatPatientRepository: Repository<ChatPatient>,
         @InjectRepository(HistoryPatient)
         private readonly historyPatientRepository: Repository<HistoryPatient>,
+        @InjectRepository(Notification)
+        private readonly notificationRepository: Repository<Notification>,
+        @InjectRepository(Users)
+        private readonly usersRepository: Repository<Users>,
 
         private readonly jwtService: JwtService
     ) { }
+
+
 
     async create(req: any, body: any) {
 
@@ -294,6 +302,25 @@ export class PatientService {
         }
     }
 
+    async updateNotication(patientId: number, hospitalId : number) {
+        if (patientId) {
+           const users = await this.usersRepository.find()
+            users.map(async(item : any) => {
+                if (Array.isArray(JSON.parse(item.hospitalId)) && JSON.parse(item.hospitalId).includes(hospitalId)) {
+                    const dataRef = {
+                        status: 0,
+                        patientId: patientId,
+                        userId: item.id,
+                        hospitalId: hospitalId,
+                        created_at: currentTimestamp()
+                    }
+                    const result = this.notificationRepository.create(dataRef);
+                    return await this.notificationRepository.save(result);
+                }
+            })
+        }
+    }
+
     async update(req: any ,id: number, body: any) {
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
@@ -385,7 +412,11 @@ export class PatientService {
             }
 
             const history = this.historyPatientRepository.create(dataHis);
-            return await this.historyPatientRepository.save(history);
+             await this.historyPatientRepository.save(history);
+
+             if(result?.status === STATUS.DADEN){
+              return await this.updateNotication(result.id, result?.hospitalId)
+             }
         } 
     } 
 
