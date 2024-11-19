@@ -34,7 +34,6 @@ export class PatientService {
 
 
     async create(req: any, body: any) {
-
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
         if (!token) {
@@ -44,62 +43,68 @@ export class PatientService {
         const decoded = await this.jwtService.verify(token);
         const userId = decoded.id;
 
-
         const data: any = {
-            name: body?.name,
-            gender: body?.gender,
-            yearOld: body?.yearOld,
-            phone: body?.phone,
-            content: body?.content,
-            diseasesId: body?.diseasesId,
-            departmentId: body?.departmentId,
-            mediaId: body?.mediaId,
-            cityId: body?.cityId,
-            districtId: body?.districtId,
-            code: body?.code,
-            appointmentTime: body?.appointmentTime,
-            reminderTime: body?.reminderTime,
-            note: body?.note,
-            editregistrationTime: body?.editregistrationTime,
-            status: body?.status,
-            doctorId: body?.doctorId,
-            hospitalId: body?.hospitalId,
-            chat: body?.chat,
+            name: body.name ? body.name : '' ,
+            gender: body.gender ? body.gender : '',
+            yearOld: body.yearOld ? body.yearOld : '' ,
+            phone: body.phone ? body.phone : '',
+            content: body.content ? body.content : '',
+            diseasesId: body.diseasesId ? body.diseasesId : null ,
+            departmentId: body.departmentId ? body.departmentId : null ,
+            mediaId: body.mediaId ? body.mediaId : null ,
+            cityId: body.cityId ? body.cityId : null ,
+            districtId: body.districtId ? body.districtId : null,
+            code: body.code ? body.code : null,
+            appointmentTime: body.appointmentTime ? body.appointmentTime : null,
+            reminderTime: body.reminderTime ? body.reminderTime : null,
+            note: body.note ? body.note : '',
+            editregistrationTime: body.editregistrationTime ? body.editregistrationTime : null,
+            status: body.status ? body.status : '',
+            doctorId: body.doctorId ? body.doctorId : null,
             userId: userId,
+            hospitalId: body.hospitalId ? body.hospitalId : null,
+            chat: body.chat ? body.chat : '',
             created_at: currentTimestamp(),
-            treatment: body?.treatment,
-            record: body.record,
+            treatment: body.treatment ? body.treatment : '',
+            record: body.record ? body.record : '',
+            file: body.file ? body.file : '',
+            money: body.money ? body.money : ''
+            
+            
         }
 
         const todo = this.patientRepository.create(data);
        const result : any =  await this.patientRepository.save(todo)
         
        const dataHis: any = {
-        name: result?.name,
-        gender: result?.gender,
-        yearOld: result?.yearOld,
-        phone: result?.phone,
-        content: result?.content,
-        diseasesId: result?.diseasesId,
-        departmentId: result?.departmentId,
-        mediaId: result?.mediaId,
-        cityId: result?.cityId,
-        districtId: result?.districtId,
-        code: result?.code,
-        appointmentTime: result?.appointmentTime,
-        reminderTime: result?.reminderTime,
-        note: result?.note,
-        editregistrationTime: result?.editregistrationTime,
-        status: result?.status,
-        doctorId: result?.doctorId,
-        hospitalId: result?.hospitalId,
-        chat: result?.chat,
-        userId: result?.userId,
-        created_at: result?.created_at,
-        treatment: result?.treatment,
-        record: result.record,
-        patientId: result.id,
-        action: 'THÊM',
+            patientId: result.id ? result.id : 0 ,
+            name: result.name ? result.name : '' ,
+            gender: result.gender ? result.gender : '',
+            yearOld: result.yearOld ? result.yearOld : '' ,
+            phone: result.phone ? result.phone : '',
+            content: result.content ? result.content : '',
+            diseasesId: result.diseasesId ? result.diseasesId : null ,
+            departmentId: result.departmentId ? result.departmentId : null ,
+            mediaId: result.mediaId ? result.mediaId : null ,
+            cityId: result.cityId ? result.cityId : null ,
+            districtId: result.districtId ? result.districtId : null,
+            code: result.code ? result.code : null,
+            appointmentTime: result.appointmentTime ? result.appointmentTime : null,
+            reminderTime: result.reminderTime ? result.reminderTime : null,
+            note: result.note ? result.note : '',
+            editregistrationTime: result.editregistrationTime ? result.editregistrationTime : null,
+            status: result.status ? result.status : '',
+            doctorId: result.doctorId ? result.doctorId : null,
+            userId: result.userId ? result.userId : null,
+            hospitalId: result.hospitalId ? result.hospitalId : null,
+            chat: result.chat ? result.chat : '',
+            created_at: result.created_at,
+            treatment: result.treatment ? result.treatment : '',
+            record: result.record ? result.record : '',
+            file: result.file ? result.file : '',
+            money: result.money ? result.money : '',
+            action: 'THÊM',
+       
     }
 
         const history = this.historyPatientRepository.create(dataHis);

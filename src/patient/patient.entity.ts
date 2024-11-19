@@ -37,28 +37,28 @@ export class Patient {
     content: string;
 
     //bệnh
-    @Column()
+    @Column({ nullable : true })
     diseasesId: number;
 
     @ManyToOne(() => Diseases, (diseases) => diseases.id)
     diseases: Diseases;
 
     //khoa
-    @Column()
+    @Column({nullable: true})
     departmentId: number
 
     @ManyToOne(() => Departments, (de) => de.id)
     department: Departments;
 
     // nguồn đến
-    @Column()
+    @Column({nullable: true})
     mediaId: number
 
     @ManyToOne(() => Media, (me) => me.id)
     media: Media;
 
     //thành phố
-    @Column()
+    @Column({nullable : true})
     cityId:number
     @ManyToOne(() => City, (ci) => ci.id)
     city: City;
@@ -70,15 +70,15 @@ export class Patient {
 
 
     //mã chuyên gia
-    @Column()
+    @Column({nullable: true})
     code: string
 
     //thời gian hen
-    @Column()
+    @Column({nullable: true})
     appointmentTime: number
 
     //thời gian nhắt hẹn
-    @Column()
+    @Column({nullable: true})
     reminderTime: number
 
     //ghi chú
@@ -86,7 +86,7 @@ export class Patient {
     note: string
 
     //sua doi thời gian đăng ký
-    @Column()
+    @Column({nullable: true})
     editregistrationTime: number
 
     // trạng thái
@@ -101,13 +101,13 @@ export class Patient {
     doctor: Doctor;
 
     //người tạo
-    @Column()
+    @Column({nullable: true})
     userId: number;
     @ManyToOne(() => Users, (user) => user.id)
     user: Users;
 
     //bệnh viện 
-    @Column()
+    @Column({nullable : true})
     hospitalId: number; 
     @ManyToOne(() => Hospitals, (hospital) => hospital.id)
     hospital: Hospitals;
@@ -120,7 +120,7 @@ export class Patient {
     chatPatients: ChatPatient[];
 
     //ngày tạo
-    @Column()
+    @Column({nullable: true})
     created_at: number;
 
     //mục điều trị
@@ -132,10 +132,10 @@ export class Patient {
     record:string
 
     //hồ sơ tiếp nhận
-    @Column({ type: 'text' })
+    @Column({ type: 'text', nullable: true })
     file:string
 
     //chi phí
-    @Column({ type: 'varchar', length: 125 })
+    @Column({ type: 'varchar', length: 125 , nullable: true})
     money: string;
 }
