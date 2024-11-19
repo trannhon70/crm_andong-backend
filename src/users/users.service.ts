@@ -115,7 +115,7 @@ export class UsersService {
             role: user.role, // Thông tin vai trò được lấy từ bảng Roles
         };
 
-        await this.saveHistoryLogin('', '', 'SUCCESS', ip, user.fullName);
+        await this.saveHistoryLogin('', '', 'SUCCESS', ip, user.fullName, '');
 
         const token = this.jwtService.sign(payload);
         return {
