@@ -58,15 +58,15 @@ export class UsersService {
         const hashPassword = await bcrypt.hash(body.password, saltOrRounds)
 
         const data: any = {
-            role: roleExists,
-            email: body.email,
-            password: hashPassword,
-            fullName: body.fullName,
-            avatar: body.avatar,
-            language: body.language,
-            isshow: body.isshow,
-            online: body.online,
-            hospitalId: body.hospitalId,
+            role: roleExists || '',
+            email: body.email || '',
+            password: hashPassword || '',
+            fullName: body.fullName || '',
+            avatar: body.avatar ? body.avatar : '',
+            language: body.language || '',
+            isshow: body.isshow || false ,
+            online: body.online || false,
+            hospitalId: body.hospitalId || '',
             created_at: currentTimestamp(),
         }
 

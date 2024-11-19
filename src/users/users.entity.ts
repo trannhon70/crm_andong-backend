@@ -12,15 +12,8 @@ export class Users {
     @JoinColumn({ name: 'roleId' })
     role: Roles;
 
-    @Column({ name: 'roleId' })
+    @Column({ name: 'roleId', nullable: true })
     roleId: number;
-
-    // @ManyToOne(() => Hospitals, (hospital) => hospital.users, { eager: true })
-    // @JoinColumn({ name: 'hospitalId' })
-    // hospital: Hospitals;
-
-    // @Column({ name: 'hospitalId' })
-    // hospitalId: number;
     
     @Column({ type: 'text' })  
     hospitalId: string;
@@ -34,22 +27,22 @@ export class Users {
     password: string;
 
     @IsNotEmpty()
-    @Column()
+    @Column({ nullable: true }) // Không bắt buộc
     fullName: string;
 
-    @Column()
+    @Column({ nullable: true }) // Không bắt buộc
     avatar: string;
 
     @IsNotEmpty()
-    @Column()
+    @Column({ nullable: true }) // Không bắt buộc
     @IsIn(['vi', 'en', 'tq'])
     language: string;
 
     @IsNotEmpty()
-    @Column({ type: 'boolean' })
+    @Column({ type: 'boolean', nullable: true })
     isshow: boolean;
 
-    @Column({ type: 'boolean' })
+    @Column({ type: 'boolean', nullable: true })
     online: boolean;
 
     @Column()  
