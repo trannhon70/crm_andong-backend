@@ -291,7 +291,7 @@ export class PatientService {
                 editregistrationTime: result.editregistrationTime ? result.editregistrationTime : 0,
                 status: result.status ? result.status : '',
                 doctorId: result.doctorId ? result.doctorId : null,
-                userId: result.userId ? result.userId : null,
+                userId: userId,
                 hospitalId: result.hospitalId ? result.hospitalId : null,
                 chat: result.chat ? result.chat : '',
                 treatment: result.treatment ? JSON.stringify( result?.treatment) : '',
@@ -305,8 +305,7 @@ export class PatientService {
             const history = this.historyPatientRepository.create(dataHis);
             await this.historyPatientRepository.save(history);
 
-            return await this.patientRepository.delete(id)
-            
+            return await this.patientRepository.delete(id) 
         }
     }
 
