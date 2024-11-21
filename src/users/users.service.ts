@@ -212,7 +212,7 @@ export class UsersService {
 
         const skip = (pageIndex - 1) * pageSize; 
         const where: any = {
-            id: Not(userId),
+            // id: Not(userId),
             ...(search && { fullName: Like(`%${search}%`) }), 
             ...(language && { language }),  
             ...(query.isshow  && { isshow }),  

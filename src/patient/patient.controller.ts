@@ -192,5 +192,15 @@ export class PatientController {
         data: data,
     };
    }
+
+   @Get('bao-cao-tong-hop')
+   async getBaoCaoTongHop(@Req() req: any ,@Query() query: any){
+    const data = await this.patientServiceExport.getBaoCaoTongHop(req, query);
+    return {
+        statusCode: 1,
+        message: 'get summary report patient success!',
+        data: data,
+    };
+   }
    
 }
