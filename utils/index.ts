@@ -89,3 +89,9 @@ export function listMonthYear () {
 
     return result
 }
+
+export const SEX = {
+    NAM: 'NAM',
+    NU: 'NỮ',
+    KHONGXACDINH: 'KHÔNG XÁC ĐỊNH'
+}

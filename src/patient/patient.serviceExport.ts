@@ -4,7 +4,7 @@ import { Between, Repository } from "typeorm";
 import { JwtService } from "@nestjs/jwt";
 import { ChatPatient } from "src/chatPatient/chatPatient.entity";
 import { HistoryPatient } from "src/historyPatient/historyPatient.entity";
-import { STATUS } from "utils";
+import { SEX, STATUS } from "utils";
 const dayjs = require('dayjs');
 
 
@@ -217,4 +217,62 @@ export class PatientServiceExport {
 
         }
     }
+
+    async getThongkeGioitinh(req: any, body: any) {
+        const { hospitalId, time, picker, timeType, status, media } = body;
+    
+        const data = await Promise.all(
+            time.map(async (item: any) => {
+                const timeField = timeType === 'appointmentTime' ? 'appointmentTime' : 'created_at';
+
+            // Xây dựng QueryBuilder
+            const qb = this.patientRepository.createQueryBuilder('patient');
+
+            // Điều kiện hospitalId
+            if (hospitalId !== 0) {
+                qb.andWhere('patient.hospitalId = :hospitalId', { hospitalId });
+            }
+
+            // Điều kiện thời gian
+            if (item.startTimestamp && item.endTimestamp) {
+                qb.andWhere(`patient.${timeField} BETWEEN :startDate AND :endDate`, {
+                    startDate: item.startTimestamp,
+                    endDate: item.endTimestamp,
+                });
+            }
+            // Điều kiện status
+            if (status) {
+                qb.andWhere('patient.status = :status', { status });
+            }
+
+            // Điều kiện media
+            if (media) {
+                qb.andWhere('patient.media = :media', { media });
+            }
+
+
+            const [result, total] = await qb.getManyAndCount();
+            const NAM = result.filter((patient) => patient.gender === SEX.NAM).length;
+            const NU = result.filter((patient) => patient.gender === SEX.NU).length;
+            const KHONGXACDINH = result.filter((patient) => patient.gender === SEX.KHONGXACDINH).length;
+
+            // Trả về kết quả cho từng khoảng thời gian
+            return {
+                picker,
+                timeType,
+                month: item.month,
+                year: item.year,
+                day: item.day,
+                total,
+                NAM,
+                NU,
+                KHONGXACDINH,
+            };
+            })
+        );
+    
+        return data;
+    }
+    
+    
 }

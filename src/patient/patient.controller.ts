@@ -202,5 +202,15 @@ export class PatientController {
         data: data,
     };
    }
+
+   @Post('thong-ke-gioi-tinh')
+   async getThongkeGioitinh(@Req() req: any , @Body() body: any){
+    const data = await this.patientServiceExport.getThongkeGioitinh(req, body);
+    return {
+        statusCode: 1,
+        message: 'get summary report patient success!',
+        data: data,
+    };
+   }
    
 }
