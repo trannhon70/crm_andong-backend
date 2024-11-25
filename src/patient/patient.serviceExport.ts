@@ -7,6 +7,7 @@ import { HistoryPatient } from "src/historyPatient/historyPatient.entity";
 import { SEX, STATUS } from "utils";
 import { Departments } from "src/department/department.entity";
 import { Diseases } from "src/disease/disease.entity";
+import { Media } from "src/media/media.entity";
 const dayjs = require('dayjs');
 
 
@@ -22,7 +23,8 @@ export class PatientServiceExport {
         private readonly departmentsRepository: Repository<Departments>,
         @InjectRepository(Diseases)
         private readonly diseasesRepository: Repository<Diseases>,
-
+        @InjectRepository(Media)
+        private readonly mediaRepository: Repository<Media>,
         private readonly jwtService: JwtService
     ) { }
 
@@ -356,7 +358,7 @@ export class PatientServiceExport {
     async getThongkeTheoBenh(req: any, body: any) {
         const { hospitalId, time, picker, timeType, status, media, departmentId } = body;
         const diseases = await this.diseasesRepository.find({
-            where: {departmentId : departmentId}
+            where: {departmentId : departmentId, hospitalId: hospitalId}
         })
         const data = await Promise.all(
             time.map(async (item: any, index: number) => {
@@ -416,4 +418,64 @@ export class PatientServiceExport {
         };
     }
 
+    async getThongkeTheoNguonTruyenThong(req: any, body: any) {
+        const { hospitalId, time, picker, timeType, status } = body;
+        const media = await this.mediaRepository.find({
+            where: {
+                hospitalId: hospitalId
+            }
+        })
+
+        const data = await Promise.all(
+            time.map(async (item: any, index: number) => {
+                const timeField = timeType === 'appointmentTime' ? 'appointmentTime' : 'created_at';
+                const qb = this.patientRepository.createQueryBuilder('patient')
+                .leftJoinAndSelect('patient.diseases', 'diseases')
+
+                if (hospitalId !== 0) {
+                    qb.andWhere('patient.hospitalId = :hospitalId', { hospitalId });
+                }
+
+                if (item.startTimestamp && item.endTimestamp) {
+                    qb.andWhere(`patient.${timeField} BETWEEN :startDate AND :endDate`, {
+                        startDate: item.startTimestamp,
+                        endDate: item.endTimestamp,
+                    });
+                }
+              
+                if (status) {
+                    qb.andWhere('patient.status = :status', { status });
+                }
+               
+
+                const [result, total] = await qb.getManyAndCount();
+
+             
+
+                const mediaCounts = media
+                .filter((media) => result.some((item) => item.mediaId === media.id)) // Lọc medias có id trùng với mediasId trong result
+                .map((media) => ({
+                    id: media.id,
+                    name: media.name,
+                    count: result.filter((item) => item.mediaId === media.id).length, // Đếm số lượng trùng
+                }));
+
+                return {
+                    key: index,
+                    picker,
+                    timeType,
+                    month: item.month,
+                    year: item.year,
+                    day: item.day,
+                    total,
+                    media: mediaCounts || 0
+                };
+            })
+        )
+        return {
+            data: data,
+            media: media.sort((a, b) => a.id - b.id)
+        };
+        
+    }
 }

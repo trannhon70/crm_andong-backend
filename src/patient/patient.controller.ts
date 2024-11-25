@@ -232,5 +232,15 @@ export class PatientController {
         data: data,
     };
    }
+
+   @Post('thong-ke-theo-nguon-truyen-thong')
+   async getThongkeTheoNguonTruyenThong(@Req() req: any , @Body() body: any){
+    const data = await this.patientServiceExport.getThongkeTheoNguonTruyenThong(req, body);
+    return {
+        statusCode: 1,
+        message: 'get age statistics patient success!',
+        data: data,
+    };
+   }
    
 }
