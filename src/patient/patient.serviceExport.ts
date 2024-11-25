@@ -5,6 +5,8 @@ import { JwtService } from "@nestjs/jwt";
 import { ChatPatient } from "src/chatPatient/chatPatient.entity";
 import { HistoryPatient } from "src/historyPatient/historyPatient.entity";
 import { SEX, STATUS } from "utils";
+import { Departments } from "src/department/department.entity";
+import { Diseases } from "src/disease/disease.entity";
 const dayjs = require('dayjs');
 
 
@@ -16,6 +18,10 @@ export class PatientServiceExport {
         private readonly ChatPatientRepository: Repository<ChatPatient>,
         @InjectRepository(HistoryPatient)
         private readonly historyPatientRepository: Repository<HistoryPatient>,
+        @InjectRepository(Departments)
+        private readonly departmentsRepository: Repository<Departments>,
+        @InjectRepository(Diseases)
+        private readonly diseasesRepository: Repository<Diseases>,
 
         private readonly jwtService: JwtService
     ) { }
@@ -183,13 +189,13 @@ export class PatientServiceExport {
                         total: patient.length || 0,
                         daDen: patient.filter(item => item.status === STATUS.DADEN).length || 0,
                         chuaDen: patient.filter(item => item.status !== STATUS.DADEN).length || 0,
-                        tile : patient.length > 0 ?  (Number(patient.filter(item => item.status === STATUS.DADEN).length)/ Number(patient.length) * 100) : 0
+                        tile: patient.length > 0 ? (Number(patient.filter(item => item.status === STATUS.DADEN).length) / Number(patient.length) * 100) : 0
                     }
                 })
             )
 
             const resultMonth = await Promise.all(
-                last12Months.map(async (item: any, index :number) => {
+                last12Months.map(async (item: any, index: number) => {
                     const patient = await this.patientRepository.find({
                         where: {
                             hospitalId: hospitalId,
@@ -197,13 +203,13 @@ export class PatientServiceExport {
                         }
                     })
                     return {
-                        key: index, 
+                        key: index,
                         year: item.year,
                         month: item.month,
                         total: patient.length || 0,
                         daDen: patient.filter(item => item.status === STATUS.DADEN).length || 0,
                         chuaDen: patient.filter(item => item.status !== STATUS.DADEN).length || 0,
-                        tile : patient.length > 0 ?  (Number(patient.filter(item => item.status === STATUS.DADEN).length)/ Number(patient.length) * 100) : 0
+                        tile: patient.length > 0 ? (Number(patient.filter(item => item.status === STATUS.DADEN).length) / Number(patient.length) * 100) : 0
                     }
                 })
             )
@@ -220,106 +226,176 @@ export class PatientServiceExport {
 
     async getThongkeGioitinh(req: any, body: any) {
         const { hospitalId, time, picker, timeType, status, media } = body;
-    
+
         const data = await Promise.all(
             time.map(async (item: any) => {
                 const timeField = timeType === 'appointmentTime' ? 'appointmentTime' : 'created_at';
 
-            // Xây dựng QueryBuilder
-            const qb = this.patientRepository.createQueryBuilder('patient');
+                // Xây dựng QueryBuilder
+                const qb = this.patientRepository.createQueryBuilder('patient');
 
-            // Điều kiện hospitalId
-            if (hospitalId !== 0) {
-                qb.andWhere('patient.hospitalId = :hospitalId', { hospitalId });
-            }
+                // Điều kiện hospitalId
+                if (hospitalId !== 0) {
+                    qb.andWhere('patient.hospitalId = :hospitalId', { hospitalId });
+                }
 
-            // Điều kiện thời gian
-            if (item.startTimestamp && item.endTimestamp) {
-                qb.andWhere(`patient.${timeField} BETWEEN :startDate AND :endDate`, {
-                    startDate: item.startTimestamp,
-                    endDate: item.endTimestamp,
-                });
-            }
-            // Điều kiện status
-            if (status) {
-                qb.andWhere('patient.status = :status', { status });
-            }
+                // Điều kiện thời gian
+                if (item.startTimestamp && item.endTimestamp) {
+                    qb.andWhere(`patient.${timeField} BETWEEN :startDate AND :endDate`, {
+                        startDate: item.startTimestamp,
+                        endDate: item.endTimestamp,
+                    });
+                }
+                // Điều kiện status
+                if (status) {
+                    qb.andWhere('patient.status = :status', { status });
+                }
 
-            // Điều kiện media
-            if (media) {
-                qb.andWhere('patient.media = :media', { media });
-            }
+                // Điều kiện media
+                if (media) {
+                    qb.andWhere('patient.media = :media', { media });
+                }
 
 
-            const [result, total] = await qb.getManyAndCount();
-            const NAM = result.filter((patient) => patient.gender === SEX.NAM).length;
-            const NU = result.filter((patient) => patient.gender === SEX.NU).length;
-            const KHONGXACDINH = result.filter((patient) => patient.gender === SEX.KHONGXACDINH).length;
+                const [result, total] = await qb.getManyAndCount();
+                const NAM = result.filter((patient) => patient.gender === SEX.NAM).length;
+                const NU = result.filter((patient) => patient.gender === SEX.NU).length;
+                const KHONGXACDINH = result.filter((patient) => patient.gender === SEX.KHONGXACDINH).length;
 
-            // Trả về kết quả cho từng khoảng thời gian
-            return {
-                picker,
-                timeType,
-                month: item.month,
-                year: item.year,
-                day: item.day,
-                total,
-                NAM,
-                NU,
-                KHONGXACDINH,
-            };
+                // Trả về kết quả cho từng khoảng thời gian
+                return {
+                    picker,
+                    timeType,
+                    month: item.month,
+                    year: item.year,
+                    day: item.day,
+                    total,
+                    NAM,
+                    NU,
+                    KHONGXACDINH,
+                };
             })
         );
-    
+
         return data;
     }
     async getThongkeTuoi(req: any, body: any) {
         const { hospitalId, time, picker, timeType, status, media } = body;
         const data = await Promise.all(
-            time.map(async (item: any, index : number) => {
+            time.map(async (item: any, index: number) => {
                 const timeField = timeType === 'appointmentTime' ? 'appointmentTime' : 'created_at';
 
-            // Xây dựng QueryBuilder
-            const qb = this.patientRepository.createQueryBuilder('patient');
+                // Xây dựng QueryBuilder
+                const qb = this.patientRepository.createQueryBuilder('patient');
 
-            // Điều kiện hospitalId
-            if (hospitalId !== 0) {
-                qb.andWhere('patient.hospitalId = :hospitalId', { hospitalId });
-            }
+                // Điều kiện hospitalId
+                if (hospitalId !== 0) {
+                    qb.andWhere('patient.hospitalId = :hospitalId', { hospitalId });
+                }
 
-            // Điều kiện thời gian
-            if (item.startTimestamp && item.endTimestamp) {
-                qb.andWhere(`patient.${timeField} BETWEEN :startDate AND :endDate`, {
-                    startDate: item.startTimestamp,
-                    endDate: item.endTimestamp,
-                });
-            }
-            // Điều kiện status
-            if (status) {
-                qb.andWhere('patient.status = :status', { status });
-            }
+                // Điều kiện thời gian
+                if (item.startTimestamp && item.endTimestamp) {
+                    qb.andWhere(`patient.${timeField} BETWEEN :startDate AND :endDate`, {
+                        startDate: item.startTimestamp,
+                        endDate: item.endTimestamp,
+                    });
+                }
+                // Điều kiện status
+                if (status) {
+                    qb.andWhere('patient.status = :status', { status });
+                }
 
-            // Điều kiện media
-            if (media) {
-                qb.andWhere('patient.media = :media', { media });
-            }
+                // Điều kiện media
+                if (media) {
+                    qb.andWhere('patient.media = :media', { media });
+                }
 
-            const [result, total] = await qb.getManyAndCount();
+                const [result, total] = await qb.getManyAndCount();
 
-            const _0To9Year = result.filter(item => item.yearOld >= 0 && item.yearOld < 10).length;
-            const _10To14Year = result.filter(item => item.yearOld >= 10 && item.yearOld < 15).length;
-            const _15To19Year = result.filter(item => item.yearOld >= 15 && item.yearOld < 20).length;
-            const _20To24Year = result.filter(item => item.yearOld >= 20 && item.yearOld < 25).length;
-            const _25To29Year = result.filter(item => item.yearOld >= 25 && item.yearOld < 30).length;
-            const _30To34Year = result.filter(item => item.yearOld >= 30 && item.yearOld < 35).length;
-            const _35To39Year = result.filter(item => item.yearOld >= 35 && item.yearOld < 40).length;
-            const _40To44Year = result.filter(item => item.yearOld >= 40 && item.yearOld < 45).length;
-            const _45To49Year = result.filter(item => item.yearOld >= 45 && item.yearOld < 50).length;
-            const _50To54Year = result.filter(item => item.yearOld >= 50 && item.yearOld < 55).length;
-            const _55To59Year = result.filter(item => item.yearOld >= 55 && item.yearOld < 60).length;
-            const _60Year = result.filter(item => item.yearOld >= 60).length;
+                const _0To9Year = result.filter(item => item.yearOld >= 0 && item.yearOld < 10).length;
+                const _10To14Year = result.filter(item => item.yearOld >= 10 && item.yearOld < 15).length;
+                const _15To19Year = result.filter(item => item.yearOld >= 15 && item.yearOld < 20).length;
+                const _20To24Year = result.filter(item => item.yearOld >= 20 && item.yearOld < 25).length;
+                const _25To29Year = result.filter(item => item.yearOld >= 25 && item.yearOld < 30).length;
+                const _30To34Year = result.filter(item => item.yearOld >= 30 && item.yearOld < 35).length;
+                const _35To39Year = result.filter(item => item.yearOld >= 35 && item.yearOld < 40).length;
+                const _40To44Year = result.filter(item => item.yearOld >= 40 && item.yearOld < 45).length;
+                const _45To49Year = result.filter(item => item.yearOld >= 45 && item.yearOld < 50).length;
+                const _50To54Year = result.filter(item => item.yearOld >= 50 && item.yearOld < 55).length;
+                const _55To59Year = result.filter(item => item.yearOld >= 55 && item.yearOld < 60).length;
+                const _60Year = result.filter(item => item.yearOld >= 60).length;
 
-            // Trả về kết quả cho từng khoảng thời gian
+                // Trả về kết quả cho từng khoảng thời gian
+                return {
+                    key: index,
+                    picker,
+                    timeType,
+                    month: item.month,
+                    year: item.year,
+                    day: item.day,
+                    total,
+                    _0To9Year,
+                    _10To14Year,
+                    _15To19Year,
+                    _20To24Year,
+                    _25To29Year,
+                    _30To34Year,
+                    _35To39Year,
+                    _40To44Year,
+                    _45To49Year,
+                    _50To54Year,
+                    _55To59Year,
+                    _60Year,
+                };
+            })
+        );
+
+        return data;
+    }
+
+    async getThongkeTheoBenh(req: any, body: any) {
+        const { hospitalId, time, picker, timeType, status, media, departmentId } = body;
+        const diseases = await this.diseasesRepository.find({
+            where: {departmentId : departmentId}
+        })
+        const data = await Promise.all(
+            time.map(async (item: any, index: number) => {
+                const timeField = timeType === 'appointmentTime' ? 'appointmentTime' : 'created_at';
+                const qb = this.patientRepository.createQueryBuilder('patient')
+                .leftJoinAndSelect('patient.diseases', 'diseases')
+
+                if (hospitalId !== 0) {
+                    qb.andWhere('patient.hospitalId = :hospitalId', { hospitalId });
+                }
+
+                if (item.startTimestamp && item.endTimestamp) {
+                    qb.andWhere(`patient.${timeField} BETWEEN :startDate AND :endDate`, {
+                        startDate: item.startTimestamp,
+                        endDate: item.endTimestamp,
+                    });
+                }
+                if (departmentId) {
+                    qb.andWhere('patient.departmentId = :departmentId', { departmentId });
+                }
+                if (status) {
+                    qb.andWhere('patient.status = :status', { status });
+                }
+                if (media) {
+                    qb.andWhere('patient.media = :media', { media });
+                }
+
+                const [result, total] = await qb.getManyAndCount();
+
+                const _1 = result.filter(item => item.diseasesId === diseases?.[0].id)
+                const _2 = result.filter(item => item.diseasesId === diseases?.[1].id)
+                const _3 = result.filter(item => item.diseasesId === diseases?.[2].id)
+
+                const diseaseCounts = diseases.map((disease) => ({
+                    id: disease.id,
+                    name: disease.name,
+                    count: result.filter((item) => item.diseasesId === disease.id).length || 0,
+                }));
+
             return {
                 key: index,
                 picker,
@@ -328,23 +404,13 @@ export class PatientServiceExport {
                 year: item.year,
                 day: item.day,
                 total,
-                _0To9Year,
-                _10To14Year,
-                _15To19Year,
-                _20To24Year,
-                _25To29Year,
-                _30To34Year,
-                _35To39Year,
-                _40To44Year,
-                _45To49Year,
-                _50To54Year,
-                _55To59Year,
-                _60Year,
             };
             })
-        );
-    
-        return data;
+        )
+        return {
+            data: data,
+            diseases: diseases.sort((a, b) => a.id - b.id)
+        };
     }
-    
+
 }
