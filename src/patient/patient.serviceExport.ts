@@ -478,4 +478,59 @@ export class PatientServiceExport {
         };
         
     }
+
+    async getThongkeTheoTinhTrang(req: any, body: any) {
+        const { hospitalId, time, picker, timeType, media } = body;
+
+        const data = await Promise.all(
+            time.map(async (item: any) => {
+                const timeField = timeType === 'appointmentTime' ? 'appointmentTime' : 'created_at';
+
+                // Xây dựng QueryBuilder
+                const qb = this.patientRepository.createQueryBuilder('patient');
+
+                // Điều kiện hospitalId
+                if (hospitalId !== 0) {
+                    qb.andWhere('patient.hospitalId = :hospitalId', { hospitalId });
+                }
+
+                // Điều kiện thời gian
+                if (item.startTimestamp && item.endTimestamp) {
+                    qb.andWhere(`patient.${timeField} BETWEEN :startDate AND :endDate`, {
+                        startDate: item.startTimestamp,
+                        endDate: item.endTimestamp,
+                    });
+                }
+               
+                // Điều kiện media
+                if (media) {
+                    qb.andWhere('patient.media = :media', { media });
+                }
+
+
+                const [result, total] = await qb.getManyAndCount();
+                const CHODOI = result.filter((patient) => patient.status === STATUS.CHODOI).length;
+                const CHUADEN = result.filter((patient) => patient.status === STATUS.CHUDEN).length;
+                const DADEN = result.filter((patient) => patient.status === STATUS.DADEN).length;
+                const KHONGXACDINH = result.filter((patient) => patient.status === STATUS.KHONGXACDINH).length;
+                const percent = total > 0 ? (DADEN / total) * 100 : 0
+                // Trả về kết quả cho từng khoảng thời gian
+                return {
+                    picker,
+                    timeType,
+                    month: item.month,
+                    year: item.year,
+                    day: item.day,
+                    total,
+                    CHODOI,
+                    CHUADEN,
+                    DADEN,
+                    KHONGXACDINH,
+                    percent : percent.toFixed(2)
+                };
+            })
+        );
+
+        return data;
+    }
 }
