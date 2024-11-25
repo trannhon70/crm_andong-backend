@@ -252,5 +252,15 @@ export class PatientController {
         data: data,
     };
    }
+
+   @Post('thong-ke-theo-bac-si')
+   async getThongkeTheoBacSi(@Req() req: any , @Body() body: any){
+    const data = await this.patientServiceExport.getThongkeTheoBacSi(req, body);
+    return {
+        statusCode: 1,
+        message: 'get age statistics patient success!',
+        data: data,
+    };
+   }
    
 }

@@ -8,6 +8,7 @@ import { SEX, STATUS } from "utils";
 import { Departments } from "src/department/department.entity";
 import { Diseases } from "src/disease/disease.entity";
 import { Media } from "src/media/media.entity";
+import { Doctor } from "src/doctor/doctor.entity";
 const dayjs = require('dayjs');
 
 
@@ -25,6 +26,8 @@ export class PatientServiceExport {
         private readonly diseasesRepository: Repository<Diseases>,
         @InjectRepository(Media)
         private readonly mediaRepository: Repository<Media>,
+        @InjectRepository(Doctor)
+        private readonly doctorRepository: Repository<Doctor>,
         private readonly jwtService: JwtService
     ) { }
 
@@ -532,5 +535,64 @@ export class PatientServiceExport {
         );
 
         return data;
+    }
+
+    async getThongkeTheoBacSi(req: any, body: any) {
+        const { hospitalId, time, picker, timeType, status, media } = body;
+        const doctor = await this.doctorRepository.find({
+            where: {
+                hospitalId: hospitalId
+            }
+        })
+
+        const data = await Promise.all(
+            time.map(async (item: any, index: number) => {
+                const timeField = timeType === 'appointmentTime' ? 'appointmentTime' : 'created_at';
+                const qb = this.patientRepository.createQueryBuilder('patient')
+                .leftJoinAndSelect('patient.diseases', 'diseases')
+
+                if (hospitalId !== 0) {
+                    qb.andWhere('patient.hospitalId = :hospitalId', { hospitalId });
+                }
+
+                if (item.startTimestamp && item.endTimestamp) {
+                    qb.andWhere(`patient.${timeField} BETWEEN :startDate AND :endDate`, {
+                        startDate: item.startTimestamp,
+                        endDate: item.endTimestamp,
+                    });
+                }
+              
+                if (status) {
+                    qb.andWhere('patient.status = :status', { status });
+                }
+                if (media) {
+                    qb.andWhere('patient.media = :media', { media });
+                }
+               
+                const [result, total] = await qb.getManyAndCount();
+                const doctorCounts = doctor
+                .filter((doctor) => result.some((item) => item.doctorId === doctor.id)) // Lọc doctors có id trùng với doctorsId trong result
+                .map((doctor) => ({
+                    id: doctor.id,
+                    name: doctor.name,
+                    count: result.filter((item) => item.doctorId === doctor.id).length, // Đếm số lượng trùng
+                }));
+
+                return {
+                    key: index,
+                    picker,
+                    timeType,
+                    month: item.month,
+                    year: item.year,
+                    day: item.day,
+                    total,
+                    doctor: doctorCounts || 0
+                };
+            })
+        )
+        return {
+            data: data,
+            doctor: doctor.sort((a, b) => a.id - b.id)
+        };
     }
 }

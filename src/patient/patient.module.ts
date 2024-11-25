@@ -16,13 +16,13 @@ import { Departments } from "src/department/department.entity";
 import { Diseases } from "src/disease/disease.entity";
 import { PatientServiceExport } from "./patient.serviceExport";
 import { Notification } from "src/notification/notification.entity";
+import { Doctor } from "src/doctor/doctor.entity";
 
 
 @Module({
     imports:[
-        TypeOrmModule.forFeature([Users, Patient, ChatPatient, HistoryPatient, Media, Departments, Diseases, Notification]),
-        CustomJwtModule,
-       
+        TypeOrmModule.forFeature([Users, Patient, ChatPatient, HistoryPatient, Media, Departments, Diseases, Notification, Doctor]),
+        CustomJwtModule
     ],
     controllers: [PatientController],
     providers:[PatientService, MyGateway, PatientServiceStatistical, PatientServiceExport],
