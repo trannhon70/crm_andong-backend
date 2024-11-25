@@ -390,21 +390,24 @@ export class PatientServiceExport {
                 const _2 = result.filter(item => item.diseasesId === diseases?.[1].id)
                 const _3 = result.filter(item => item.diseasesId === diseases?.[2].id)
 
-                const diseaseCounts = diseases.map((disease) => ({
+                const diseaseCounts = diseases
+                .filter((disease) => result.some((item) => item.diseasesId === disease.id)) // Lọc diseases có id trùng với diseasesId trong result
+                .map((disease) => ({
                     id: disease.id,
                     name: disease.name,
-                    count: result.filter((item) => item.diseasesId === disease.id).length || 0,
+                    count: result.filter((item) => item.diseasesId === disease.id).length, // Đếm số lượng trùng
                 }));
 
-            return {
-                key: index,
-                picker,
-                timeType,
-                month: item.month,
-                year: item.year,
-                day: item.day,
-                total,
-            };
+                return {
+                    key: index,
+                    picker,
+                    timeType,
+                    month: item.month,
+                    year: item.year,
+                    day: item.day,
+                    total,
+                    benh: diseaseCounts || 0
+                };
             })
         )
         return {
