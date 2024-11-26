@@ -9,6 +9,7 @@ import { Departments } from "src/department/department.entity";
 import { Diseases } from "src/disease/disease.entity";
 import { Media } from "src/media/media.entity";
 import { Doctor } from "src/doctor/doctor.entity";
+import { Users } from "src/users/users.entity";
 const dayjs = require('dayjs');
 
 
@@ -28,6 +29,8 @@ export class PatientServiceExport {
         private readonly mediaRepository: Repository<Media>,
         @InjectRepository(Doctor)
         private readonly doctorRepository: Repository<Doctor>,
+        @InjectRepository(Users)
+        private readonly usersRepository: Repository<Users>,
         private readonly jwtService: JwtService
     ) { }
 
@@ -361,13 +364,13 @@ export class PatientServiceExport {
     async getThongkeTheoBenh(req: any, body: any) {
         const { hospitalId, time, picker, timeType, status, media, departmentId } = body;
         const diseases = await this.diseasesRepository.find({
-            where: {departmentId : departmentId, hospitalId: hospitalId}
+            where: { departmentId: departmentId, hospitalId: hospitalId }
         })
         const data = await Promise.all(
             time.map(async (item: any, index: number) => {
                 const timeField = timeType === 'appointmentTime' ? 'appointmentTime' : 'created_at';
                 const qb = this.patientRepository.createQueryBuilder('patient')
-                .leftJoinAndSelect('patient.diseases', 'diseases')
+                    .leftJoinAndSelect('patient.diseases', 'diseases')
 
                 if (hospitalId !== 0) {
                     qb.andWhere('patient.hospitalId = :hospitalId', { hospitalId });
@@ -396,12 +399,12 @@ export class PatientServiceExport {
                 const _3 = result.filter(item => item.diseasesId === diseases?.[2].id)
 
                 const diseaseCounts = diseases
-                .filter((disease) => result.some((item) => item.diseasesId === disease.id)) // Lọc diseases có id trùng với diseasesId trong result
-                .map((disease) => ({
-                    id: disease.id,
-                    name: disease.name,
-                    count: result.filter((item) => item.diseasesId === disease.id).length, // Đếm số lượng trùng
-                }));
+                    .filter((disease) => result.some((item) => item.diseasesId === disease.id)) // Lọc diseases có id trùng với diseasesId trong result
+                    .map((disease) => ({
+                        id: disease.id,
+                        name: disease.name,
+                        count: result.filter((item) => item.diseasesId === disease.id).length, // Đếm số lượng trùng
+                    }));
 
                 return {
                     key: index,
@@ -433,7 +436,7 @@ export class PatientServiceExport {
             time.map(async (item: any, index: number) => {
                 const timeField = timeType === 'appointmentTime' ? 'appointmentTime' : 'created_at';
                 const qb = this.patientRepository.createQueryBuilder('patient')
-                .leftJoinAndSelect('patient.diseases', 'diseases')
+                    .leftJoinAndSelect('patient.diseases', 'diseases')
 
                 if (hospitalId !== 0) {
                     qb.andWhere('patient.hospitalId = :hospitalId', { hospitalId });
@@ -445,23 +448,23 @@ export class PatientServiceExport {
                         endDate: item.endTimestamp,
                     });
                 }
-              
+
                 if (status) {
                     qb.andWhere('patient.status = :status', { status });
                 }
-               
+
 
                 const [result, total] = await qb.getManyAndCount();
 
-             
+
 
                 const mediaCounts = media
-                .filter((media) => result.some((item) => item.mediaId === media.id)) // Lọc medias có id trùng với mediasId trong result
-                .map((media) => ({
-                    id: media.id,
-                    name: media.name,
-                    count: result.filter((item) => item.mediaId === media.id).length, // Đếm số lượng trùng
-                }));
+                    .filter((media) => result.some((item) => item.mediaId === media.id)) // Lọc medias có id trùng với mediasId trong result
+                    .map((media) => ({
+                        id: media.id,
+                        name: media.name,
+                        count: result.filter((item) => item.mediaId === media.id).length, // Đếm số lượng trùng
+                    }));
 
                 return {
                     key: index,
@@ -479,7 +482,7 @@ export class PatientServiceExport {
             data: data,
             media: media.sort((a, b) => a.id - b.id)
         };
-        
+
     }
 
     async getThongkeTheoTinhTrang(req: any, body: any) {
@@ -504,7 +507,7 @@ export class PatientServiceExport {
                         endDate: item.endTimestamp,
                     });
                 }
-               
+
                 // Điều kiện media
                 if (media) {
                     qb.andWhere('patient.media = :media', { media });
@@ -529,7 +532,7 @@ export class PatientServiceExport {
                     CHUADEN,
                     DADEN,
                     KHONGXACDINH,
-                    percent : percent.toFixed(2)
+                    percent: percent.toFixed(2)
                 };
             })
         );
@@ -549,7 +552,7 @@ export class PatientServiceExport {
             time.map(async (item: any, index: number) => {
                 const timeField = timeType === 'appointmentTime' ? 'appointmentTime' : 'created_at';
                 const qb = this.patientRepository.createQueryBuilder('patient')
-                .leftJoinAndSelect('patient.diseases', 'diseases')
+                    .leftJoinAndSelect('patient.diseases', 'diseases')
 
                 if (hospitalId !== 0) {
                     qb.andWhere('patient.hospitalId = :hospitalId', { hospitalId });
@@ -561,22 +564,22 @@ export class PatientServiceExport {
                         endDate: item.endTimestamp,
                     });
                 }
-              
+
                 if (status) {
                     qb.andWhere('patient.status = :status', { status });
                 }
                 if (media) {
                     qb.andWhere('patient.media = :media', { media });
                 }
-               
+
                 const [result, total] = await qb.getManyAndCount();
                 const doctorCounts = doctor
-                .filter((doctor) => result.some((item) => item.doctorId === doctor.id)) // Lọc doctors có id trùng với doctorsId trong result
-                .map((doctor) => ({
-                    id: doctor.id,
-                    name: doctor.name,
-                    count: result.filter((item) => item.doctorId === doctor.id).length, // Đếm số lượng trùng
-                }));
+                    .filter((doctor) => result.some((item) => item.doctorId === doctor.id)) // Lọc doctors có id trùng với doctorsId trong result
+                    .map((doctor) => ({
+                        id: doctor.id,
+                        name: doctor.name,
+                        count: result.filter((item) => item.doctorId === doctor.id).length, // Đếm số lượng trùng
+                    }));
 
                 return {
                     key: index,
@@ -593,6 +596,72 @@ export class PatientServiceExport {
         return {
             data: data,
             doctor: doctor.sort((a, b) => a.id - b.id)
+        };
+    }
+
+    async getThongkeTheoDichVuKhachHang(req: any, body: any) {
+        const { hospitalId, time, picker, timeType, status, media } = body;
+        const users = await this.usersRepository.find();
+
+        const filteredUsers = await Promise.all(
+            users.map(async (item: any) => {
+                const checkHospital = JSON.parse(item?.hospitalId || '[]'); // Parse hospitalId
+                const hasMatchingHospital = checkHospital.some((hos: number) => hos === Number(hospitalId)); // Kiểm tra trùng khớp
+                return hasMatchingHospital ? item : null; // Nếu khớp, trả về user; nếu không, trả về null
+            })
+        );
+
+        // Loại bỏ các giá trị null để chỉ giữ lại danh sách user khớp
+        const matchingUsers = filteredUsers.filter(user => user !== null);
+
+        const data = await Promise.all(
+            time.map(async (item: any, index: number) => {
+                const timeField = timeType === 'appointmentTime' ? 'appointmentTime' : 'created_at';
+                const qb = this.patientRepository.createQueryBuilder('patient')
+                    .leftJoinAndSelect('patient.diseases', 'diseases')
+
+                if (hospitalId !== 0) {
+                    qb.andWhere('patient.hospitalId = :hospitalId', { hospitalId });
+                }
+
+                if (item.startTimestamp && item.endTimestamp) {
+                    qb.andWhere(`patient.${timeField} BETWEEN :startDate AND :endDate`, {
+                        startDate: item.startTimestamp,
+                        endDate: item.endTimestamp,
+                    });
+                }
+
+                if (status) {
+                    qb.andWhere('patient.status = :status', { status });
+                }
+                if (media) {
+                    qb.andWhere('patient.media = :media', { media });
+                }
+
+                const [result, total] = await qb.getManyAndCount();
+                const usersCounts = matchingUsers
+                    .filter((users) => result.some((item) => item.userId === users.id)) 
+                    .map((users) => ({
+                        id: users.id,
+                        name: users.fullName,
+                        count: result.filter((item) => item.userId === users.id).length, 
+                    }));
+
+                return {
+                    key: index,
+                    picker,
+                    timeType,
+                    month: item.month,
+                    year: item.year,
+                    day: item.day,
+                    total,
+                    users: usersCounts || 0
+                };
+            })
+        )
+        return {
+            data: data,
+            users: matchingUsers.sort((a, b) => a.id - b.id)
         };
     }
 }
