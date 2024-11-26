@@ -113,15 +113,6 @@ export class PatientService {
     }
 
     async getpaging(req: any, query: any) {
-        const authHeader = req.headers['authorization'];
-        const token = authHeader && authHeader.split(' ')[1];
-        if (!token) {
-            throw new Error('Authorization token is missing');
-        }
-
-        const decoded = await this.jwtService.verify(token);
-        const userId = decoded.id;
-
         const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1;
         const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;
         const search = query.search ? query.search.trim() : '';
@@ -133,17 +124,17 @@ export class PatientService {
         const mediaId = query.mediaId;
         const created_at = query.created_at ? JSON.parse(query.created_at) : '';
         const appointmentTime = query.appointmentTime ? JSON.parse(query.appointmentTime) : '';
-        const viewAllData = query.viewAllData ;
+        const userId = query.userId;
         const skip = (pageIndex - 1) * pageSize;
         let whereCondition = '';
         const parameters: any = {};
-
+        
         if (hospitalId !== 0) {
             whereCondition += 'patient.hospitalId = :hospitalId';
             parameters.hospitalId = hospitalId;
         }
 
-        if (viewAllData === 'false') {
+        if (userId !=='') {
             if (whereCondition) whereCondition += ' AND ';
             whereCondition += 'patient.userId = :userId';
             parameters.userId = Number(userId);
