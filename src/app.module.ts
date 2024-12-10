@@ -22,6 +22,7 @@ import { HistoryPatientsModule } from './historyPatient/historyPatient.module';
 import { HistoryLoginModule } from './historyLogin/historyLogin.module';
 import { PatientsModule } from './patient/patient.module';
 import { NotificationModule } from './notification/notification.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
   imports: [
@@ -40,6 +41,11 @@ import { NotificationModule } from './notification/notification.module';
         // logging: true
       }),
       inject:[ConfigService],
+      
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'uploads'), // Thư mục chứa file tĩnh
+      serveRoot: '/api/uploads',               // Đường dẫn để truy cập
     }),
     TodosModule,
     UsersModule,

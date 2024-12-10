@@ -85,7 +85,7 @@ export class PatientController {
         })
     }))
     async uploadFile(@UploadedFile() file: Express.Multer.File,@Param('id') id: number) {
-        const fileData = await this.patientService.uploadFile(file, id);
+        const fileData = await this.patientService.uploadFile(file.filename, id);
         return {
             statusCode: 1,
             message: 'File uploaded successfully!',

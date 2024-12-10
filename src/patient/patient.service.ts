@@ -434,10 +434,7 @@ export class PatientService {
         } 
     } 
 
-    async uploadFile(file: Express.Multer.File, id: number) {
-        const fileExt = extname(file.originalname);
-        const filename = `${file.fieldname}-${uuidv4()}${fileExt}`;
-        const filePath = `./uploads/${filename}`;
+    async uploadFile(file: string, id: number) {
 
         if(id){
             const patient = await this.patientRepository.findOne({
@@ -448,7 +445,7 @@ export class PatientService {
                 throw new NotFoundException(`patient with ID ${id} not found`);
             }
             const data: any = {
-                file: filename
+                file: file
             } 
 
             Object.assign(patient, data);
