@@ -202,11 +202,15 @@ export class PatientService {
             .skip(skip)
             .take(pageSize)
             .orderBy('patient.id', 'DESC');
+
+        const thongKe = this.patientRepository.createQueryBuilder('patient')
         if (whereCondition) {
             qb.where(whereCondition, parameters);
+            thongKe.where(whereCondition, parameters);
         }
 
         const [result, total] = await qb.getManyAndCount();
+        const [result1, total1] = await thongKe.getManyAndCount();
 
         return {
             data: result.map(patient => ({
@@ -221,6 +225,8 @@ export class PatientService {
                     user: chatPatient.user ? { fullName: chatPatient.user.fullName } : null // Include only fullName
                 }))
             })),
+            daden: result1.filter(item => item.status === STATUS.DADEN).length || 0,
+            chuaden: result1.filter(item => item.status !== STATUS.DADEN).length || 0,
             total: total,
             pageIndex: pageIndex,
             pageSize: pageSize,
