@@ -272,5 +272,15 @@ export class PatientController {
         data: data,
     };
    }
+
+   @Post('import-file-excel')
+   async importFileExcel(@Req() req: any , @Body() body: any){
+    const data = await this.patientServiceExport.importFileExcel(req, body);
+    return {
+        statusCode: 1,
+        message: 'import file excel success!',
+        data: data,
+    };
+   }
    
 }

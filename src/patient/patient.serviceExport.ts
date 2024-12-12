@@ -10,6 +10,7 @@ import { Diseases } from "src/disease/disease.entity";
 import { Media } from "src/media/media.entity";
 import { Doctor } from "src/doctor/doctor.entity";
 import { Users } from "src/users/users.entity";
+import { currentTimestamp } from "utils/currentTimestamp";
 const dayjs = require('dayjs');
 
 
@@ -663,5 +664,50 @@ export class PatientServiceExport {
             data: data,
             users: matchingUsers.sort((a, b) => a.id - b.id)
         };
+    }
+
+    async importFileExcel(req: any, body: any){
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) {
+            throw new Error('Authorization token is missing');
+        }
+
+        const decoded = await this.jwtService.verify(token);
+        const userId = decoded.id;
+        if(body.length > 0) {
+            const promises = body.map(async (item: any) => {
+                const data: any = {
+                    name: item.name ? item.name : '' ,
+                    gender: item.gender ? item.gender : '',
+                    yearOld: item.yearOld ? item.yearOld : '' ,
+                    phone: item.phone ? item.phone : '',
+                    content: item.content ? item.content : '',
+                    diseasesId: item.diseasesId ? item.diseasesId : null ,
+                    departmentId: item.departmentId ? item.departmentId : null ,
+                    mediaId: item.mediaId ? item.mediaId : null ,
+                    cityId: item.cityId ? item.cityId : null ,
+                    districtId: item.districtId ? item.districtId : null,
+                    code: item.code ? item.code : null,
+                    appointmentTime: item.appointmentTime ? item.appointmentTime : 0,
+                    reminderTime: item.reminderTime ? item.reminderTime : 0,
+                    note: item.note ? item.note : '',
+                    editregistrationTime: item.editregistrationTime ? item.editregistrationTime : 0,
+                    status: item.status ? item.status : '',
+                    doctorId: item.doctorId ? item.doctorId : null,
+                    userId: userId,
+                    hospitalId: item.hospitalId ? item.hospitalId : null,
+                    chat: item.chat ? item.chat : '',
+                    created_at: currentTimestamp(),
+                    treatment: item.treatment ? item.treatment : '',
+                    record: item.record ? item.record : '',
+                    file: item.file ? item.file : '',
+                    money: item.money ? item.money : ''
+                }
+                const todo = this.patientRepository.create(data);
+                return await this.patientRepository.save(todo)
+            }) ;
+            await Promise.all(promises);
+        }
     }
 }
