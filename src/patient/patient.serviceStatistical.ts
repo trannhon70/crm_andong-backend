@@ -359,7 +359,11 @@ export class PatientServiceStatistical {
         const { startTimestamp: lastMonthStart, endTimestamp: lastMonthEnd } = lastMonth();
 
         if (hospitalId) {
-            const users = await this.usersRepository.find();
+            const users = await this.usersRepository.find({
+                where: {
+                    roleId: 2
+                }
+            });
             
             const results = await  Promise.all(
                 users.map(async (item: any) => {

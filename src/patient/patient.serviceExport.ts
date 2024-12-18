@@ -602,7 +602,11 @@ export class PatientServiceExport {
 
     async getThongkeTheoDichVuKhachHang(req: any, body: any) {
         const { hospitalId, time, picker, timeType, status, media } = body;
-        const users = await this.usersRepository.find();
+        const users = await this.usersRepository.find({
+            where: {
+                roleId: 2
+            }
+        });
 
         const filteredUsers = await Promise.all(
             users.map(async (item: any) => {
