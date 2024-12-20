@@ -714,4 +714,28 @@ export class PatientServiceExport {
             await Promise.all(promises);
         }
     }
+
+    async updatePatientMoney(req: any, body: any){
+
+        const {id, money} = body
+        try {
+            if (id) {
+                const result = await this.patientRepository.update(
+                    { id }, // Điều kiện để tìm bệnh nhân
+                    { money } // Giá trị cần cập nhật
+                );
+                return {
+                    message: 'Cập nhật thành công!',
+                    result,
+                };
+            } else {
+                return {
+                    message: 'ID không được cung cấp!',
+                };
+            }
+        } catch (error) {
+            console.log(error);
+            throw new Error('Đã xảy ra lỗi khi cập nhật thông tin bệnh nhân!');
+        }
+    }
 }

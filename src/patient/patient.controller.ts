@@ -282,5 +282,15 @@ export class PatientController {
         data: data,
     };
    }
+
+   @Post('update-patient-money')
+   async updatePatientMoney(@Req() req: any , @Body() body: any){
+    const data = await this.patientServiceExport.updatePatientMoney(req, body);
+    return {
+        statusCode: 1,
+        message: 'update money patient success!',
+        data: data,
+    };
+   }
    
 }
