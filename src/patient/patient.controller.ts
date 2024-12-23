@@ -292,5 +292,25 @@ export class PatientController {
         data: data,
     };
    }
+
+   @Post('update-patient-doctorId')
+   async updatePatientDoctorId(@Req() req: any , @Body() body: any){
+    const data = await this.patientServiceExport.updatePatientDoctorId(req, body);
+    return {
+        statusCode: 1,
+        message: 'update doctor id patient success!',
+        data: data,
+    };
+   }
+
+   @Post('update-patient-status')
+   async updatePatientStatus(@Req() req: any , @Body() body: any){
+    const data = await this.patientServiceExport.updatePatientStatus(req, body);
+    return {
+        statusCode: 1,
+        message: 'update status patient success!',
+        data: data,
+    };
+   }
    
 }

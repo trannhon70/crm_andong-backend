@@ -738,4 +738,51 @@ export class PatientServiceExport {
             throw new Error('Đã xảy ra lỗi khi cập nhật thông tin bệnh nhân!');
         }
     }
+
+    async updatePatientDoctorId(req: any, body: any){
+
+        const {patientId, doctorId} = body
+        try {
+            if (patientId) {
+                const result = await this.patientRepository.update(
+                    { id: patientId }, // Điều kiện để tìm bệnh nhân
+                    { doctorId } // Giá trị cần cập nhật
+                );
+                return {
+                    message: 'Cập nhật thành công!',
+                    result,
+                };
+            } else {
+                return {
+                    message: 'ID không được cung cấp!',
+                };
+            }
+        } catch (error) {
+            console.log(error);
+            throw new Error('Đã xảy ra lỗi khi cập nhật thông tin bệnh nhân!');
+        }
+    }
+
+    async updatePatientStatus(req: any, body: any){
+        const {patientId, status} = body
+        try {
+            if (patientId) {
+                const result = await this.patientRepository.update(
+                    { id: patientId }, // Điều kiện để tìm bệnh nhân
+                    { status } // Giá trị cần cập nhật
+                );
+                return {
+                    message: 'Cập nhật thành công!',
+                    result,
+                };
+            } else {
+                return {
+                    message: 'patientId không được cung cấp!',
+                };
+            }
+        } catch (error) {
+            console.log(error);
+            throw new Error('Đã xảy ra lỗi khi cập nhật thông tin bệnh nhân!');
+        }
+    }
 }
