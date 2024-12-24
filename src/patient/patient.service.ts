@@ -151,7 +151,12 @@ export class PatientService {
             whereCondition += 'patient.doctorId = :doctorId';
             parameters.doctorId = doctorId;
         }
-        if(status){
+        
+        if(status === 'CHƯA ĐẾN TK'){
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'patient.status != :status';
+            parameters.status = STATUS.DADEN;
+        } else if(status && status !== 'CHƯA ĐẾN TK') {
             if (whereCondition) whereCondition += ' AND ';
             whereCondition += 'patient.status = :status';
             parameters.status = status;
