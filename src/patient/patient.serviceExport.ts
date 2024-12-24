@@ -11,6 +11,7 @@ import { Media } from "src/media/media.entity";
 import { Doctor } from "src/doctor/doctor.entity";
 import { Users } from "src/users/users.entity";
 import { currentTimestamp } from "utils/currentTimestamp";
+import { Notification } from "src/notification/notification.entity";
 const dayjs = require('dayjs');
 
 
@@ -32,7 +33,9 @@ export class PatientServiceExport {
         private readonly doctorRepository: Repository<Doctor>,
         @InjectRepository(Users)
         private readonly usersRepository: Repository<Users>,
-        private readonly jwtService: JwtService
+        private readonly jwtService: JwtService,
+         @InjectRepository(Notification)
+        private readonly notificationRepository: Repository<Notification>,
     ) { }
 
     async getXuatDuLieuBenhNhan(req: any, query: any) {
@@ -762,15 +765,38 @@ export class PatientServiceExport {
             throw new Error('Đã xảy ra lỗi khi cập nhật thông tin bệnh nhân!');
         }
     }
-
+    async updateNotication(patientId: number, hospitalId : number) {
+        if (patientId) {
+           const users = await this.usersRepository.find()
+            users.map(async(item : any) => {
+                if (Array.isArray(JSON.parse(item.hospitalId)) && JSON.parse(item.hospitalId).includes(hospitalId)) {
+                    const dataRef = {
+                        status: 0,
+                        patientId: patientId,
+                        userId: item.id,
+                        hospitalId: hospitalId,
+                        created_at: currentTimestamp()
+                    }
+                    const result = this.notificationRepository.create(dataRef);
+                    return await this.notificationRepository.save(result);
+                }
+            })
+        }
+    }
     async updatePatientStatus(req: any, body: any){
         const {patientId, status} = body
         try {
             if (patientId) {
-                const result = await this.patientRepository.update(
-                    { id: patientId }, // Điều kiện để tìm bệnh nhân
-                    { status } // Giá trị cần cập nhật
-                );
+                const patient = await this.patientRepository.findOne({
+                    where: { id: patientId },
+                });
+
+                Object.assign(patient, {status});
+                const result =  await this.patientRepository.save(patient);
+                
+                if(result?.status === STATUS.DADEN){
+                     await this.updateNotication(result.id, result?.hospitalId)
+                   }
                 return {
                     message: 'Cập nhật thành công!',
                     result,

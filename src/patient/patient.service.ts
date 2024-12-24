@@ -12,6 +12,7 @@ import { HistoryPatient } from "src/historyPatient/historyPatient.entity";
 import { STATUS } from "utils";
 import { Notification } from "src/notification/notification.entity";
 import { Users } from "src/users/users.entity";
+import { Files } from "src/files/file.entity";
 
 
 
@@ -27,6 +28,8 @@ export class PatientService {
         private readonly notificationRepository: Repository<Notification>,
         @InjectRepository(Users)
         private readonly usersRepository: Repository<Users>,
+        @InjectRepository(Files)
+        private readonly filesRepository: Repository<Files>,
 
         private readonly jwtService: JwtService
     ) { }
@@ -176,7 +179,7 @@ export class PatientService {
 
         if(mediaId){
             if (whereCondition) whereCondition += ' AND ';
-            whereCondition += 'patient.mediaId = :mediaId';
+            whereCondition += 'patient.mediaId = :mediaId'; 
             parameters.mediaId = mediaId;
         }
 
@@ -194,6 +197,7 @@ export class PatientService {
         } 
 
         const qb = this.patientRepository.createQueryBuilder('patient')
+            .leftJoinAndSelect('patient.files', 'files')
             .leftJoinAndSelect('patient.diseases', 'diseases')
             .leftJoinAndSelect('patient.department', 'department')
             .leftJoinAndSelect('patient.city', 'city')
@@ -445,7 +449,15 @@ export class PatientService {
         } 
     } 
 
-    async uploadFile(file: string, id: number) {
+    async uploadFile(req: any, file: string, id: number) {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) {
+            throw new Error('Authorization token is missing');
+        }
+
+        const decoded = await this.jwtService.verify(token);
+        const userId = decoded.id;
 
         if(id){
             const patient = await this.patientRepository.findOne({
@@ -455,49 +467,18 @@ export class PatientService {
             if (!patient) {
                 throw new NotFoundException(`patient with ID ${id} not found`);
             }
-            const data: any = {
-                file: file
-            } 
-
-            Object.assign(patient, data);
-            const result = await this.patientRepository.save(patient);
-
-            const dataHis: any = {
-                patientId: result.id ? result.id : 0 ,
-                name: result.name ? result.name : '' ,
-                gender: result.gender ? result.gender : '',
-                yearOld: result.yearOld ? result.yearOld : '' ,
-                phone: result.phone ? result.phone : '',
-                content: result.content ? result.content : '',
-                diseasesId: result.diseasesId ? result.diseasesId : null ,
-                departmentId: result.departmentId ? result.departmentId : null ,
-                mediaId: result.mediaId ? result.mediaId : null ,
-                cityId: result.cityId ? result.cityId : null ,
-                districtId: result.districtId ? result.districtId : null,
-                code: result.code ? result.code : null,
-                appointmentTime: result.appointmentTime ? result.appointmentTime : 0,
-                reminderTime: result.reminderTime ? result.reminderTime : 0,
-                note: result.note ? result.note : '',
-                editregistrationTime: result.editregistrationTime ? result.editregistrationTime : 0,
-                status: result.status ? result.status : '',
-                doctorId: result.doctorId ? result.doctorId : null,
-                userId: result.userId ? result.userId : null,
-                hospitalId: result.hospitalId ? result.hospitalId : null,
-                chat: result.chat ? result.chat : '',
-                treatment: result.treatment ? JSON.stringify( result?.treatment) : '',
-                record: result.record ? result.record : '',
-                file: result.file ? result.file : '',
-                money: result.money ? result.money : '',
-                action: 'CẬP NHẬT',
+         
+            const body = {
+                name : file,
+                patientId: patient.id,
+                userId,
+                hospitalId: patient.hospitalId,
                 created_at: currentTimestamp(),
             }
 
-            const history = this.historyPatientRepository.create(dataHis);
-           return await this.historyPatientRepository.save(history);
-            
+            const files = this.filesRepository.create(body)
+            return await this.filesRepository.save(files);
         }
-
-       
     }
 
     async getHistoryAction (id: number){

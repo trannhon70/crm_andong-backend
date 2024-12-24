@@ -24,6 +24,7 @@ import { PatientsModule } from './patient/patient.module';
 import { NotificationModule } from './notification/notification.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { CrawlModule } from './crawl/crawl.module';
+import { FileModule } from './files/file.module';
 
 @Module({
   imports: [
@@ -64,7 +65,8 @@ import { CrawlModule } from './crawl/crawl.module';
     HistoryPatientsModule,
     HistoryLoginModule,
     NotificationModule,
-    CrawlModule
+    CrawlModule,
+    FileModule
   ],
   controllers: [AppController],
   providers: [AppService ],

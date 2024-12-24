@@ -5,6 +5,7 @@ import { Departments } from "src/department/department.entity";
 import { Diseases } from "src/disease/disease.entity";
 import { District } from "src/district/district.entity";
 import { Doctor } from "src/doctor/doctor.entity";
+import { Files } from "src/files/file.entity";
 import { Hospitals } from "src/hospital/hospital.entity";
 import { Media } from "src/media/media.entity";
 import { Users } from "src/users/users.entity";
@@ -134,6 +135,10 @@ export class Patient {
     //hồ sơ tiếp nhận
     @Column({ type: 'text', nullable: true })
     file:string
+
+     // Liên kết với bảng Files
+     @OneToMany(() => Files, (file) => file.patient)
+     files: Files[];
 
     //chi phí
     @Column({ type: 'varchar', length: 125 , nullable: true})
