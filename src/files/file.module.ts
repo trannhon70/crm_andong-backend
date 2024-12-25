@@ -7,6 +7,8 @@ import { Files } from "./file.entity";
 import { CustomJwtModule } from "src/common/auth/auth.module";
 import { AuthMiddleware } from "src/common/middleware/auth.middleware";
 import { LoggerMiddleware } from "src/common/middleware/logger.middleware";
+import { FileController } from "./file.controller";
+import { FileService } from "./file.service";
 
 
 
@@ -15,8 +17,8 @@ import { LoggerMiddleware } from "src/common/middleware/logger.middleware";
         TypeOrmModule.forFeature([Users, Hospitals, Patient, Files]),
         CustomJwtModule,
     ],
-    controllers: [],
-    providers:[],
+    controllers: [FileController],
+    providers:[FileService],
 })
 
 

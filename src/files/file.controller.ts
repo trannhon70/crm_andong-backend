@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Put, Query, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Put, Query, Req } from "@nestjs/common";
 import { FileService } from "./file.service";
 
 
@@ -17,6 +17,15 @@ export class FileController {
             data: data,
         };
     }
-
+    @Delete('delete/:id')
+       async delete(@Req() req: any ,@Param('id') id: number) {
+    
+           const data = await this.fileService.delete(req,id);
+           return {
+               statusCode: 1,
+               message: 'delete file suscess!',
+               data: data,
+           };
+       }
   
 }
