@@ -246,6 +246,7 @@ export class PatientService {
     async getById(id: number) {
         if (id) {
             const result = await this.patientRepository.createQueryBuilder('patient')
+                .leftJoinAndSelect('patient.files', 'files')
                 .leftJoinAndSelect('patient.diseases', 'diseases')
                 .leftJoinAndSelect('patient.department', 'department')
                 .leftJoinAndSelect('patient.city', 'city')
@@ -259,6 +260,7 @@ export class PatientService {
                 .leftJoinAndSelect('chatPatients.user', 'chatUser') // Join with user related to chatPatients
                 .where('patient.id = :id', { id })
                 .select([
+                    'files',
                     'diseases',
                     'department',
                     'city',
