@@ -11,6 +11,7 @@ import { Roles } from "src/roles/roles.entity";
 import { Hospitals } from "src/hospital/hospital.entity";
 import { HistoryLogin } from "src/historyLogin/historyLogin.entity";
 import { RedisService } from "src/redis/redis.service";
+import { expirationTime } from "utils";
 
 let saltOrRounds = 10;
 
@@ -120,7 +121,7 @@ export class UsersService {
     const sessionToken = this.jwtService.sign(payload);
 
     // Lưu token mới vào Redis với thời gian hết hạn
-    const expirationTime = 8 * 60 * 60 * 1000; // 8 giờ (milliseconds)
+    
     const sessionData = {
         token: sessionToken,
         expiresAt: Date.now() + expirationTime,
