@@ -9,6 +9,7 @@ import { Users } from "src/users/users.entity";
 import { Notification } from "./notification.entity";
 import { noticationController } from "./notification.controller";
 import { NotificationService } from "./notification.service";
+import { RedisModule } from "src/redis/redis.module";
 
 
 
@@ -16,6 +17,7 @@ import { NotificationService } from "./notification.service";
     imports:[
         TypeOrmModule.forFeature([Users, Hospitals, Patient, Notification]),
         CustomJwtModule,
+        RedisModule
     ],
     controllers: [noticationController],
     providers:[NotificationService],

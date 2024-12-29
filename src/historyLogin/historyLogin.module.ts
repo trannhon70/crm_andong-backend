@@ -7,13 +7,14 @@ import { LoggerMiddleware } from "src/common/middleware/logger.middleware";
 import { Users } from "src/users/users.entity";
 import { HistoryLoginService } from "./historyLogin.service";
 import { HistoryLoginController } from "./historyLogin.controller";
+import { RedisModule } from "src/redis/redis.module";
 
 
 @Module({
     imports:[
         TypeOrmModule.forFeature([Users, HistoryLogin]),
         CustomJwtModule,
-       
+        RedisModule
     ],
     controllers: [HistoryLoginController],
     providers:[HistoryLoginService],

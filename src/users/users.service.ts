@@ -10,6 +10,7 @@ import { JwtService } from "@nestjs/jwt";
 import { Roles } from "src/roles/roles.entity";
 import { Hospitals } from "src/hospital/hospital.entity";
 import { HistoryLogin } from "src/historyLogin/historyLogin.entity";
+import { RedisService } from "src/redis/redis.service";
 
 let saltOrRounds = 10;
 
@@ -23,7 +24,8 @@ export class UsersService {
         private readonly hospitalsRepository: Repository<Hospitals>,
         @InjectRepository(HistoryLogin)
         private readonly historyLoginRepository: Repository<HistoryLogin>,
-        private readonly jwtService: JwtService // Inject JwtService
+        private readonly jwtService: JwtService ,// Inject JwtService,
+        private readonly redisService: RedisService,
     ) { }
 
     private async saveHistoryLogin(
@@ -75,57 +77,71 @@ export class UsersService {
     }
 
     async login(body: LoginUserDto, ip: string) {
-        const user = await this.userRepository.findOne({
-            where: {
-                email: body.email
-            },
-            relations: ['role'], // Liên kết với bảng Roles
-        });
+    const user = await this.userRepository.findOne({
+        where: { email: body.email },
+        relations: ['role'], // Liên kết với bảng Roles
+    });
 
-        if (!user) {
-            await this.saveHistoryLogin(body.email, body.password, 'ERROR', ip, '', 'Email không tồn tại!');
-            throw new BadRequestException('Email không tồn tại!');
-        }
-
-        if(user.isshow === false) {
-            await this.saveHistoryLogin(body.email, body.password, 'ERROR', ip, '', 'Tài khoản của bạn đã bị khóa, vui lòng liên hệ quản trị viên để được sử dụng tiếp!');
-            throw new BadRequestException('Tài khoản của bạn đã bị khóa, vui lòng liên hệ quản trị viên để được sử dụng tiếp!');
-        }
-
-        const isMatch = await bcrypt.compare(body.password, user.password);
-
-        if (!isMatch) {
-            await this.saveHistoryLogin(body.email, body.password, 'ERROR', ip, '', 'Password không đúng');
-            throw new BadRequestException('Password không đúng');
-        }
-
-        // Cập nhật trạng thái online thành true
-        user.online = true;
-
-        // Lưu user vào cơ sở dữ liệu sau khi cập nhật
-        await this.userRepository.save(user);
-
-        const payload = {
-            email: user.email,
-            id: user.id,
-            fullName: user.fullName,
-            language: user.language,
-            isshow: user.isshow,
-            online: user.online,
-            role: user.role, // Thông tin vai trò được lấy từ bảng Roles
-        };
-
-        await this.saveHistoryLogin('', '', 'SUCCESS', ip, user.fullName, '');
-
-        const token = this.jwtService.sign(payload);
-        return {
-            token: token,
-            user: {
-                ...user,
-                role: user.role, // Đảm bảo rằng vai trò cũng được trả về trong response
-            }
-        }
+    if (!user) {
+        await this.saveHistoryLogin(body.email, body.password, 'ERROR', ip, '', 'Email không tồn tại!');
+        throw new BadRequestException('Email không tồn tại!');
     }
+
+    if (user.isshow === false) {
+        await this.saveHistoryLogin(body.email, body.password, 'ERROR', ip, '', 'Tài khoản của bạn đã bị khóa, vui lòng liên hệ quản trị viên để được sử dụng tiếp!');
+        throw new BadRequestException('Tài khoản của bạn đã bị khóa, vui lòng liên hệ quản trị viên để được sử dụng tiếp!');
+    }
+
+    const isMatch = await bcrypt.compare(body.password, user.password);
+    if (!isMatch) {
+        await this.saveHistoryLogin(body.email, body.password, 'ERROR', ip, '', 'Password không đúng');
+        throw new BadRequestException('Password không đúng');
+    }
+
+    // Kiểm tra Redis xem có phiên đăng nhập nào chưa
+    const currentSession = await this.redisService.getKey(`user:${user.id}:session`);
+
+    if (currentSession) {
+        // Hủy token cũ
+        await this.redisService.delKey(`user:${user.id}:session`);
+    }
+
+    // Tạo payload cho token mới
+    const payload = {
+        email: user.email,
+        id: user.id,
+        fullName: user.fullName,
+        language: user.language,
+        isshow: user.isshow,
+        online: user.online,
+        role: user.role, // Thông tin vai trò được lấy từ bảng Roles
+    };
+
+    const sessionToken = this.jwtService.sign(payload);
+
+    // Lưu token mới vào Redis với thời gian hết hạn
+    const expirationTime = 8 * 60 * 60 * 1000; // 8 giờ (milliseconds)
+    const sessionData = {
+        token: sessionToken,
+        expiresAt: Date.now() + expirationTime,
+    };
+    await this.redisService.setKey(`user:${user.id}:session`, JSON.stringify(sessionData), expirationTime / 1000);
+
+    // Cập nhật trạng thái online thành true
+    user.online = true;
+    await this.userRepository.save(user);
+
+    await this.saveHistoryLogin('', '', 'SUCCESS', ip, user.fullName, '');
+
+    return {
+        token: sessionToken,
+        user: {
+            ...user,
+            role: user.role, // Đảm bảo rằng vai trò cũng được trả về trong response
+        },
+    };
+}
+
 
     async getByIdUser(req: any) {
         const authHeader = req.headers['authorization'];

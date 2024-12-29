@@ -7,12 +7,14 @@ import { AuthMiddleware } from "src/common/middleware/auth.middleware";
 import { LoggerMiddleware } from "src/common/middleware/logger.middleware";
 import { cityController } from "./city.controller";
 import { CityService } from "./city.service";
+import { RedisModule } from "src/redis/redis.module";
 
 
 @Module({
     imports:[
         TypeOrmModule.forFeature([Users,City ]),
         CustomJwtModule,
+        RedisModule
     ],
     controllers: [cityController],
     providers:[CityService],

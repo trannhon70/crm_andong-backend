@@ -8,12 +8,14 @@ import { Users } from "src/users/users.entity";
 import { Doctor } from "./doctor.entity";
 import { DiseaseController } from "./doctor.controller";
 import { DoctorsService } from "./doctor.service";
+import { RedisModule } from "src/redis/redis.module";
 
 
 @Module({
     imports:[
         TypeOrmModule.forFeature([Users, Hospitals, Doctor]),
         CustomJwtModule,
+        RedisModule
     ],
     controllers: [DiseaseController],
     providers:[DoctorsService],

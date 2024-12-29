@@ -9,13 +9,14 @@ import { LoggerMiddleware } from "src/common/middleware/logger.middleware";
 import { HistoryPatientController } from "./historyPatient.controller";
 import { HistoryPatientService } from "./historyPatient.service";
 import { Patient } from "src/patient/patient.entity";
+import { RedisModule } from "src/redis/redis.module";
 
 
 @Module({
     imports:[
         TypeOrmModule.forFeature([Users, Patient, ChatPatient, HistoryPatient]),
         CustomJwtModule,
-       
+        RedisModule
     ],
     controllers: [HistoryPatientController],
     providers:[HistoryPatientService],

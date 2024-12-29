@@ -23,12 +23,16 @@ export class RedisService {
   }
 
   // Ví dụ các phương thức sử dụng Redis
-  async setKey(key: string, value: string) {
+  async setKey(key: string, value: string, p0: number) {
     await this.redis.set(key, value);
   } 
 
   async getKey(key: string) {
     return await this.redis.get(key);
+  }
+
+  async delKey(key: string) {
+    await this.redis.del(key); // Xóa khóa Redis
   }
 
   // Đảm bảo tắt kết nối Redis khi không sử dụng

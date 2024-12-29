@@ -9,6 +9,7 @@ import { AuthMiddleware } from "src/common/middleware/auth.middleware";
 import { LoggerMiddleware } from "src/common/middleware/logger.middleware";
 import { FileController } from "./file.controller";
 import { FileService } from "./file.service";
+import { RedisModule } from "src/redis/redis.module";
 
 
 
@@ -16,6 +17,7 @@ import { FileService } from "./file.service";
     imports:[
         TypeOrmModule.forFeature([Users, Hospitals, Patient, Files]),
         CustomJwtModule,
+        RedisModule
     ],
     controllers: [FileController],
     providers:[FileService],

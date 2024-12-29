@@ -8,12 +8,14 @@ import { ChatPatient } from "./chatPatient.entity";
 import { ChatPatientController } from "./chatPatient.controller";
 import { ChatPatientService } from "./chatPatient.service";
 import { Users } from "src/users/users.entity";
+import { RedisModule } from "src/redis/redis.module";
 
 
 @Module({
     imports:[
         TypeOrmModule.forFeature([Users,ChatPatient]),
         CustomJwtModule,
+        RedisModule
     ],
     controllers: [ChatPatientController],
     providers:[ChatPatientService],

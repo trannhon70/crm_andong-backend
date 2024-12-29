@@ -8,12 +8,14 @@ import { LoggerMiddleware } from "src/common/middleware/logger.middleware";
 import { City } from "src/city/city.entity";
 import { districtController } from "./district.controller";
 import { DistrictService } from "./district.service";
+import { RedisModule } from "src/redis/redis.module";
 
 
 @Module({
     imports:[
         TypeOrmModule.forFeature([Users,District, City ]),
         CustomJwtModule,
+        RedisModule
     ],
     controllers: [districtController],
     providers:[DistrictService],

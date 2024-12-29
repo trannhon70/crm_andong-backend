@@ -9,6 +9,7 @@ import { UsersModule } from "src/users/users.module";
 import { HospitalController } from "./hospital.controller";
 import { Hospitals } from "./hospital.entity";
 import { HospitalsService } from "./hospital.service";
+import { RedisModule } from "src/redis/redis.module";
 
 
 
@@ -17,7 +18,7 @@ import { HospitalsService } from "./hospital.service";
         TypeOrmModule.forFeature([Hospitals, Users, Patient]),
         CustomJwtModule,
         UsersModule,
-         
+        RedisModule
     ],
     controllers: [HospitalController],
     providers:[HospitalsService],

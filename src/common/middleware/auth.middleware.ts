@@ -4,11 +4,14 @@ import { Request, Response, NextFunction } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from 'src/users/users.entity';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   constructor(
     private readonly jwtService: JwtService,
+    private readonly redisService: RedisService,
+
     @InjectRepository(Users)
     private readonly userRepository: Repository<Users>, // Inject repository cho User
   ) {}
@@ -24,6 +27,16 @@ export class AuthMiddleware implements NestMiddleware {
 
     try {
       const decoded = this.jwtService.verify(token); // Xác thực token
+      const sessionData = await this.redisService.getKey(`user:${decoded.id}:session`);
+      if (!sessionData) {
+        throw new UnauthorizedException('Phiên đăng nhập đã hết hạn hoặc không hợp lệ.');
+    }
+
+    const session = JSON.parse(sessionData);
+
+    if (session.token !== token || Date.now() > session.expiresAt) {
+        throw new UnauthorizedException('Phiên đăng nhập đã hết hạn hoặc không hợp lệ.');
+    }
       req.user = decoded; // Lưu thông tin người dùng vào request
       next();
     } catch (err) {

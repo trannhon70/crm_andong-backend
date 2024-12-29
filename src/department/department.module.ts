@@ -7,12 +7,14 @@ import { Departments } from "./department.entity";
 import { DepartmentController } from "./department.controller";
 import { DepartmentsService } from "./department.service";
 import { Users } from "src/users/users.entity";
+import { RedisModule } from "src/redis/redis.module";
 
 
 @Module({
     imports:[
         TypeOrmModule.forFeature([Departments, Users]),
         CustomJwtModule,
+        RedisModule
     ],
     controllers: [DepartmentController],
     providers:[DepartmentsService],

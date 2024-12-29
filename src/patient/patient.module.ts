@@ -18,12 +18,14 @@ import { PatientServiceExport } from "./patient.serviceExport";
 import { Notification } from "src/notification/notification.entity";
 import { Doctor } from "src/doctor/doctor.entity";
 import { Files } from "src/files/file.entity";
+import { RedisModule } from "src/redis/redis.module";
 
 
 @Module({
     imports:[
         TypeOrmModule.forFeature([Users, Patient, ChatPatient, HistoryPatient, Media, Departments, Diseases, Notification, Doctor, Files]),
-        CustomJwtModule
+        CustomJwtModule,
+        RedisModule
     ],
     controllers: [PatientController],
     providers:[PatientService, MyGateway, PatientServiceStatistical, PatientServiceExport],

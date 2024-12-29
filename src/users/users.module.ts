@@ -12,12 +12,14 @@ import { Users } from "./users.entity";
 import { UsersService } from "./users.service";
 import { HistoryLogin } from "src/historyLogin/historyLogin.entity";
 import { Patient } from "src/patient/patient.entity";
+import { RedisModule } from "src/redis/redis.module";
 
 
 @Module({
     imports:[
       TypeOrmModule.forFeature([Users, Roles, Hospitals, HistoryLogin, Patient]),
-      CustomJwtModule
+      CustomJwtModule,
+      RedisModule
     ],
     controllers: [UserController],
     providers:[UsersService, RolesService, HospitalsService],

@@ -8,6 +8,7 @@ import { MediaController } from "./media.controller";
 import { MediaService } from "./media.service";
 import { Media } from "./media.entity";
 import { Hospitals } from "src/hospital/hospital.entity";
+import { RedisModule } from "src/redis/redis.module";
 
 
 
@@ -15,6 +16,7 @@ import { Hospitals } from "src/hospital/hospital.entity";
     imports:[
         TypeOrmModule.forFeature([Users, Media, Hospitals]),
         CustomJwtModule,
+        RedisModule
     ],
     controllers: [MediaController],
     providers:[MediaService],
