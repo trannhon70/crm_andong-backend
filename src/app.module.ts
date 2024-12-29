@@ -25,6 +25,7 @@ import { NotificationModule } from './notification/notification.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { CrawlModule } from './crawl/crawl.module';
 import { FileModule } from './files/file.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -66,7 +67,8 @@ import { FileModule } from './files/file.module';
     HistoryLoginModule,
     NotificationModule,
     CrawlModule,
-    FileModule
+    FileModule,
+    RedisModule
   ],
   controllers: [AppController],
   providers: [AppService ],

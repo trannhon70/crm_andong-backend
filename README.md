@@ -58,6 +58,29 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Run install redis
+
+```bash
+# Nếu bạn chưa có Homebrew, bạn có thể cài đặt nó bằng cách chạy lệnh sau trong Terminal:
+$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Sau khi cài đặt Homebrew xong, bạn có thể cài đặt Redis bằng cách chạy lệnh sau:
+$ brew install redis
+
+# Khởi động Redis:
+$ brew services start redis
+
+# Kiểm tra Redis:
+$ redis-cli ping
+
+# Nếu Redis đang chạy, bạn sẽ nhận được phản hồi như sau:
+$ PONG
+
+#  Dừng Redis:
+$ brew services stop redis
+
+```
+
 ## Resources
 
 Check out a few resources that may come in handy when working with NestJS:
