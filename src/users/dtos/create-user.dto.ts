@@ -30,4 +30,6 @@ export class CreateUserDto {
     online?: boolean; // Dấu hỏi chỉ ra rằng đây là tùy chọn
 
     created_at: number;
+    //mã chuyên gia
+    code: string;
 }
