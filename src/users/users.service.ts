@@ -291,7 +291,7 @@ export class UsersService {
     async fecthByIdUser( id: number){
         if(id){
             return this.userRepository.findOne({
-                select: ['id', 'email',  'fullName', 'avatar', 'language', 'isshow', 'online', "role", 'created_at', 'hospitalId'],
+                select: ['id', 'email',  'fullName', 'avatar', 'language', 'isshow', 'online', "role", 'created_at', 'hospitalId', 'code'],
                 where: { id },
             });
         }

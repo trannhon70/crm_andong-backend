@@ -1,4 +1,4 @@
-import { IsBoolean, IsEmail, IsIn, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsBoolean, IsEmail, IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateUserDto {
     @IsNotEmpty()
@@ -31,5 +31,7 @@ export class CreateUserDto {
 
     created_at: number;
     //mã chuyên gia
+    @IsOptional()  // Không bắt buộc phải có code
+    @IsString()
     code: string;
 }

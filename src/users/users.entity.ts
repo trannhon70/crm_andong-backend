@@ -48,6 +48,6 @@ export class Users {
     @Column()  
     created_at: number;
 
-    @Column()  
+    @Column({ type: 'varchar', length: 255, nullable: true })
     code: string;
 }
