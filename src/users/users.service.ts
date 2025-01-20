@@ -70,6 +70,7 @@ export class UsersService {
             isshow: body.isshow || false ,
             online: body.online || false,
             hospitalId: body.hospitalId || '',
+            code: body.code || '',
             created_at: currentTimestamp(),
         }
 
@@ -172,7 +173,6 @@ export class UsersService {
     async UpdateUserId(id: number, body: any): Promise<any> {
         const roleExists = await this.roleRepository.findOne({ where: { id: body.roleId } });
     
-    
         const user = await this.userRepository.findOne({
             where: { id },
             relations: ['role'], // Make sure you're loading relations, if required
@@ -191,6 +191,7 @@ export class UsersService {
                 language: body.language,
                 isshow: body.isshow,
                 hospitalId: body.hospitalId,
+                code: body.code,
                 role: roleExists, // Assign the whole role entity, not just the ID
             };
     
@@ -204,6 +205,7 @@ export class UsersService {
                 language: body.language,
                 isshow: body.isshow,
                 hospitalId: body.hospitalId,
+                code: body.code,
                 role: roleExists, // Assign the whole role entity
             };
     
@@ -289,7 +291,7 @@ export class UsersService {
     async fecthByIdUser( id: number){
         if(id){
             return this.userRepository.findOne({
-                select: ['id', 'email',  'fullName', 'avatar', 'language', 'isshow', 'online', "role", 'created_at', 'hospitalId'],
+                select: ['id', 'email',  'fullName', 'avatar', 'language', 'isshow', 'online', "role", 'created_at', 'hospitalId', 'code'],
                 where: { id },
             });
         }

@@ -47,4 +47,7 @@ export class Users {
 
     @Column()  
     created_at: number;
+
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    code: string;
 }
