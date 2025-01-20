@@ -73,4 +73,16 @@ export class DiseaseController {
             data: data,
         };
     }
+
+    @Get('get-all')
+    async getAllDisease(@Req() req: any,@Query() query: any){
+       const data = await this.diseasesService.getAllDisease(query);
+       return {
+           statusCode: 1,
+           
+           message: 'get all disease success',
+           data: data,
+           
+       };
+   }
 }   

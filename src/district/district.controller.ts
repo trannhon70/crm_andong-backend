@@ -1,6 +1,6 @@
 
 
-import { Body, Controller, Get, Param, Post, Req } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
 import { DistrictService } from "./district.service";
 
 
@@ -28,7 +28,7 @@ export class districtController {
        return {
            statusCode: 1,
            
-           message: 'get all city success',
+           message: 'get all district success',
            data: data,
            
        };

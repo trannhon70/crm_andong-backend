@@ -112,13 +112,13 @@ export class DiseasesService {
     }
 
     async getByIdDepartment(query: any) {
-        const {hospitalId, departmentId} = query
+        const { hospitalId, departmentId } = query
         if (hospitalId && departmentId) {
             return this.diseaseRepository.find({
-                where: { 
-                    hospitalId :hospitalId ,
-                    departmentId :departmentId ,
-                 }
+                where: {
+                    hospitalId: hospitalId,
+                    departmentId: departmentId,
+                }
             })
         }
     }
@@ -140,6 +140,22 @@ export class DiseasesService {
 
             Object.assign(disease, data);
             return await this.diseaseRepository.save(disease);
+        }
+    }
+
+    async getAllDisease(query: any) {
+        try {
+            const hospitalId = query.hospitalId
+            if (hospitalId) {
+                const result = await this.diseaseRepository.find({
+                    where: {
+                        hospitalId: hospitalId
+                    }
+                })
+                return result
+            }
+        } catch (error) {
+            console.log(error);
         }
     }
 }
