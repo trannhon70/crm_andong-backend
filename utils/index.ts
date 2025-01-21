@@ -96,10 +96,11 @@ export const SEX = {
     KHONGXACDINH: 'KHÔNG XÁC ĐỊNH'
 }
 
-//thời gian hết hạn redis
-export const expirationTime = 8 * 60 * 60 * 1000; // 8 giờ (milliseconds)
-//thời gian hết hạn token
-export const expiresIn = '8h'
+// //thời gian hết hạn redis
+// export const expirationTime = 8 * 60 * 60 * 1000; // 8 giờ (milliseconds)
+// //thời gian hết hạn token
+// export const expiresIn = '8h'
 
-// export const expirationTime = 1 * 60 * 1000; // 1 phút (milliseconds)
-// export const expiresIn = '1m'; // 1 phút
+// Đổi thời gian từ 2 giờ thành 1 giờ
+export const expirationTime = 1 * 60 * 60 * 1000; // 1 giờ (milliseconds)
+export const expiresIn = '1h'; // 1 giờ
