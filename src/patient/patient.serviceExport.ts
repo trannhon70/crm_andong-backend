@@ -198,7 +198,8 @@ export class PatientServiceExport {
                     const patient = await this.patientRepository.find({
                         where: {
                             hospitalId: hospitalId,
-                            appointmentTime: Between(item.startTimestamp, item.endTimestamp)
+                            appointmentTime: Between(item.startTimestamp, item.endTimestamp),
+                            delete:0
                         }
                     })
                     return {
@@ -217,7 +218,8 @@ export class PatientServiceExport {
                     const patient = await this.patientRepository.find({
                         where: {
                             hospitalId: hospitalId,
-                            appointmentTime: Between(item.startTimestamp, item.endTimestamp)
+                            appointmentTime: Between(item.startTimestamp, item.endTimestamp),
+                            delete:0
                         }
                     })
                     return {
@@ -299,10 +301,11 @@ export class PatientServiceExport {
     }
     async getThongkeTuoi(req: any, body: any) {
         const { hospitalId, time, picker, timeType, status, media } = body;
+        const IsDelete = 0;
+        
         const data = await Promise.all(
             time.map(async (item: any, index: number) => {
                 const timeField = timeType === 'appointmentTime' ? 'appointmentTime' : 'created_at';
-
                 // Xây dựng QueryBuilder
                 const qb = this.patientRepository.createQueryBuilder('patient');
 
@@ -326,6 +329,11 @@ export class PatientServiceExport {
                 // Điều kiện media
                 if (media) {
                     qb.andWhere('patient.media = :media', { media });
+                }
+
+                //danh sách chưa bị xóa
+                if (IsDelete === 0) {
+                    qb.andWhere('patient.delete = :delete', { delete: IsDelete });
                 }
 
                 const [result, total] = await qb.getManyAndCount();
@@ -373,6 +381,7 @@ export class PatientServiceExport {
 
     async getThongkeTheoBenh(req: any, body: any) {
         const { hospitalId, time, picker, timeType, status, media, departmentId } = body;
+        const IsDelete = 0
         const diseases = await this.diseasesRepository.find({
             where: { departmentId: departmentId, hospitalId: hospitalId }
         })
@@ -400,6 +409,10 @@ export class PatientServiceExport {
                 }
                 if (media) {
                     qb.andWhere('patient.media = :media', { media });
+                }
+
+                if (IsDelete===0) {
+                    qb.andWhere('patient.delete = :delete', { delete : IsDelete });
                 }
 
                 const [result, total] = await qb.getManyAndCount();
@@ -436,6 +449,7 @@ export class PatientServiceExport {
 
     async getThongkeTheoNguonTruyenThong(req: any, body: any) {
         const { hospitalId, time, picker, timeType, status } = body;
+        const IsDelete = 0;
         const media = await this.mediaRepository.find({
             where: {
                 hospitalId: hospitalId
@@ -463,6 +477,9 @@ export class PatientServiceExport {
                     qb.andWhere('patient.status = :status', { status });
                 }
 
+                if (IsDelete === 0) {
+                    qb.andWhere('patient.delete = :delete', { delete : IsDelete });
+                }
 
                 const [result, total] = await qb.getManyAndCount();
 
@@ -497,7 +514,7 @@ export class PatientServiceExport {
 
     async getThongkeTheoTinhTrang(req: any, body: any) {
         const { hospitalId, time, picker, timeType, media } = body;
-
+        const IsDelete = 0
         const data = await Promise.all(
             time.map(async (item: any) => {
                 const timeField = timeType === 'appointmentTime' ? 'appointmentTime' : 'created_at';
@@ -521,6 +538,10 @@ export class PatientServiceExport {
                 // Điều kiện media
                 if (media) {
                     qb.andWhere('patient.media = :media', { media });
+                }
+
+                if (IsDelete === 0) {
+                    qb.andWhere('patient.delete = :delete', { delete : IsDelete });
                 }
 
 
@@ -552,6 +573,7 @@ export class PatientServiceExport {
 
     async getThongkeTheoBacSi(req: any, body: any) {
         const { hospitalId, time, picker, timeType, status, media } = body;
+        const IsDelete = 0;
         const doctor = await this.doctorRepository.find({
             where: {
                 hospitalId: hospitalId
@@ -580,6 +602,10 @@ export class PatientServiceExport {
                 }
                 if (media) {
                     qb.andWhere('patient.media = :media', { media });
+                }
+
+                if (IsDelete === 0) {
+                    qb.andWhere('patient.delete = :delete', { delete : IsDelete });
                 }
 
                 const [result, total] = await qb.getManyAndCount();
@@ -611,6 +637,7 @@ export class PatientServiceExport {
 
     async getThongkeTheoDichVuKhachHang(req: any, body: any) {
         const { hospitalId, time, picker, timeType, status, media } = body;
+        const IsDelete = 0
         const users = await this.usersRepository.find({
             where: {
                 roleId: 2
@@ -650,6 +677,10 @@ export class PatientServiceExport {
                 }
                 if (media) {
                     qb.andWhere('patient.media = :media', { media });
+                }
+
+                if (IsDelete === 0) {
+                    qb.andWhere('patient.delete = :delete', { delete : IsDelete });
                 }
 
                 const [result, total] = await qb.getManyAndCount();

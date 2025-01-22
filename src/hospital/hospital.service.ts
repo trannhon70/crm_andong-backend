@@ -115,7 +115,7 @@ export class HospitalsService {
 
         const getPatientStats = async (userId: number, hospitalId: number, startDate: number, endDate: number) => {
             const patients = await this.patientRepository.find({
-                where: { userId, hospitalId, appointmentTime: Between(startDate, endDate) },
+                where: { userId, hospitalId, appointmentTime: Between(startDate, endDate), delete: 0 },
             });
 
             return {
@@ -188,7 +188,8 @@ export class HospitalsService {
                     const result = await this.patientRepository.find({
                         where: {
                             hospitalId: hospitalId,
-                            appointmentTime: Between(item.startTimestamp, item.endTimestamp)
+                            appointmentTime: Between(item.startTimestamp, item.endTimestamp),
+                            delete: 0
                         }
                     });
                     
@@ -215,7 +216,8 @@ export class HospitalsService {
                         const result = await this.patientRepository.find({
                             where: {
                                 hospitalId: hospitalId,
-                                appointmentTime: Between(item.startTimestamp, item.endTimestamp)
+                                appointmentTime: Between(item.startTimestamp, item.endTimestamp),
+                                delete: 0
                             }
                         });
                         return {
