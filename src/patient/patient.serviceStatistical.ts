@@ -37,11 +37,13 @@ export class PatientServiceStatistical {
         if (hospitalId) {
             const createDateCondition = (start: number, end: number) => ({
                 where: (hospitalId ? 'patient.hospitalId = :hospitalId AND ' : '') +
+                    'patient.delete = :delete AND ' +
                     'patient.appointmentTime BETWEEN :startDate AND :endDate',
                 parameters: {
                     hospitalId: hospitalId || undefined,
                     startDate: start,
-                    endDate: end
+                    endDate: end,
+                    delete: 0
                 }
             });
 
@@ -67,6 +69,7 @@ export class PatientServiceStatistical {
             const createDateDecisionCondition = (start: number, end: number) => ({
                 where: (hospitalId ? 'patient.hospitalId = :hospitalId AND ' : '') +
                     'patient.status = :status AND ' + // Thêm "AND" và khoảng trắng
+                    'patient.delete = :delete AND ' + // Thêm "AND" và khoảng trắng
                     'patient.appointmentTime BETWEEN :startDate AND :endDate',
 
                 parameters: {
@@ -74,6 +77,7 @@ export class PatientServiceStatistical {
                     startDate: start,
                     endDate: end,
                     status: STATUS.KHONGXACDINH,
+                    delete: 0
                 }
             });
 
@@ -117,7 +121,7 @@ export class PatientServiceStatistical {
 
     async GetDanhSachXepHangThamKham(req: any, query: any) {
         const hospitalId = Number(query.hospitalId) || 0;
-
+        const IsDelete = 0
         if (hospitalId) {
             const buildQuery = async (timeRange: { startTimestamp: number; endTimestamp: number }, status: string) => {
                 let whereCondition = '';
@@ -139,6 +143,11 @@ export class PatientServiceStatistical {
                     if (whereCondition) whereCondition += ' AND ';
                     whereCondition += 'patient.status = :status';
                     parameters.status = status;
+                }
+                if (IsDelete === 0) {
+                    if (whereCondition) whereCondition += ' AND ';
+                    whereCondition += 'patient.delete = :delete';
+                    parameters.delete = IsDelete;
                 }
 
                 const qb = this.patientRepository.createQueryBuilder('patient')
@@ -207,7 +216,8 @@ export class PatientServiceStatistical {
                             where: {
                                 mediaId: item.id,
                                 hospitalId: hospitalId,
-                                appointmentTime: Between(start, end)
+                                appointmentTime: Between(start, end),
+                                delete: 0
                             }
                         });
                     };
@@ -261,7 +271,8 @@ export class PatientServiceStatistical {
                             where: {
                                 departmentId: item.id,
                                 hospitalId: hospitalId,
-                                appointmentTime: Between(start, end)
+                                appointmentTime: Between(start, end),
+                                delete: 0
                             }
                         });
                     };
@@ -315,7 +326,8 @@ export class PatientServiceStatistical {
                             where: {
                                 diseasesId: item.id,
                                 hospitalId: hospitalId,
-                                appointmentTime: Between(start, end)
+                                appointmentTime: Between(start, end),
+                                delete: 0
                             }
                         });
                     };
@@ -376,7 +388,8 @@ export class PatientServiceStatistical {
                                 where: {
                                     userId: item.id,
                                     hospitalId: hospitalId,
-                                    appointmentTime: Between(start, end)
+                                    appointmentTime: Between(start, end),
+                                    delete: 0
                                 }
                             });
                         };
