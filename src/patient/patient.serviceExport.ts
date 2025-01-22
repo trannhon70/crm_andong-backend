@@ -50,7 +50,7 @@ export class PatientServiceExport {
         const diseasesId = query.diseasesId;
         const cityId = query.cityId;
         const districtId = query.districtId;
-
+        const isDeleted = 0;
         const skip = (pageIndex - 1) * pageSize;
 
         let whereCondition = '';
@@ -59,6 +59,12 @@ export class PatientServiceExport {
         if (hospitalId !== 0) {
             whereCondition += 'patient.hospitalId = :hospitalId';
             parameters.hospitalId = hospitalId;
+        }
+
+        if (isDeleted === 0) {
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'patient.delete = :delete'; 
+            parameters.delete = isDeleted; 
         }
 
         if (doctorId) {
