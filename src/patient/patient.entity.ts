@@ -74,6 +74,10 @@ export class Patient {
     @Column({nullable: true})
     code: string
 
+    //xóa
+    @Column({nullable: true ,default: 0 })
+    delete: number
+
     //thời gian hen
     @Column({nullable: true})
     appointmentTime: number

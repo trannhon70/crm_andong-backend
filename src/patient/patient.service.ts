@@ -129,12 +129,19 @@ export class PatientService {
         const appointmentTime = query.appointmentTime ? JSON.parse(query.appointmentTime) : '';
         const userId = query.userId;
         const skip = (pageIndex - 1) * pageSize;
+        const isDeleted = 0;
         let whereCondition = '';
         const parameters: any = {};
         
         if (hospitalId !== 0) {
             whereCondition += 'patient.hospitalId = :hospitalId';
             parameters.hospitalId = hospitalId;
+        }
+
+        if (isDeleted === 0) {
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'patient.delete = :delete'; 
+            parameters.delete = isDeleted; 
         }
 
         if (userId !=='') {
@@ -243,6 +250,83 @@ export class PatientService {
         };
     }
 
+    async getpagingUserDelete(req: any, query: any) {
+        const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1;
+        const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;
+        const search = query.search ? query.search.trim() : '';
+        const hospitalId = query.hospitalId || 0;
+        const created_at = query.created_at ? JSON.parse(query.created_at) : '';
+        const skip = (pageIndex - 1) * pageSize;
+        const isDeleted = 1;
+        let whereCondition = '';
+        const parameters: any = {};
+        
+        if (hospitalId !== 0) {
+            whereCondition += 'patient.hospitalId = :hospitalId';
+            parameters.hospitalId = hospitalId;
+        }
+
+        if (isDeleted === 1) {
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'patient.delete = :delete'; 
+            parameters.delete = isDeleted; 
+        }
+
+        if (search) {
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += '(patient.name LIKE :search OR patient.phone LIKE :search OR patient.code LIKE :search)';
+            parameters.search = `%${search}%`;
+        }
+
+        if (created_at) {
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'patient.created_at BETWEEN :startDate AND :endDate';
+            parameters.startDate = created_at[0]; // Không cần dấu hỏi và dấu chấm
+            parameters.endDate = created_at[1] + 86399 ; // Tương tự
+        }
+     
+        const qb = this.patientRepository.createQueryBuilder('patient')
+            .leftJoinAndSelect('patient.files', 'files')
+            .leftJoinAndSelect('patient.diseases', 'diseases')
+            .leftJoinAndSelect('patient.department', 'department')
+            .leftJoinAndSelect('patient.city', 'city')
+            .leftJoinAndSelect('patient.district', 'district')
+            .leftJoinAndSelect('patient.doctor', 'doctor')
+            .leftJoinAndSelect('patient.user', 'user')
+            .leftJoinAndSelect('patient.hospital', 'hospital')
+            .leftJoinAndSelect('patient.media', 'media')
+            .leftJoinAndSelect('patient.chatPatients', 'chatPatients')
+            .leftJoinAndSelect('chatPatients.user', 'chatUser')
+            .skip(skip)
+            .take(pageSize)
+            .orderBy('patient.id', 'DESC');
+            if (whereCondition) {
+                qb.where(whereCondition, parameters);
+            }
+
+        const [result, total] = await qb.getManyAndCount();
+
+        return {
+            data: result.map(patient => ({
+                ...patient,
+                hospital: patient.hospital, // Includes hospital data
+                user: {
+                    ...patient.user,
+                    password: undefined // Exclude the password field
+                },
+                chatPatients: patient.chatPatients.map(chatPatient => ({
+                    ...chatPatient,
+                    user: chatPatient.user ? { fullName: chatPatient.user.fullName } : null // Include only fullName
+                }))
+            })),
+           
+            total: total,
+            pageIndex: pageIndex,
+            pageSize: pageSize,
+            totalPages: Math.ceil(total / pageSize),
+        };
+    }
+
     async getById(id: number) {
         if (id) {
             const result = await this.patientRepository.createQueryBuilder('patient')
@@ -325,9 +409,13 @@ export class PatientService {
             }
 
             const history = this.historyPatientRepository.create(dataHis);
-            await this.historyPatientRepository.save(history);
+             await this.historyPatientRepository.save(history);
 
-            return await this.patientRepository.delete(id) 
+            Object.assign(result, {delete: 1});
+           return  await this.patientRepository.save(result);
+           
+
+            // return await this.patientRepository.delete(id) 
         }
     }
 

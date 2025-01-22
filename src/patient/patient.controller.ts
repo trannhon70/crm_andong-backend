@@ -41,6 +41,16 @@ export class PatientController {
         };
     }
 
+    @Get('get-paging-user-delete')
+     async getpagingUserDelete( @Req() req: any ,@Query() query: any){
+        const data = await this.patientService.getpagingUserDelete(req ,query);
+        return {
+            statusCode: 1,
+            message: 'get paging patient success!',
+            data: data,
+        };
+    }
+
     @Get('get-by-id/:id')
     async getById(@Param('id') id: number){
        const data = await this.patientService.getById(id);
