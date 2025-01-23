@@ -519,7 +519,7 @@ export class PatientService {
                 editregistrationTime: result.editregistrationTime ? result.editregistrationTime : 0,
                 status: result.status ? result.status : '',
                 doctorId: result.doctorId ? result.doctorId : null,
-                userId: result.userId ? result.userId : null,
+                userId: userId ? userId : null,
                 hospitalId: result.hospitalId ? result.hospitalId : null,
                 chat: result.chat ? result.chat : '',
                 treatment: result.treatment ? JSON.stringify( result?.treatment) : '',
