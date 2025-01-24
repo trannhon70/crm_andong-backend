@@ -481,6 +481,9 @@ export class PatientService {
                 money: body?.money,
             } 
 
+            if (body?.status === STATUS.DADEN && body?.appointmentTime === patient?.appointmentTime) {
+                data.appointmentTime = currentTimestamp(); // Gán thời gian hiện tại hoặc thời gian cần thiết
+              }
             
             // chat: JSON.stringify(body?.chat),
             if (body.chat !== null && body.chat !== undefined && body.chat !== '') {

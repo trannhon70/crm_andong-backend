@@ -828,7 +828,12 @@ export class PatientServiceExport {
                     where: { id: patientId },
                 });
 
-                Object.assign(patient, {status});
+                const dataRef : any = {
+                    status: status,
+                    appointmentTime: currentTimestamp()
+                }
+
+                Object.assign(patient, dataRef);
                 const result =  await this.patientRepository.save(patient);
                 
                 if(result?.status === STATUS.DADEN){
