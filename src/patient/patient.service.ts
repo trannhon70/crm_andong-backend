@@ -474,7 +474,7 @@ export class PatientService {
                 note: body?.note,
                 editregistrationTime: body?.editregistrationTime,
                 status: body?.status,
-                doctorId: body?.doctorId,
+                doctorId: body?.doctorId || null,
                 hospitalId: body?.hospitalId,
                 treatment:JSON.stringify( body?.treatment),
                 record: body?.record,

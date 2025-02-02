@@ -786,7 +786,7 @@ export class PatientServiceExport {
             if (patientId) {
                 const result = await this.patientRepository.update(
                     { id: patientId }, // Điều kiện để tìm bệnh nhân
-                    { doctorId } // Giá trị cần cập nhật
+                    { doctorId : doctorId === undefined ? null: doctorId } // Giá trị cần cập nhật
                 );
                 return {
                     message: 'Cập nhật thành công!',
