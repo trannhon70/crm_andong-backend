@@ -46,6 +46,14 @@ export class PatientService {
         const decoded = await this.jwtService.verify(token);
         const userId = decoded.id;
 
+        const checkPhone =await this.patientRepository.findOne({
+            where:{phone: body.phone}
+        })
+
+        if(checkPhone){
+            throw new NotFoundException(`Số điện thoại này đã được đăng ký`);
+        }
+
         const data: any = {
             name: body.name ? body.name : '' ,
             gender: body.gender ? body.gender : '',
