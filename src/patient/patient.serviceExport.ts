@@ -128,7 +128,7 @@ export class PatientServiceExport {
             .leftJoinAndSelect('chatPatients.user', 'chatUser')
             .skip(skip)
             .take(pageSize)
-            .orderBy('patient.id', 'DESC');
+            .orderBy('patient.appointmentTime', 'DESC');
         if (whereCondition) {
             qb.where(whereCondition, parameters);
         }
