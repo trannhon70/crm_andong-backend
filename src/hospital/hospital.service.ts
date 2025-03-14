@@ -127,7 +127,12 @@ export class HospitalsService {
 
         const result = await Promise.all(
             hospitals.map(async (hospital: any) => {
-                const users = await this.usersRepository.find();
+                const users = await this.usersRepository.find({
+                    where: {
+                        roleId: 2,
+                        isshow: true
+                    }
+                });
                 const usersInHospital = users.filter((user: any) => {
                     try {
                         const hospitalIds = JSON.parse(user.hospitalId);
