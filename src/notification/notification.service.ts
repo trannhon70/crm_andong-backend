@@ -65,7 +65,7 @@ export class NotificationService {
                 });
 
                 const patient = await this.patientRepository.createQueryBuilder('patient')
-                    .where({id: item.patientId})
+                    .where({ id: item.patientId })
                     .leftJoinAndSelect('patient.diseases', 'diseases')
                     .leftJoinAndSelect('patient.department', 'department')
                     .leftJoinAndSelect('patient.city', 'city')
@@ -97,22 +97,37 @@ export class NotificationService {
         };
     }
 
-    async updateStatus (req: any ,id: number, body: any) {
-        if(id){
+    async updateStatus(req: any, id: number, body: any) {
+        if (id) {
             const notication = await this.noticationRepository.findOne({
-                where: {id}
+                where: { id }
             })
 
             if (!notication) {
                 throw new Error('Notication not found');
             }
-    
+
             const data = {
                 status: body.status
             }
 
             Object.assign(notication, data);
             return await this.noticationRepository.save(notication);
+        }
+    }
+
+    async checkAllNotication(req: any, body: any) {
+        try {
+            const notificationIds = body.map((item: any) => item.id);
+            const notifications = await this.noticationRepository.findByIds(notificationIds)
+            notifications.forEach((notification) => {
+                notification.status = 1;
+            });
+            return await this.noticationRepository.save(notifications);
+
+        } catch (error) {
+            console.log(error);
+            throw error
         }
     }
 }
