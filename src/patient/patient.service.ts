@@ -1,6 +1,6 @@
 import { JwtService } from "@nestjs/jwt";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Not, Repository } from "typeorm";
 import { Patient } from "./patient.entity";
 import { currentTimestamp } from "utils/currentTimestamp";
 import { PatientDto } from "./dto/patient.dto";
@@ -427,24 +427,53 @@ export class PatientService {
         }
     }
 
-    async updateNotication(patientId: number, hospitalId : number) {
-        if (patientId) {
-           const users = await this.usersRepository.find()
-            users.map(async(item : any) => {
-                if (Array.isArray(JSON.parse(item.hospitalId)) && JSON.parse(item.hospitalId).includes(hospitalId)) {
-                    const dataRef = {
+    async updateNotication(patientId: number, hospitalId: number, userId: number) {
+        if (!patientId) return;
+    
+        // Lấy danh sách user có roleId khác 2
+        const users = await this.usersRepository.find({
+            where: { roleId: Not(2) }
+        });
+    
+        // Lấy thông tin user hiện tại
+        const user = await this.usersRepository.findOne({ where: { id: userId } });
+        if (!user) return; // Nếu không tìm thấy user thì thoát
+    
+        // Tạo danh sách thông báo cần lưu
+        const notifications = [];
+    
+        // Thêm thông báo cho user hiện tại
+        notifications.push({
+            status: 0,
+            patientId,
+            userId: user.id,
+            hospitalId,
+            created_at: currentTimestamp()
+        });
+    
+        // Lọc ra những user có hospitalId chứa hospitalId hiện tại
+        users.forEach((item: any) => {
+            try {
+                const hospitalIds = JSON.parse(item.hospitalId);
+                if (Array.isArray(hospitalIds) && hospitalIds.includes(hospitalId)) {
+                    notifications.push({
                         status: 0,
-                        patientId: patientId,
+                        patientId,
                         userId: item.id,
-                        hospitalId: hospitalId,
+                        hospitalId,
                         created_at: currentTimestamp()
-                    }
-                    const result = this.notificationRepository.create(dataRef);
-                    return await this.notificationRepository.save(result);
+                    });
                 }
-            })
-        }
+            } catch (error) {
+                console.error(`Lỗi khi parse hospitalId của user ${item.id}:`, error);
+            }
+        });
+    
+        // Lưu tất cả thông báo cùng lúc để tối ưu hiệu suất
+        const result = this.notificationRepository.create(notifications);
+        await this.notificationRepository.save(result);
     }
+    
 
     async update(req: any ,id: number, body: any) {
         const authHeader = req.headers['authorization'];
@@ -545,7 +574,10 @@ export class PatientService {
              await this.historyPatientRepository.save(history);
 
              if(result?.status === STATUS.DADEN){
-              return await this.updateNotication(result.id, result?.hospitalId)
+                console.log(result,' result');
+               
+                console.log(result,' result');
+                return await this.updateNotication(result.id, result?.hospitalId, result.userId)
              }
         } 
     } 
