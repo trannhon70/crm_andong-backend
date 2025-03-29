@@ -26,6 +26,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { CrawlModule } from './crawl/crawl.module';
 import { FileModule } from './files/file.module';
 import { RedisModule } from './redis/redis.module';
+import { PhoneBlacklistModule } from './phone-blacklist/phone-blacklist.module';
 
 @Module({
   imports: [
@@ -68,7 +69,8 @@ import { RedisModule } from './redis/redis.module';
     NotificationModule,
     CrawlModule,
     FileModule,
-    RedisModule
+    RedisModule,
+    PhoneBlacklistModule
   ],
   controllers: [AppController],
   providers: [AppService ],

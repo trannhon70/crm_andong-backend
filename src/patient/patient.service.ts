@@ -13,6 +13,7 @@ import { STATUS } from "utils";
 import { Notification } from "src/notification/notification.entity";
 import { Users } from "src/users/users.entity";
 import { Files } from "src/files/file.entity";
+import { PhoneBlacklist } from "src/phone-blacklist/phone-blacklist.entity";
 
 
 
@@ -30,6 +31,9 @@ export class PatientService {
         private readonly usersRepository: Repository<Users>,
         @InjectRepository(Files)
         private readonly filesRepository: Repository<Files>,
+
+        @InjectRepository(PhoneBlacklist)
+        private readonly phoneBlacklistRepository: Repository<PhoneBlacklist>,
 
         private readonly jwtService: JwtService
     ) { }
@@ -53,6 +57,15 @@ export class PatientService {
         if(checkPhone){
             throw new NotFoundException(`Số điện thoại này đã được đăng ký`);
         }
+
+        const checkBlackList = await this.phoneBlacklistRepository.findOne({
+            where:{phone: body.phone}
+        })
+
+        if(checkBlackList){
+            throw new NotFoundException(`Số điện thoại này đã nằm trong danh sách cấm!`);
+        }
+
 
         const data: any = {
             name: body.name ? body.name : '' ,
