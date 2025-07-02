@@ -102,5 +102,5 @@ export const SEX = {
 // export const expiresIn = '8h'
 
 // Đổi thời gian từ 2 giờ thành 1 giờ
-export const expirationTime = 1 * 60 * 60 * 1000; // 1 giờ (milliseconds)
-export const expiresIn = '1h'; // 1 giờ
+export const expirationTime = 3 * 60 * 60 * 1000; // 3 giờ (milliseconds)
+export const expiresIn = '3h'; // 3 giờ (chuỗi, ví dụ dùng trong JWT)
