@@ -322,5 +322,15 @@ export class PatientController {
         data: data,
     };
    }
+
+   @Get('bao-cao-khu-vuc')
+   async getBaoCaoKhuVuc(@Req() req: any ,@Query() query: any){
+    const data = await this.patientServiceExport.getBaoCaoKhuVuc(req, query);
+    return {
+        statusCode: 1,
+        message: 'get report success!',
+        data: data,
+    };
+   }
    
 }

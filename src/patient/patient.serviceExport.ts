@@ -34,7 +34,7 @@ export class PatientServiceExport {
         @InjectRepository(Users)
         private readonly usersRepository: Repository<Users>,
         private readonly jwtService: JwtService,
-         @InjectRepository(Notification)
+        @InjectRepository(Notification)
         private readonly notificationRepository: Repository<Notification>,
     ) { }
 
@@ -63,8 +63,8 @@ export class PatientServiceExport {
 
         if (isDeleted === 0) {
             if (whereCondition) whereCondition += ' AND ';
-            whereCondition += 'patient.delete = :delete'; 
-            parameters.delete = isDeleted; 
+            whereCondition += 'patient.delete = :delete';
+            parameters.delete = isDeleted;
         }
 
         if (doctorId) {
@@ -199,7 +199,7 @@ export class PatientServiceExport {
                         where: {
                             hospitalId: hospitalId,
                             appointmentTime: Between(item.startTimestamp, item.endTimestamp),
-                            delete:0
+                            delete: 0
                         }
                     })
                     return {
@@ -219,7 +219,7 @@ export class PatientServiceExport {
                         where: {
                             hospitalId: hospitalId,
                             appointmentTime: Between(item.startTimestamp, item.endTimestamp),
-                            delete:0
+                            delete: 0
                         }
                     })
                     return {
@@ -302,7 +302,7 @@ export class PatientServiceExport {
     async getThongkeTuoi(req: any, body: any) {
         const { hospitalId, time, picker, timeType, status, media } = body;
         const IsDelete = 0;
-        
+
         const data = await Promise.all(
             time.map(async (item: any, index: number) => {
                 const timeField = timeType === 'appointmentTime' ? 'appointmentTime' : 'created_at';
@@ -411,8 +411,8 @@ export class PatientServiceExport {
                     qb.andWhere('patient.media = :media', { media });
                 }
 
-                if (IsDelete===0) {
-                    qb.andWhere('patient.delete = :delete', { delete : IsDelete });
+                if (IsDelete === 0) {
+                    qb.andWhere('patient.delete = :delete', { delete: IsDelete });
                 }
 
                 const [result, total] = await qb.getManyAndCount();
@@ -478,7 +478,7 @@ export class PatientServiceExport {
                 }
 
                 if (IsDelete === 0) {
-                    qb.andWhere('patient.delete = :delete', { delete : IsDelete });
+                    qb.andWhere('patient.delete = :delete', { delete: IsDelete });
                 }
 
                 const [result, total] = await qb.getManyAndCount();
@@ -541,7 +541,7 @@ export class PatientServiceExport {
                 }
 
                 if (IsDelete === 0) {
-                    qb.andWhere('patient.delete = :delete', { delete : IsDelete });
+                    qb.andWhere('patient.delete = :delete', { delete: IsDelete });
                 }
 
 
@@ -605,7 +605,7 @@ export class PatientServiceExport {
                 }
 
                 if (IsDelete === 0) {
-                    qb.andWhere('patient.delete = :delete', { delete : IsDelete });
+                    qb.andWhere('patient.delete = :delete', { delete: IsDelete });
                 }
 
                 const [result, total] = await qb.getManyAndCount();
@@ -680,16 +680,16 @@ export class PatientServiceExport {
                 }
 
                 if (IsDelete === 0) {
-                    qb.andWhere('patient.delete = :delete', { delete : IsDelete });
+                    qb.andWhere('patient.delete = :delete', { delete: IsDelete });
                 }
 
                 const [result, total] = await qb.getManyAndCount();
                 const usersCounts = matchingUsers
-                    .filter((users) => result.some((item) => item.userId === users.id)) 
+                    .filter((users) => result.some((item) => item.userId === users.id))
                     .map((users) => ({
                         id: users.id,
                         name: users.fullName,
-                        count: result.filter((item) => item.userId === users.id).length, 
+                        count: result.filter((item) => item.userId === users.id).length,
                     }));
 
                 return {
@@ -710,7 +710,7 @@ export class PatientServiceExport {
         };
     }
 
-    async importFileExcel(req: any, body: any){
+    async importFileExcel(req: any, body: any) {
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
         if (!token) {
@@ -719,18 +719,18 @@ export class PatientServiceExport {
 
         const decoded = await this.jwtService.verify(token);
         const userId = decoded.id;
-        if(body.length > 0) {
+        if (body.length > 0) {
             const promises = body.map(async (item: any) => {
                 const data: any = {
-                    name: item.name ? item.name : '' ,
+                    name: item.name ? item.name : '',
                     gender: item.gender ? item.gender : '',
-                    yearOld: item.yearOld ? item.yearOld : '' ,
+                    yearOld: item.yearOld ? item.yearOld : '',
                     phone: item.phone ? item.phone : '',
                     content: item.content ? item.content : '',
-                    diseasesId: item.diseasesId ? item.diseasesId : null ,
-                    departmentId: item.departmentId ? item.departmentId : null ,
-                    mediaId: item.mediaId ? item.mediaId : null ,
-                    cityId: item.cityId ? item.cityId : null ,
+                    diseasesId: item.diseasesId ? item.diseasesId : null,
+                    departmentId: item.departmentId ? item.departmentId : null,
+                    mediaId: item.mediaId ? item.mediaId : null,
+                    cityId: item.cityId ? item.cityId : null,
                     districtId: item.districtId ? item.districtId : null,
                     code: item.code ? item.code : null,
                     appointmentTime: item.appointmentTime ? item.appointmentTime : 0,
@@ -750,14 +750,14 @@ export class PatientServiceExport {
                 }
                 const todo = this.patientRepository.create(data);
                 return await this.patientRepository.save(todo)
-            }) ;
+            });
             await Promise.all(promises);
         }
     }
 
-    async updatePatientMoney(req: any, body: any){
+    async updatePatientMoney(req: any, body: any) {
 
-        const {id, money} = body
+        const { id, money } = body
         try {
             if (id) {
                 const result = await this.patientRepository.update(
@@ -779,14 +779,14 @@ export class PatientServiceExport {
         }
     }
 
-    async updatePatientDoctorId(req: any, body: any){
+    async updatePatientDoctorId(req: any, body: any) {
 
-        const {patientId, doctorId} = body
+        const { patientId, doctorId } = body
         try {
             if (patientId) {
                 const result = await this.patientRepository.update(
                     { id: patientId }, // Điều kiện để tìm bệnh nhân
-                    { doctorId : doctorId === undefined ? null: doctorId } // Giá trị cần cập nhật
+                    { doctorId: doctorId === undefined ? null : doctorId } // Giá trị cần cập nhật
                 );
                 return {
                     message: 'Cập nhật thành công!',
@@ -802,10 +802,10 @@ export class PatientServiceExport {
             throw new Error('Đã xảy ra lỗi khi cập nhật thông tin bệnh nhân!');
         }
     }
-    async updateNotication(patientId: number, hospitalId : number) {
+    async updateNotication(patientId: number, hospitalId: number) {
         if (patientId) {
-           const users = await this.usersRepository.find()
-            users.map(async(item : any) => {
+            const users = await this.usersRepository.find()
+            users.map(async (item: any) => {
                 if (Array.isArray(JSON.parse(item.hospitalId)) && JSON.parse(item.hospitalId).includes(hospitalId)) {
                     const dataRef = {
                         status: 0,
@@ -820,25 +820,25 @@ export class PatientServiceExport {
             })
         }
     }
-    async updatePatientStatus(req: any, body: any){
-        const {patientId, status} = body
+    async updatePatientStatus(req: any, body: any) {
+        const { patientId, status } = body
         try {
             if (patientId) {
                 const patient = await this.patientRepository.findOne({
                     where: { id: patientId },
                 });
 
-                const dataRef : any = {
+                const dataRef: any = {
                     status: status,
                     appointmentTime: currentTimestamp()
                 }
 
                 Object.assign(patient, dataRef);
-                const result =  await this.patientRepository.save(patient);
-                
-                if(result?.status === STATUS.DADEN){
-                     await this.updateNotication(result.id, result?.hospitalId)
-                   }
+                const result = await this.patientRepository.save(patient);
+
+                if (result?.status === STATUS.DADEN) {
+                    await this.updateNotication(result.id, result?.hospitalId)
+                }
                 return {
                     message: 'Cập nhật thành công!',
                     result,
@@ -851,6 +851,65 @@ export class PatientServiceExport {
         } catch (error) {
             console.log(error);
             throw new Error('Đã xảy ra lỗi khi cập nhật thông tin bệnh nhân!');
+        }
+    }
+
+    async getBaoCaoKhuVuc(req: any, query: any) {
+        try {
+            const { hospitalId, cityId, districtId, time } = query;
+            const timeCovert = JSON.parse(time);
+            const isValidParam = (value: any) => {
+                return (
+                    value !== null &&
+                    value !== undefined &&
+                    value !== 'null' &&
+                    value !== '' &&
+                    value !== 'undefined' &&
+                    !isNaN(Number(value))
+                );
+            };
+
+            const result = await Promise.all(
+                timeCovert.map(async (item: any) => {
+                    const startTime = dayjs(item).startOf('month').unix();
+                    const endTime = dayjs(item).endOf('month').unix();
+
+                    const where: any = {
+                        hospitalId: Number(hospitalId),
+                        delete: 0,
+                        appointmentTime: Between(startTime, endTime),
+                    };
+
+                    if (isValidParam(cityId)) {
+                        where.cityId = Number(cityId); // ép kiểu
+                    }
+
+                    if (isValidParam(districtId)) {
+                        where.districtId = Number(districtId); // ép kiểu
+                    }
+
+
+                    const patient = await this.patientRepository.find({ where });
+
+                    const total = patient.length;
+                    const countDADEN = patient.filter(item => item.status === STATUS.DADEN).length;
+                    const percentage = total > 0 ? (countDADEN / total) * 100 : 0;
+
+                    return {
+                        year: item,
+                        total,
+                        total_da_den: countDADEN,
+                        total_chua_den: total - countDADEN,
+                        total_cho_doi: patient.filter(item => item.status === STATUS.CHODOI).length || 0,
+                        ty_le: percentage,
+                    };
+                })
+            );
+
+            return result;
+        } catch (error) {
+            console.log(error);
+            throw error;
         }
     }
 }
