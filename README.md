@@ -79,6 +79,9 @@ $ PONG
 #  Dừng Redis:
 $ brew services stop redis
 
+#chạy trên commentfrom
+$ wsl --install
+
 ```
 
 ## Resources
