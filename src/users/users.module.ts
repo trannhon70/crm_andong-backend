@@ -13,11 +13,12 @@ import { UsersService } from "./users.service";
 import { HistoryLogin } from "src/historyLogin/historyLogin.entity";
 import { Patient } from "src/patient/patient.entity";
 import { RedisModule } from "src/redis/redis.module";
+import { HistoryUser } from "src/history_user/history_user.entity";
 
 
 @Module({
     imports:[
-      TypeOrmModule.forFeature([Users, Roles, Hospitals, HistoryLogin, Patient]),
+      TypeOrmModule.forFeature([Users, Roles, Hospitals, HistoryLogin, Patient, HistoryUser]),
       CustomJwtModule,
       RedisModule
     ],

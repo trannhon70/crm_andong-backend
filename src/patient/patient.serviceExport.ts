@@ -640,7 +640,8 @@ export class PatientServiceExport {
         const IsDelete = 0
         const users = await this.usersRepository.find({
             where: {
-                roleId: 2
+                roleId: 2,
+                isshow: true
             }
         });
 

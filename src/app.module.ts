@@ -28,6 +28,7 @@ import { RedisModule } from './redis/redis.module';
 import { PhoneBlacklistModule } from './phone-blacklist/phone-blacklist.module';
 import { TaskService } from './common/cron_task/task.service';
 import { ScheduleModule } from '@nestjs/schedule';
+import { HistoryUserModule } from './history_user/history_user.module';
 
 @Module({
   imports: [
@@ -71,7 +72,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     CrawlModule,
     FileModule,
     RedisModule,
-    PhoneBlacklistModule
+    PhoneBlacklistModule,
+    HistoryUserModule
   ],
   controllers: [AppController],
   providers: [AppService, TaskService ],

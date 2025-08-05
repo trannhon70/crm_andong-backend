@@ -63,9 +63,9 @@ export class UserController {
     }
 
     @Put('update-user/:id')
-    async UpdateUserId(@Param('id') id: number, @Body() body: any, @Res() res: any) {
+    async UpdateUserId(@Req() req:any, @Param('id') id: number, @Body() body: any, @Res() res: any) {
         try {
-            const data = await this.usersService.UpdateUserId(id, body);
+            const data = await this.usersService.UpdateUserId(req, id, body);
             return res.status(200).json({
                 statusCode: 1,
                 message: 'update user successfully!',
