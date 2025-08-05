@@ -26,9 +26,12 @@ import { CrawlModule } from './crawl/crawl.module';
 import { FileModule } from './files/file.module';
 import { RedisModule } from './redis/redis.module';
 import { PhoneBlacklistModule } from './phone-blacklist/phone-blacklist.module';
+import { TaskService } from './common/cron_task/task.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports:[ConfigModule],
@@ -71,7 +74,7 @@ import { PhoneBlacklistModule } from './phone-blacklist/phone-blacklist.module';
     PhoneBlacklistModule
   ],
   controllers: [AppController],
-  providers: [AppService ],
+  providers: [AppService, TaskService ],
 })
 export class AppModule implements NestModule {
   
