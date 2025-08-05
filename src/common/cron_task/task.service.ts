@@ -12,7 +12,7 @@ export class TaskService {
         @InjectRepository(Users)
         private readonly userRepository: Repository<Users>,
     ) { }
-    @Cron('0 54 8 * * *', {
+    @Cron('0 0 0 * * *', {
         timeZone: 'Asia/Ho_Chi_Minh', // Giờ Việt Nam
     })
     async handleMidnightTask() {
