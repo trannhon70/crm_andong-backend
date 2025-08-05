@@ -3,7 +3,6 @@ import { PatientService } from "./patient.service";
 import { PatientDto } from "./dto/patient.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
-import { MyGateway } from "src/gateway/gateway";
 import { PatientServiceStatistical } from "./patient.serviceStatistical";
 import { PatientServiceExport } from "./patient.serviceExport";
 
@@ -13,7 +12,7 @@ import { PatientServiceExport } from "./patient.serviceExport";
 export class PatientController {
     constructor(
         private readonly patientService: PatientService,
-        private readonly appGateway: MyGateway,
+        
         private readonly patientServiceStatistical: PatientServiceStatistical,
         private readonly patientServiceExport: PatientServiceExport,
     ) { }

@@ -17,7 +17,6 @@ import { DoctorsModule } from './doctor/doctor.module';
 import { CityModule } from './city/city.module';
 import { DistrictModule } from './district/district.module';
 import { ChatPatientsModule } from './chatPatient/chatPatient.module';
-import { GatewayModule } from './gateway/gateway.module';
 import { HistoryPatientsModule } from './historyPatient/historyPatient.module';
 import { HistoryLoginModule } from './historyLogin/historyLogin.module';
 import { PatientsModule } from './patient/patient.module';
@@ -63,7 +62,6 @@ import { PhoneBlacklistModule } from './phone-blacklist/phone-blacklist.module';
     CityModule,
     DistrictModule,
     ChatPatientsModule,
-    GatewayModule,
     HistoryPatientsModule,
     HistoryLoginModule,
     NotificationModule,

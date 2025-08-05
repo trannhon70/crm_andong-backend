@@ -30,33 +30,33 @@ export class RolesService {
     }
 
     async getpaging(query: any) {
-        const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1; 
-        const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;  
-        const search = query.search ? query.search.trim() : '';
+    const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1;
+    const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;
+    const search = query.search ? query.search.trim() : '';
 
-        const skip = (pageIndex - 1) * pageSize; 
+    const skip = (pageIndex - 1) * pageSize;
 
-        const [result, total] = await this.roleRepository.findAndCount({
-            select: ['id', 'name', 'created_at'],
-            where: search
-            ? { name: Like(`%${search}%`) } 
-            : {},
-            skip: skip,
-            take: pageSize,
-            order: {
-                created_at: 'ASC', 
-            },
-            relations: ['users'],
-        });
+    const qb = this.roleRepository.createQueryBuilder('role')
+        .leftJoinAndSelect('role.users', 'user', 'user.isshow = :isshow', { isshow: true })
+        .select(['role.id', 'role.name', 'role.created_at', 'user.id', 'user.fullName']) // chọn field cần thiết
+        .skip(skip)
+        .take(pageSize)
+        .orderBy('role.created_at', 'ASC');
 
-        return {
-            data: result,
-            total: total,
-            pageIndex: pageIndex,
-            pageSize: pageSize,
-            totalPages: Math.ceil(total / pageSize),
-        };
+    if (search) {
+        qb.where('role.name LIKE :search', { search: `%${search}%` });
     }
+
+    const [result, total] = await qb.getManyAndCount();
+
+    return {
+        data: result,
+        total: total,
+        pageIndex: pageIndex,
+        pageSize: pageSize,
+        totalPages: Math.ceil(total / pageSize),
+    };
+}
     
     async deleteRoleId (id: number) {
         if(id){

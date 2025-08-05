@@ -9,7 +9,6 @@ import { PatientController } from "./patient.controller";
 import { PatientService } from "./patient.service";
 import { ChatPatient } from "src/chatPatient/chatPatient.entity";
 import { HistoryPatient } from "src/historyPatient/historyPatient.entity";
-import { MyGateway } from "src/gateway/gateway";
 import { PatientServiceStatistical } from "./patient.serviceStatistical";
 import { Media } from "src/media/media.entity";
 import { Departments } from "src/department/department.entity";
@@ -29,7 +28,7 @@ import { PhoneBlacklist } from "src/phone-blacklist/phone-blacklist.entity";
         RedisModule
     ],
     controllers: [PatientController],
-    providers:[PatientService, MyGateway, PatientServiceStatistical, PatientServiceExport],
+    providers:[PatientService, PatientServiceStatistical, PatientServiceExport],
     exports:[]
 })
 

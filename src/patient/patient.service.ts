@@ -51,15 +51,18 @@ export class PatientService {
         const userId = decoded.id;
 
         const checkPhone =await this.patientRepository.findOne({
-            where:{phone: body.phone}
+            where:{
+                phone: body.phone.trim(),
+                hospitalId: body.hospitalId,
+            }
         })
 
         if(checkPhone){
-            throw new NotFoundException(`Số điện thoại này đã được đăng ký`);
+            throw new NotFoundException(`Số điện thoại này đã được đăng ký tại phòng khám`);
         }
 
         const checkBlackList = await this.phoneBlacklistRepository.findOne({
-            where:{phone: body.phone}
+            where:{phone: body.phone.trim()}
         })
 
         if(checkBlackList){
@@ -71,7 +74,7 @@ export class PatientService {
             name: body.name ? body.name : '' ,
             gender: body.gender ? body.gender : '',
             yearOld: body.yearOld ? body.yearOld : '' ,
-            phone: body.phone ? body.phone : '',
+            phone: body.phone.trim() ? body.phone.trim() : '',
             content: body.content ? body.content : '',
             diseasesId: body.diseasesId ? body.diseasesId : null ,
             departmentId: body.departmentId ? body.departmentId : null ,
