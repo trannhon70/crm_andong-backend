@@ -373,7 +373,8 @@ export class PatientServiceStatistical {
         if (hospitalId) {
             const users = await this.usersRepository.find({
                 where: {
-                    roleId: 2
+                    roleId: 2,
+                    isshow: true
                 }
             });
             
