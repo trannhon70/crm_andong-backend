@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: [process.env.URL_DEV_PRODUCTION, process.env.URL_DEV_LOCALHOST],
+    origin: [process.env.URL_DEV_PRODUCTION, process.env.URL_DEV_LOCALHOST, 'https://cms.phongkhamdakhoaandong.vn'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, // Nếu bạn cần sử dụng cookie hoặc xác thực thông qua CORS
   });
