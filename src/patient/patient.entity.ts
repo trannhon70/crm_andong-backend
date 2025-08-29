@@ -34,64 +34,64 @@ export class Patient {
     phone: string;
 
     //nội dung tư ván
-    @Column({ type: 'text',nullable: true })
+    @Column({ type: 'text', nullable: true })
     content: string;
 
     //bệnh
-    @Column({ nullable : true })
+    @Column({ nullable: true })
     diseasesId: number;
 
     @ManyToOne(() => Diseases, (diseases) => diseases.id)
     diseases: Diseases;
 
     //khoa
-    @Column({nullable: true})
+    @Column({ nullable: true })
     departmentId: number
 
     @ManyToOne(() => Departments, (de) => de.id)
     department: Departments;
 
     // nguồn đến
-    @Column({nullable: true})
+    @Column({ nullable: true })
     mediaId: number
 
     @ManyToOne(() => Media, (me) => me.id)
     media: Media;
 
     //thành phố
-    @Column({nullable : true})
-    cityId:number
+    @Column({ nullable: true })
+    cityId: number
     @ManyToOne(() => City, (ci) => ci.id)
     city: City;
 
-    @Column({nullable: true})
-    districtId:number
+    @Column({ nullable: true })
+    districtId: number
     @ManyToOne(() => District, (dis) => dis.id)
     district: District;
 
 
     //mã chuyên gia
-    @Column({nullable: true})
+    @Column({ nullable: true })
     code: string
 
     //xóa
-    @Column({nullable: true ,default: 0 })
+    @Column({ nullable: true, default: 0 })
     delete: number
 
     //thời gian hen
-    @Column({nullable: true})
+    @Column({ nullable: true })
     appointmentTime: number
 
     //thời gian nhắt hẹn
-    @Column({nullable: true})
+    @Column({ nullable: true })
     reminderTime: number
 
     //ghi chú
-    @Column({ type: 'text',nullable: true })
+    @Column({ type: 'text', nullable: true })
     note: string
 
     //sua doi thời gian đăng ký
-    @Column({nullable: true})
+    @Column({ nullable: true })
     editregistrationTime: number
 
     // trạng thái
@@ -106,45 +106,49 @@ export class Patient {
     doctor: Doctor;
 
     //người tạo
-    @Column({nullable: true})
+    @Column({ nullable: true })
     userId: number;
     @ManyToOne(() => Users, (user) => user.id)
     user: Users;
 
     //bệnh viện 
-    @Column({nullable : true})
-    hospitalId: number; 
+    @Column({ nullable: true })
+    hospitalId: number;
     @ManyToOne(() => Hospitals, (hospital) => hospital.id)
     hospital: Hospitals;
 
     //hồ sơ thăm khám qua điện thoại 
-    @Column({ type: 'text' ,nullable: true})
-    chat:string
+    @Column({ type: 'text', nullable: true })
+    chat: string
 
     @OneToMany(() => ChatPatient, (chatPatient) => chatPatient.patient)
     chatPatients: ChatPatient[];
 
     //ngày tạo
-    @Column({nullable: true})
+    @Column({ nullable: true })
     created_at: number;
 
     //mục điều trị
-    @Column({ type: 'text',nullable: true })
-    treatment:string
-    
-    //hồ sơ tiếp nhận
-    @Column({ type: 'text' ,nullable: true})
-    record:string
+    @Column({ type: 'text', nullable: true })
+    treatment: string
 
     //hồ sơ tiếp nhận
     @Column({ type: 'text', nullable: true })
-    file:string
+    record: string
 
-     // Liên kết với bảng Files
-     @OneToMany(() => Files, (file) => file.patient)
-     files: Files[];
+    //hồ sơ tiếp nhận
+    @Column({ type: 'text', nullable: true })
+    file: string
+
+    // Liên kết với bảng Files
+    @OneToMany(() => Files, (file) => file.patient)
+    files: Files[];
+
+    //nguyên nhân bênh không đến
+    @Column({ type: 'text', nullable: true })
+    reason: string
 
     //chi phí
-    @Column({ type: 'varchar', length: 125 , nullable: true})
+    @Column({ type: 'varchar', length: 125, nullable: true })
     money: string;
 }

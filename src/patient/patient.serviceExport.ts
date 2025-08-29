@@ -913,4 +913,13 @@ export class PatientServiceExport {
             throw error;
         }
     }
+
+    async updatePatientReason(req: any, body: any) {
+        try {
+            return await this.patientRepository.update({ id: body.id }, { reason: body.reason })
+        } catch (error) {
+            console.log(error);
+            throw error
+        }
+    }
 }

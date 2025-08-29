@@ -17,8 +17,8 @@ export class PatientDto {
     // nguồn đến
     mediaId?: number
     //thành phố
-    cityId?:string
-    districtId?:string
+    cityId?: string
+    districtId?: string
     //mã chuyên gia
     code?: string
     //thời gian hen
@@ -36,14 +36,16 @@ export class PatientDto {
     //người tạo
     userId?: number;
     //bệnh viện 
-    hospitalId?: number; 
-    chat?:string
+    hospitalId?: number;
+    chat?: string
     //ngày tạo
     created_at?: number;
 
-     //mục điều trị
-     treatment?:string
-     
-     //hồ sơ tiếp nhận
-     record?:string
+    //mục điều trị
+    treatment?: string;
+    //nguyên nhân bệnh không đến
+    reason?: string
+
+    //hồ sơ tiếp nhận
+    record?: string
 }
