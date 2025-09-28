@@ -34,90 +34,62 @@ export class PatientServiceStatistical {
 
     async GetThongKeDangKy(req: any, query: any) {
         const hospitalId = Number(query.hospitalId) || 0;
-        if (hospitalId) {
-            const createDateCondition = (start: number, end: number) => ({
-                where: (hospitalId ? 'patient.hospitalId = :hospitalId AND ' : '') +
-                    'patient.delete = :delete AND ' +
-                    'patient.appointmentTime BETWEEN :startDate AND :endDate',
-                parameters: {
-                    hospitalId: hospitalId || undefined,
-                    startDate: start,
-                    endDate: end,
-                    delete: 0
-                }
-            });
+        if (!hospitalId) return;
 
-            const executeQuery = async (start: number, end: number) => {
-                const { where, parameters } = createDateCondition(start, end);
-                const [result] = await this.patientRepository.createQueryBuilder('patient')
-                    .where(where, parameters)
-                    .orderBy('patient.id', 'DESC')
-                    .getManyAndCount();
-                return {
-                    tong: result.length,
-                    daden: result.filter((item: any) => item.status === STATUS.DADEN).length,
-                    chuaden: result.filter((item: any) => item.status !== STATUS.DADEN).length
-                };
-            };
+        const timeRanges = {
+            currentDate: currentDate(),
+            yesterday: yesterday(),
+            thisMonth: thisMonth(),
+            lastMonth: lastMonth(),
+            yearly: yearly(),
+        };
 
-            const currentDateStats = await executeQuery(currentDate().startTimestamp, currentDate().endTimestamp);
-            const yesterdayStats = await executeQuery(yesterday().startTimestamp, yesterday().endTimestamp);
-            const thisMonthStats = await executeQuery(thisMonth().startTimestamp, thisMonth().endTimestamp);
-            const yearlyStats = await executeQuery(yearly().startTimestamp, yearly().endTimestamp);
-            const lastMonthStats = await executeQuery(lastMonth().startTimestamp, lastMonth().endTimestamp);
+        // Tạo 1 query chung cho tất cả thống kê
+        const stats: any = {};
+        for (const [key, range] of Object.entries(timeRanges)) {
+            const result = await this.patientRepository.createQueryBuilder('patient')
+                .select([
+                    'COUNT(*) as tong',
+                    `SUM(CASE WHEN patient.status = :daden THEN 1 ELSE 0 END) as daden`,
+                    `SUM(CASE WHEN patient.status != :daden THEN 1 ELSE 0 END) as chuaden`,
+                    `SUM(CASE WHEN patient.status = :khongxacdinh THEN 1 ELSE 0 END) as chuaquyetdinh`
+                ])
+                .where(hospitalId ? 'patient.hospitalId = :hospitalId' : '1=1', { hospitalId })
+                .andWhere('patient.delete = :delete', { delete: 0 })
+                .andWhere('patient.appointmentTime BETWEEN :startDate AND :endDate', {
+                    startDate: range.startTimestamp,
+                    endDate: range.endTimestamp
+                })
+                .setParameters({ daden: STATUS.DADEN, khongxacdinh: STATUS.KHONGXACDINH })
+                .getRawOne();
 
-            const createDateDecisionCondition = (start: number, end: number) => ({
-                where: (hospitalId ? 'patient.hospitalId = :hospitalId AND ' : '') +
-                    'patient.status = :status AND ' + // Thêm "AND" và khoảng trắng
-                    'patient.delete = :delete AND ' + // Thêm "AND" và khoảng trắng
-                    'patient.appointmentTime BETWEEN :startDate AND :endDate',
-
-                parameters: {
-                    hospitalId: hospitalId || undefined,
-                    startDate: start,
-                    endDate: end,
-                    status: STATUS.KHONGXACDINH,
-                    delete: 0
-                }
-            });
-
-            const executeQueryDecision = async (start: number, end: number) => {
-                const { where, parameters } = createDateDecisionCondition(start, end);
-                const [result] = await this.patientRepository.createQueryBuilder('patient')
-                    .where(where, parameters)
-                    .orderBy('patient.id', 'DESC')
-                    .getManyAndCount();
-                return {
-                    tong: result.length,
-
-                };
-            };
-
-            const currentDateDecision = await executeQueryDecision(currentDate().startTimestamp, currentDate().endTimestamp);
-            const yesterdayDecision = await executeQueryDecision(yesterday().startTimestamp, yesterday().endTimestamp);
-            const thisMonthDecision = await executeQueryDecision(thisMonth().startTimestamp, thisMonth().endTimestamp);
-            const yearlyDecision = await executeQueryDecision(yearly().startTimestamp, yearly().endTimestamp);
-            const lastMonthDecision = await executeQueryDecision(lastMonth().startTimestamp, lastMonth().endTimestamp);
-
-            return {
-                TKDangKy: {
-                    currentDate: currentDateStats,
-                    yesterday: yesterdayStats,
-                    thisMonth: thisMonthStats,
-                    yearly: yearlyStats,
-                    lastMonth: lastMonthStats,
-                },
-                TKCuocHenChuaQuyetDinh: {
-                    currentDate: currentDateDecision,
-                    yesterday: yesterdayDecision,
-                    thisMonth: thisMonthDecision,
-                    yearly: yearlyDecision,
-                    lastMonth: lastMonthDecision,
-                }
+            stats[key] = {
+                tong: Number(result.tong),
+                daden: Number(result.daden),
+                chuaden: Number(result.chuaden),
+                chuaquyetdinh: Number(result.chuaquyetdinh),
             };
         }
 
+        // Tách ra thành 2 object như trước nếu muốn
+        return {
+            TKDangKy: {
+                currentDate: { tong: stats.currentDate.tong, daden: stats.currentDate.daden, chuaden: stats.currentDate.chuaden },
+                yesterday: { tong: stats.yesterday.tong, daden: stats.yesterday.daden, chuaden: stats.yesterday.chuaden },
+                thisMonth: { tong: stats.thisMonth.tong, daden: stats.thisMonth.daden, chuaden: stats.thisMonth.chuaden },
+                lastMonth: { tong: stats.lastMonth.tong, daden: stats.lastMonth.daden, chuaden: stats.lastMonth.chuaden },
+                yearly: { tong: stats.yearly.tong, daden: stats.yearly.daden, chuaden: stats.yearly.chuaden },
+            },
+            TKCuocHenChuaQuyetDinh: {
+                currentDate: { tong: stats.currentDate.chuaquyetdinh },
+                yesterday: { tong: stats.yesterday.chuaquyetdinh },
+                thisMonth: { tong: stats.thisMonth.chuaquyetdinh },
+                lastMonth: { tong: stats.lastMonth.chuaquyetdinh },
+                yearly: { tong: stats.yearly.chuaquyetdinh },
+            }
+        };
     }
+
 
     async GetDanhSachXepHangThamKham(req: any, query: any) {
         const hospitalId = Number(query.hospitalId) || 0;
@@ -253,7 +225,7 @@ export class PatientServiceStatistical {
         }
     }
 
-    async GetThongKeKhoa (req: any, query: any) {
+    async GetThongKeKhoa(req: any, query: any) {
         const hospitalId = Number(query.hospitalId) || 0;
         const { startTimestamp: currentStart, endTimestamp: currentEnd } = currentDate();
         const { startTimestamp: yesterdayStart, endTimestamp: yesterdayEnd } = yesterday();
@@ -308,7 +280,7 @@ export class PatientServiceStatistical {
         }
     }
 
-    async GetThongKeBenh (req: any, query: any) {
+    async GetThongKeBenh(req: any, query: any) {
         const hospitalId = Number(query.hospitalId) || 0;
         const { startTimestamp: currentStart, endTimestamp: currentEnd } = currentDate();
         const { startTimestamp: yesterdayStart, endTimestamp: yesterdayEnd } = yesterday();
@@ -363,7 +335,7 @@ export class PatientServiceStatistical {
         }
     }
 
-    async GetThongKeTuVan (req: any, query: any) {
+    async GetThongKeTuVan(req: any, query: any) {
         const hospitalId = Number(query.hospitalId) || 0;
         const { startTimestamp: currentStart, endTimestamp: currentEnd } = currentDate();
         const { startTimestamp: yesterdayStart, endTimestamp: yesterdayEnd } = yesterday();
@@ -377,13 +349,13 @@ export class PatientServiceStatistical {
                     isshow: true
                 }
             });
-            
-            const results = await  Promise.all(
+
+            const results = await Promise.all(
                 users.map(async (item: any) => {
                     const checkHospital = JSON.parse(item?.hospitalId)
                     const check = checkHospital.filter(hos => hos === hospitalId)
 
-                    if(check.length === 1){
+                    if (check.length === 1) {
                         const findPatientsByDate = async (start: number, end: number) => {
                             return await this.patientRepository.find({
                                 where: {
@@ -400,7 +372,7 @@ export class PatientServiceStatistical {
                             findPatientsByDate(thisMonthStart, thisMonthEnd),
                             findPatientsByDate(lastMonthStart, lastMonthEnd),
                         ]);
-    
+
                         return {
                             name: item.fullName,
                             currentDate: {
@@ -421,12 +393,12 @@ export class PatientServiceStatistical {
                             },
                         };
                     }
-                    
+
                 })
             );
 
             return results.filter(item => item);
-            
+
 
         }
     }
