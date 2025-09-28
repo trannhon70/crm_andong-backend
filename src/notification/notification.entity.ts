@@ -1,6 +1,6 @@
 import { Patient } from "src/patient/patient.entity";
 import { Users } from "src/users/users.entity";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: 'notification' })
 export class Notification {
@@ -8,11 +8,13 @@ export class Notification {
     id: number;
 
     //0 là chưa xem, 1 là đã xem
+    @Index()
     @Column()
     status: number
 
+    @Index()
     @Column()
-    patientId:number
+    patientId: number
 
     @ManyToOne(() => Patient, (pa) => pa.id)
     patient: Patient;
@@ -22,9 +24,10 @@ export class Notification {
     @ManyToOne(() => Users, (user) => user.id)
     user: Users;
 
+    @Index()
     @Column()
     hospitalId: number;
-   
+
 
     @Column()
     created_at: number;
