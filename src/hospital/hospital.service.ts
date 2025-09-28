@@ -4,11 +4,12 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Patient } from "src/patient/patient.entity";
 import { Users } from "src/users/users.entity";
 import { Between, Like, Repository } from "typeorm";
-import { currentDate, lastMonth, listMonthYear, STATUS, thisMonth, yesterday } from "utils";
+import { currentDate, expirationTime, lastMonth, listMonthYear, STATUS, thisMonth, yesterday } from "utils";
 import { currentTimestamp } from "utils/currentTimestamp";
 import { HospitalDto } from "./dtos/hospital.dto";
 import { Hospitals } from "./hospital.entity";
 import { query } from "express";
+import { RedisService } from "src/redis/redis.service";
 
 
 
@@ -19,6 +20,7 @@ export class HospitalsService {
         @InjectRepository(Hospitals)
         private readonly hospitalsRepository: Repository<Hospitals>,
         private readonly jwtService: JwtService,
+        private readonly redisService: RedisService,
         @InjectRepository(Users)
         private readonly usersRepository: Repository<Users>,
 
@@ -87,8 +89,28 @@ export class HospitalsService {
     }
 
     async getAll() {
-        const result = await this.hospitalsRepository.find()
-        return result
+        try {
+            const cacheKey = 'hospitals:all';
+            // 1. Kiểm tra Redis
+            const cachedData = await this.redisService.getKey(cacheKey);
+            if (cachedData) {
+                console.log('Lấy dữ liệu từ Redis');
+                return JSON.parse(cachedData);
+            }
+
+            // 2. Nếu chưa có cache, fetch từ DB
+            const result = await this.hospitalsRepository.find();
+
+            // 3. Lưu vào Redis, TTL 1 giờ (3600 giây)
+            await this.redisService.setKey(cacheKey, JSON.stringify(result), expirationTime);
+
+            console.log('Lấy dữ liệu từ DB và lưu vào Redis');
+            return result;
+        } catch (error) {
+            console.log(error);
+            throw error
+        }
+
     }
 
     async update(id: number, body: any) {
@@ -186,7 +208,7 @@ export class HospitalsService {
 
     async getBaoCaoXuhuongHangThang(query: any) {
         const hospitalId = query.hospitalId;
-        const months = listMonthYear(); 
+        const months = listMonthYear();
         if (hospitalId) {
             const data = await Promise.all(
                 months.map(async (item: any) => {
@@ -197,7 +219,7 @@ export class HospitalsService {
                             delete: 0
                         }
                     });
-                    
+
                     return {
                         month: item.month,
                         year: item.year,
@@ -212,12 +234,12 @@ export class HospitalsService {
         }
     }
 
-    async getBaoCaoDoHoaTuyChinh (body: any){
-         const {hospitalId, picker, time} = body;
-         if(hospitalId && time.length > 0){
-            if(picker === 'week' || picker === 'month' || picker === 'quarter' || picker === 'year'){
+    async getBaoCaoDoHoaTuyChinh(body: any) {
+        const { hospitalId, picker, time } = body;
+        if (hospitalId && time.length > 0) {
+            if (picker === 'week' || picker === 'month' || picker === 'quarter' || picker === 'year') {
                 const data = await Promise.all(
-                    time.map(async(item:any)=>{
+                    time.map(async (item: any) => {
                         const result = await this.patientRepository.find({
                             where: {
                                 hospitalId: hospitalId,
@@ -238,11 +260,11 @@ export class HospitalsService {
                 )
                 return data
             }
-         }else {
+        } else {
             return {
                 message: 'HospitalId does not exist!'
             }
-         }
+        }
     }
-    
+
 }   
