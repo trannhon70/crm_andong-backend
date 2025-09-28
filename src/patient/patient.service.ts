@@ -664,41 +664,41 @@ export class PatientService {
 
     async getThongKeNgayHienTai(req: any, query: any) {
         const hospitalId = Number(query.hospitalId) || 0;
-        let whereCondition = '';
-        const parameters: any = {};
+        const parameters: any = { statusDaden: STATUS.DADEN };
 
         const currentDate = new Date();
-        const startDate = new Date(currentDate.setHours(0, 0, 0, 0));
-        const endDate = new Date(currentDate.setHours(23, 59, 59, 999));
+        const startDate = new Date(currentDate);
+        startDate.setHours(0, 0, 0, 0);
+        const endDate = new Date(currentDate);
+        endDate.setHours(23, 59, 59, 999);
 
         const startTimestamp = Math.floor(startDate.getTime() / 1000);
         const endTimestamp = Math.floor(endDate.getTime() / 1000);
+
+        let whereCondition = 'patient.appointmentTime BETWEEN :startDate AND :endDate';
+        parameters.startDate = startTimestamp;
+        parameters.endDate = endTimestamp;
+
         if (hospitalId !== 0) {
-            whereCondition += 'patient.hospitalId = :hospitalId';
+            whereCondition += ' AND patient.hospitalId = :hospitalId';
             parameters.hospitalId = hospitalId;
         }
-        // Thêm điều kiện thời gian vào whereCondition
-        if (startTimestamp && endTimestamp) {
-            if (whereCondition) whereCondition += ' AND ';
-            whereCondition += 'patient.appointmentTime BETWEEN :startDate AND :endDate';
-            parameters.startDate = startTimestamp;
-            parameters.endDate = endTimestamp;
-        }
 
-        const qb = this.patientRepository.createQueryBuilder('patient')
+        const result = await this.patientRepository.createQueryBuilder('patient')
+            .select([
+                'COUNT(*) AS total',
+                `SUM(CASE WHEN patient.status = :statusDaden THEN 1 ELSE 0 END) AS daden`
+            ])
             .where(whereCondition, parameters)
-            .orderBy('patient.id', 'DESC');
+            .getRawOne();
 
-        const [result, total] = await qb.getManyAndCount();
-
-        const daden = await this.patientRepository.createQueryBuilder('patient')
-            .where(whereCondition, parameters)
-            .andWhere('patient.status = :status', { status: STATUS.DADEN })
-            .getCount();
+        const total = Number(result.total);
+        const daden = Number(result.daden);
         const chuaden = total - daden;
 
         return { total, daden, chuaden };
     }
+
 
     async getThongKeAll(req: any, query: any) {
         try {
