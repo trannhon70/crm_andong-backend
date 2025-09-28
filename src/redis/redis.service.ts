@@ -14,18 +14,22 @@ export class RedisService {
       db: 0,              // Cơ sở dữ liệu Redis
     });
     this.redis.on('connect', () => {
-        console.log('Đã kết nối đến Redis!');
-      });
-      
-      this.redis.on('error', (error) => {
-        console.error('Lỗi Redis:', error);
-      });
+      console.log('Đã kết nối đến Redis!');
+    });
+
+    this.redis.on('error', (error) => {
+      console.error('Lỗi Redis:', error);
+    });
   }
 
   // Ví dụ các phương thức sử dụng Redis
-  async setKey(key: string, value: string, p0: number) {
-    await this.redis.set(key, value);
-  } 
+  async setKey(key: string, value: string, ttlSeconds?: number) {
+    if (ttlSeconds) {
+      await this.redis.set(key, value, 'EX', ttlSeconds);
+    } else {
+      await this.redis.set(key, value);
+    }
+  }
 
   async getKey(key: string) {
     return await this.redis.get(key);

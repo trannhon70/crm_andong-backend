@@ -18,6 +18,7 @@ export class NotificationService {
     ) { }
 
     async getpaging(req: any, query: any) {
+        // Lấy token
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
         if (!token) {
@@ -27,12 +28,13 @@ export class NotificationService {
         const decoded = await this.jwtService.verify(token);
         const userId = decoded.id;
 
+        // Phân trang
         const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1;
         const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;
         const hospitalId = query.hospitalId || 0;
-
         const skip = (pageIndex - 1) * pageSize;
 
+        // Điều kiện where
         let whereCondition = '';
         const parameters: any = {};
 
@@ -47,55 +49,41 @@ export class NotificationService {
             parameters.userId = userId;
         }
 
+        // Query chính: join luôn user và patient cùng các quan hệ cần thiết
         const qb = this.noticationRepository.createQueryBuilder('notification')
+            .leftJoinAndSelect('notification.user', 'user')
+            .leftJoinAndSelect('notification.patient', 'patient')
+            .leftJoinAndSelect('patient.diseases', 'diseases')
+            .leftJoinAndSelect('patient.department', 'department')
+            .leftJoinAndSelect('patient.city', 'city')
+            .leftJoinAndSelect('patient.district', 'district')
+            .leftJoinAndSelect('patient.doctor', 'doctor')
+            .leftJoinAndSelect('patient.user', 'puser')
+            .leftJoinAndSelect('patient.hospital', 'hospital')
+            .leftJoinAndSelect('patient.media', 'media')
+            .leftJoinAndSelect('patient.chatPatients', 'chatPatients')
+            .leftJoinAndSelect('chatPatients.user', 'chatUser')
             .skip(skip)
             .take(pageSize)
             .orderBy('notification.id', 'DESC');
+
         if (whereCondition) {
             qb.where(whereCondition, parameters);
         }
 
         const [result, total] = await qb.getManyAndCount();
 
-        const enrichedResult = await Promise.all(
-            result.map(async (item: any) => {
-                const user = await this.userRepository.findOne({
-                    where: { id: item.userId },
-                    select: ['id', 'fullName', 'email']
-                });
-
-                const patient = await this.patientRepository.createQueryBuilder('patient')
-                    .where({ id: item.patientId })
-                    .leftJoinAndSelect('patient.diseases', 'diseases')
-                    .leftJoinAndSelect('patient.department', 'department')
-                    .leftJoinAndSelect('patient.city', 'city')
-                    .leftJoinAndSelect('patient.district', 'district')
-                    .leftJoinAndSelect('patient.doctor', 'doctor')
-                    .leftJoinAndSelect('patient.user', 'user')
-                    .leftJoinAndSelect('patient.hospital', 'hospital')
-                    .leftJoinAndSelect('patient.media', 'media')
-                    .leftJoinAndSelect('patient.chatPatients', 'chatPatients')
-                    .leftJoinAndSelect('chatPatients.user', 'chatUser')
-                    .getOne()
-
-                return {
-                    ...item,
-                    user: user,
-                    patient: patient
-                };
-            })
-        );
-
-
         return {
             totalStatus: result.filter(item => item.status === 0).length,
-            data: enrichedResult,
-            total: total,
-            pageIndex: pageIndex,
-            pageSize: pageSize,
+            data: result,
+            total,
+            pageIndex,
+            pageSize,
             totalPages: Math.ceil(total / pageSize),
         };
     }
+
+
 
     async updateStatus(req: any, id: number, body: any) {
         if (id) {
