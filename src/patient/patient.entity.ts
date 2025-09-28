@@ -9,17 +9,19 @@ import { Files } from "src/files/file.entity";
 import { Hospitals } from "src/hospital/hospital.entity";
 import { Media } from "src/media/media.entity";
 import { Users } from "src/users/users.entity";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: 'patient' })
 export class Patient {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Index()
     @Column()
     name: string;
 
     //giới tính
+    @Index()
     @Column()
     @IsIn(['NAM', 'NỮ', 'KHÔNG XÁC ĐỊNH'])
     gender: string
@@ -29,6 +31,7 @@ export class Patient {
     yearOld: number;
 
     //số điện thoaị
+    @Index()
     @Column({ length: 12 })
     @MaxLength(12, { message: 'Phone number can not exceed 12 characters' })
     phone: string;
@@ -38,6 +41,7 @@ export class Patient {
     content: string;
 
     //bệnh
+    @Index()
     @Column({ nullable: true })
     diseasesId: number;
 
@@ -45,6 +49,7 @@ export class Patient {
     diseases: Diseases;
 
     //khoa
+    @Index()
     @Column({ nullable: true })
     departmentId: number
 
@@ -52,6 +57,7 @@ export class Patient {
     department: Departments;
 
     // nguồn đến
+    @Index()
     @Column({ nullable: true })
     mediaId: number
 
@@ -75,14 +81,17 @@ export class Patient {
     code: string
 
     //xóa
+    @Index()
     @Column({ nullable: true, default: 0 })
     delete: number
 
     //thời gian hen
+    @Index()
     @Column({ nullable: true })
     appointmentTime: number
 
     //thời gian nhắt hẹn
+    @Index()
     @Column({ nullable: true })
     reminderTime: number
 
@@ -95,23 +104,27 @@ export class Patient {
     editregistrationTime: number
 
     // trạng thái
+    @Index()
     @Column({ nullable: true })
     @IsIn(['CHỜ ĐỢI', 'ĐÃ ĐẾN', 'CHƯA ĐẾN', 'KHÔNG XÁC ĐỊNH'])
     status: string
 
     // bác sĩ
+    @Index()
     @Column({ nullable: true })
     doctorId: number
     @ManyToOne(() => Doctor, (doc) => doc.id)
     doctor: Doctor;
 
     //người tạo
+    @Index()
     @Column({ nullable: true })
     userId: number;
     @ManyToOne(() => Users, (user) => user.id)
     user: Users;
 
     //bệnh viện 
+    @Index()
     @Column({ nullable: true })
     hospitalId: number;
     @ManyToOne(() => Hospitals, (hospital) => hospital.id)
@@ -125,6 +138,7 @@ export class Patient {
     chatPatients: ChatPatient[];
 
     //ngày tạo
+    @Index()
     @Column({ nullable: true })
     created_at: number;
 

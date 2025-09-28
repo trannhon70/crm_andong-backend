@@ -143,90 +143,82 @@ export class PatientService {
         const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1;
         const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;
         const search = query.search ? query.search.trim() : '';
-        const hospitalId = query.hospitalId || 0;
-        const doctorId = query.doctorId || 0;
+        const hospitalId = query.hospitalId ? Number(query.hospitalId) : 0;
+        const doctorId = query.doctorId ? Number(query.doctorId) : 0;
         const status = query.status;
-        const departmentId = query.departmentId;
-        const diseasesId = query.diseasesId;
-        const mediaId = query.mediaId;
-        const created_at = query.created_at ? JSON.parse(query.created_at) : '';
-        const appointmentTime = query.appointmentTime ? JSON.parse(query.appointmentTime) : '';
+        const departmentId = query.departmentId ? Number(query.departmentId) : 0;
+        const diseasesId = query.diseasesId ? Number(query.diseasesId) : 0;
+        const mediaId = query.mediaId ? Number(query.mediaId) : 0;
+        const created_at = query.created_at ? JSON.parse(query.created_at) : null;
+        const appointmentTime = query.appointmentTime ? JSON.parse(query.appointmentTime) : null;
         const userId = query.userId;
         const skip = (pageIndex - 1) * pageSize;
         const isDeleted = 0;
-        let whereCondition = '';
+
+        // Build conditions & parameters safely
+        const conditions: string[] = [];
         const parameters: any = {};
 
         if (hospitalId !== 0) {
-            whereCondition += 'patient.hospitalId = :hospitalId';
+            conditions.push('patient.hospitalId = :hospitalId');
             parameters.hospitalId = hospitalId;
         }
 
-        if (isDeleted === 0) {
-            if (whereCondition) whereCondition += ' AND ';
-            whereCondition += 'patient.delete = :delete';
-            parameters.delete = isDeleted;
-        }
+        // luôn lọc delete
+        conditions.push('patient.delete = :delete');
+        parameters.delete = isDeleted;
 
-        if (userId !== '') {
-            if (whereCondition) whereCondition += ' AND ';
-            whereCondition += 'patient.userId = :userId';
+        if (userId !== undefined && userId !== null && userId !== '') {
+            conditions.push('patient.userId = :userId');
             parameters.userId = Number(userId);
         }
 
         if (search) {
-            if (whereCondition) whereCondition += ' AND ';
-            whereCondition += '(patient.name LIKE :search OR patient.phone LIKE :search OR patient.code LIKE :search)';
+            conditions.push('(patient.name LIKE :search OR patient.phone LIKE :search OR patient.code LIKE :search)');
             parameters.search = `%${search}%`;
         }
 
         if (doctorId) {
-            if (whereCondition) whereCondition += ' AND ';
-            whereCondition += 'patient.doctorId = :doctorId';
+            conditions.push('patient.doctorId = :doctorId');
             parameters.doctorId = doctorId;
         }
 
         if (status === 'CHƯA ĐẾN TK') {
-            if (whereCondition) whereCondition += ' AND ';
-            whereCondition += 'patient.status != :status';
-            parameters.status = STATUS.DADEN;
+            conditions.push('patient.status != :statusParam');
+            parameters.statusParam = STATUS.DADEN;
         } else if (status && status !== 'CHƯA ĐẾN TK') {
-            if (whereCondition) whereCondition += ' AND ';
-            whereCondition += 'patient.status = :status';
-            parameters.status = status;
+            conditions.push('patient.status = :statusParam');
+            parameters.statusParam = status;
         }
 
         if (departmentId) {
-            if (whereCondition) whereCondition += ' AND ';
-            whereCondition += 'patient.departmentId = :departmentId';
+            conditions.push('patient.departmentId = :departmentId');
             parameters.departmentId = departmentId;
         }
 
         if (diseasesId) {
-            if (whereCondition) whereCondition += ' AND ';
-            whereCondition += 'patient.diseasesId = :diseasesId';
+            conditions.push('patient.diseasesId = :diseasesId');
             parameters.diseasesId = diseasesId;
         }
 
         if (mediaId) {
-            if (whereCondition) whereCondition += ' AND ';
-            whereCondition += 'patient.mediaId = :mediaId';
+            conditions.push('patient.mediaId = :mediaId');
             parameters.mediaId = mediaId;
         }
 
-        if (created_at) {
-            if (whereCondition) whereCondition += ' AND ';
-            whereCondition += 'patient.created_at BETWEEN :startDate AND :endDate';
-            parameters.startDate = created_at[0]; // Không cần dấu hỏi và dấu chấm
-            parameters.endDate = created_at[1] + 86399; // Tương tự
-        }
-        if (appointmentTime) {
-            if (whereCondition) whereCondition += ' AND ';
-            whereCondition += 'patient.appointmentTime BETWEEN :startDate AND :endDate';
-            parameters.startDate = appointmentTime[0]; // Không cần dấu hỏi và dấu chấm
-            parameters.endDate = appointmentTime[1] + 86399; // Tương tự
+        if (created_at && Array.isArray(created_at) && created_at.length === 2) {
+            conditions.push('patient.created_at BETWEEN :createdStart AND :createdEnd');
+            parameters.createdStart = created_at[0];
+            parameters.createdEnd = created_at[1] + 86399;
         }
 
+        if (appointmentTime && Array.isArray(appointmentTime) && appointmentTime.length === 2) {
+            conditions.push('patient.appointmentTime BETWEEN :apptStart AND :apptEnd');
+            parameters.apptStart = appointmentTime[0];
+            parameters.apptEnd = appointmentTime[1] + 86399;
+        }
+
+        // Data query (vẫn join để trả đủ dữ liệu như trước)
         const qb = this.patientRepository.createQueryBuilder('patient')
             .leftJoinAndSelect('patient.files', 'files')
             .leftJoinAndSelect('patient.diseases', 'diseases')
@@ -243,36 +235,55 @@ export class PatientService {
             .take(pageSize)
             .orderBy('patient.id', 'DESC');
 
-        const thongKe = this.patientRepository.createQueryBuilder('patient')
-        if (whereCondition) {
-            qb.where(whereCondition, parameters);
-            thongKe.where(whereCondition, parameters);
+        if (conditions.length) {
+            qb.where(conditions.join(' AND '), parameters);
         }
 
-        const [result, total] = await qb.getManyAndCount();
-        const [result1, total1] = await thongKe.getManyAndCount();
+        // Lấy dữ liệu trang hiện tại (không dùng getManyAndCount vì ta tách count riêng để tránh join khi COUNT)
+        const result = await qb.getMany();
+
+        // Count (COUNT(*) chỉ trên bảng patient, KHÔNG có join — nhanh hơn)
+        const countQb = this.patientRepository.createQueryBuilder('patient');
+        if (conditions.length) {
+            countQb.where(conditions.join(' AND '), parameters);
+        }
+        const total = await countQb.getCount();
+
+        // Stats: lấy số lượng theo status bằng GROUP BY (nhẹ hơn nhiều so với fetch toàn bộ)
+        const statsQb = this.patientRepository.createQueryBuilder('patient')
+            .select('patient.status', 'status')
+            .addSelect('COUNT(*)', 'total');
+        if (conditions.length) {
+            statsQb.where(conditions.join(' AND '), parameters);
+        }
+        statsQb.groupBy('patient.status');
+        const rawStats = await statsQb.getRawMany(); // [{status: 'DADEN', total: '123'}, ...]
+
+        const daden = Number(rawStats.find(r => r.status === STATUS.DADEN)?.total || 0);
+        const chuaden = total - daden;
 
         return {
             data: result.map(patient => ({
                 ...patient,
-                hospital: patient.hospital, // Includes hospital data
+                hospital: patient.hospital,
                 user: {
                     ...patient.user,
-                    password: undefined // Exclude the password field
+                    password: undefined
                 },
-                chatPatients: patient.chatPatients.map(chatPatient => ({
+                chatPatients: (patient.chatPatients || []).map(chatPatient => ({
                     ...chatPatient,
-                    user: chatPatient.user ? { fullName: chatPatient.user.fullName } : null // Include only fullName
+                    user: chatPatient.user ? { fullName: chatPatient.user.fullName } : null
                 }))
             })),
-            daden: result1.filter(item => item.status === STATUS.DADEN).length || 0,
-            chuaden: result1.filter(item => item.status !== STATUS.DADEN).length || 0,
-            total: total,
-            pageIndex: pageIndex,
-            pageSize: pageSize,
+            daden,
+            chuaden,
+            total,
+            pageIndex,
+            pageSize,
             totalPages: Math.ceil(total / pageSize),
         };
     }
+
 
     async getpagingUserDelete(req: any, query: any) {
         const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1;
