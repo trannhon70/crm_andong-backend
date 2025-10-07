@@ -674,6 +674,16 @@ export class PatientService {
     }
 
     async getThongKeNgayHienTai(req: any, query: any) {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) {
+            throw new Error('Authorization token is missing');
+        }
+
+        const decoded = await this.jwtService.verify(token);
+        const role = decoded.role.id;
+        const userId = decoded.id
+
         const hospitalId = Number(query.hospitalId) || 0;
         const parameters: any = { statusDaden: STATUS.DADEN };
 
@@ -693,6 +703,11 @@ export class PatientService {
         if (hospitalId !== 0) {
             whereCondition += ' AND patient.hospitalId = :hospitalId';
             parameters.hospitalId = hospitalId;
+        }
+
+        if (role === 2) {
+            whereCondition += ' AND patient.userId = :userId';
+            parameters.userId = userId;
         }
 
         const result = await this.patientRepository.createQueryBuilder('patient')
