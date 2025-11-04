@@ -373,12 +373,12 @@ export class UsersService {
     }
 
     async getAllUserOnline(req: any) {
-        const reuslt = await this.userRepository.find({
+        const result = await this.userRepository.count({
             where: {
                 online: true,
-                isshow: true
-            }
-        })
-        return reuslt.length
+                isshow: true,
+            },
+        });
+        return result;
     }
 }
