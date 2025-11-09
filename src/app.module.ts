@@ -35,7 +35,7 @@ import { HistoryUserModule } from './history_user/history_user.module';
     ScheduleModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
-      imports:[ConfigModule],
+      imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'mysql',
         host: configService.get('DB_HOST'),
@@ -44,11 +44,11 @@ import { HistoryUserModule } from './history_user/history_user.module';
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
         entities: [join(process.cwd(), 'dist/**/*.entity.js')],
-        synchronize: true,
+        synchronize: false,
         // logging: true
       }),
-      inject:[ConfigService],
-      
+      inject: [ConfigService],
+
     }),
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'), // Thư mục chứa file tĩnh
@@ -76,17 +76,17 @@ import { HistoryUserModule } from './history_user/history_user.module';
     HistoryUserModule
   ],
   controllers: [AppController],
-  providers: [AppService, TaskService ],
+  providers: [AppService, TaskService],
 })
 export class AppModule implements NestModule {
-  
+
   configure(consumer: MiddlewareConsumer) {
-      consumer
-        .apply(AuthMiddleware, LoggerMiddleware) 
-        .exclude(
-          // { path: 'user/create', method: RequestMethod.POST },
-          { path: 'user/login', method: RequestMethod.POST } // Exclude login route
-        )
-        
+    consumer
+      .apply(AuthMiddleware, LoggerMiddleware)
+      .exclude(
+        // { path: 'user/create', method: RequestMethod.POST },
+        { path: 'user/login', method: RequestMethod.POST } // Exclude login route
+      )
+
   }
 }
