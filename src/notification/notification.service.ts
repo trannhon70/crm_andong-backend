@@ -17,50 +17,21 @@ export class NotificationService {
         private readonly jwtService: JwtService
     ) { }
 
-    async getpaging(req: any, query: any) {
-        // 🧩 1. Xác thực JWT
+    async getPaging(req: any, query: any) {
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
-        if (!token) {
-            throw new Error('Authorization token is missing');
-        }
+        if (!token) throw new Error('Authorization token is missing');
 
-        let decoded: any;
-        try {
-            decoded = await this.jwtService.verify(token);
-        } catch (e) {
-            throw new Error('Invalid or expired token');
-        }
-
+        const decoded = await this.jwtService.verify(token);
         const userId = decoded.id;
 
-        // 🧮 2. Phân trang kiểu keyset
-        const limit = query.pageSize ? parseInt(query.pageSize, 10) : 10;
-        const cursor = query.cursor ? Number(query.cursor) : null; // id cuối trang trước
-        const hospitalId = query.hospitalId ? Number(query.hospitalId) : 0;
+        const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1;
+        const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;
+        const hospitalId = query.hospitalId || 0;
+        const skip = (pageIndex - 1) * pageSize;
 
-        // 🧱 3. Xây điều kiện WHERE
-        const conditions: string[] = [];
-        const params: Record<string, any> = {};
-
-        if (hospitalId) {
-            conditions.push('notification.hospitalId = :hospitalId');
-            params.hospitalId = hospitalId;
-        }
-
-        if (userId) {
-            conditions.push('notification.userId = :userId');
-            params.userId = userId;
-        }
-
-        // Keyset condition
-        if (cursor) {
-            conditions.push('notification.id < :cursor');
-            params.cursor = cursor;
-        }
-
-        // 🧩 4. Query chính (JOIN đầy đủ)
-        const qb = this.noticationRepository.createQueryBuilder('notification')
+        const qb = this.noticationRepository
+            .createQueryBuilder('notification')
             .leftJoinAndSelect('notification.user', 'user')
             .leftJoinAndSelect('notification.patient', 'patient')
             .leftJoinAndSelect('patient.diseases', 'diseases')
@@ -68,44 +39,32 @@ export class NotificationService {
             .leftJoinAndSelect('patient.city', 'city')
             .leftJoinAndSelect('patient.district', 'district')
             .leftJoinAndSelect('patient.doctor', 'doctor')
-            .leftJoinAndSelect('patient.user', 'puser')
+            .leftJoinAndSelect('patient.user', 'pUser')
             .leftJoinAndSelect('patient.hospital', 'hospital')
             .leftJoinAndSelect('patient.media', 'media')
             .leftJoinAndSelect('patient.chatPatients', 'chatPatients')
             .leftJoinAndSelect('chatPatients.user', 'chatUser')
-            .orderBy('notification.id', 'DESC').limit(limit + 1); //
+            .skip(skip)
+            .take(pageSize)
+            .orderBy('notification.id', 'DESC');
 
-        if (conditions.length) {
-            qb.where(conditions.join(' AND '), params);
-        }
+        if (hospitalId !== 0) qb.andWhere('notification.hospitalId = :hospitalId', { hospitalId });
+        if (userId) qb.andWhere('notification.userId = :userId', { userId });
 
-        const notifications = await qb.getMany();
+        const [result, total] = await qb.getManyAndCount();
 
-        // 🧭 5. Tính toán phân trang
-        const hasNextPage = notifications.length > limit;
-        if (hasNextPage) notifications.pop();
-        const nextCursor = hasNextPage ? notifications[notifications.length - 1].id : null;
+        // chỉ cần tính totalStatus
+        const totalStatus = await this.noticationRepository.count({
+            where: { status: 0, userId, ...(hospitalId ? { hospitalId } : {}) },
+        });
 
-        // 🧮 6. Đếm tổng (COUNT riêng để không JOIN — nhanh hơn)
-        const countQb = this.noticationRepository.createQueryBuilder('notification');
-        if (conditions.length) countQb.where(conditions.join(' AND '), params);
-        const total = await countQb.getCount();
-
-        // 🧾 7. Tổng số chưa đọc
-        const unreadCount = await this.noticationRepository
-            .createQueryBuilder('notification')
-            .where('notification.status = :status', { status: 0 })
-            .andWhere('notification.userId = :userId', { userId })
-            .getCount();
-
-        // ✅ 8. Trả về kết quả
         return {
-            data: notifications,
-            unreadCount,
+            totalStatus,
+            data: result,
             total,
-            hasNextPage,
-            nextCursor,
-            pageSize: limit,
+            pageIndex,
+            pageSize,
+            totalPages: Math.ceil(total / pageSize),
         };
     }
 
