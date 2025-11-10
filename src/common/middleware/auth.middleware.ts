@@ -14,7 +14,7 @@ export class AuthMiddleware implements NestMiddleware {
 
     @InjectRepository(Users)
     private readonly userRepository: Repository<Users>, // Inject repository cho User
-  ) {}
+  ) { }
 
   async use(req: any, res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization'];
@@ -27,16 +27,16 @@ export class AuthMiddleware implements NestMiddleware {
 
     try {
       const decoded = this.jwtService.verify(token); // Xác thực token
-      const sessionData = await this.redisService.getKey(`user:${decoded.id}:session`);
+      const sessionData = await this.redisService.getKey(`user:${decoded.id}:session_crm`);
       if (!sessionData) {
         throw new UnauthorizedException('Phiên đăng nhập đã hết hạn hoặc không hợp lệ.');
-    }
+      }
 
-    const session = JSON.parse(sessionData);
+      const session = JSON.parse(sessionData);
 
-    if (session.token !== token || Date.now() > session.expiresAt) {
+      if (session.token !== token || Date.now() > session.expiresAt) {
         throw new UnauthorizedException('Phiên đăng nhập đã hết hạn hoặc không hợp lệ.');
-    }
+      }
       req.user = decoded; // Lưu thông tin người dùng vào request
       next();
     } catch (err) {

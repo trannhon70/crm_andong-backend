@@ -105,11 +105,11 @@ export class UsersService {
         }
 
         // Kiểm tra Redis xem có phiên đăng nhập nào chưa
-        const currentSession = await this.redisService.getKey(`user:${user.id}:session`);
+        const currentSession = await this.redisService.getKey(`user:${user.id}:session_crm`);
 
         if (currentSession) {
             // Hủy token cũ
-            await this.redisService.delKey(`user:${user.id}:session`);
+            await this.redisService.delKey(`user:${user.id}:session_crm`);
         }
 
         // Tạo payload cho token mới
@@ -131,7 +131,7 @@ export class UsersService {
             token: sessionToken,
             expiresAt: Date.now() + expirationTime,
         };
-        await this.redisService.setKey(`user:${user.id}:session`, JSON.stringify(sessionData), expirationTime / 1000);
+        await this.redisService.setKey(`user:${user.id}:session_crm`, JSON.stringify(sessionData), expirationTime / 1000);
 
         // Cập nhật trạng thái online thành true
         user.online = true;

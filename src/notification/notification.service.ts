@@ -17,7 +17,7 @@ export class NotificationService {
         private readonly jwtService: JwtService
     ) { }
 
-    async getPaging(req: any, query: any) {
+    async getpaging(req: any, query: any) {
         // 🧩 1. Xác thực JWT
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
@@ -60,48 +60,20 @@ export class NotificationService {
         }
 
         // 🧩 4. Query chính (JOIN đầy đủ)
-        const qb = this.noticationRepository
-            .createQueryBuilder('notification')
-            // 🔹 Chỉ JOIN, không SELECT toàn bộ bảng
-            .leftJoin('notification.user', 'user')
-            .leftJoin('notification.patient', 'patient')
-            .leftJoin('patient.hospital', 'hospital')
-            .leftJoin('patient.department', 'department')
-            .leftJoin('patient.city', 'city')
-            .leftJoin('patient.district', 'district')
-            .leftJoin('patient.doctor', 'doctor')
-            .leftJoin('patient.user', 'puser')
-            .leftJoin('patient.media', 'media')
-
-            // 🔹 Chỉ lấy đúng các cột bạn cần
-            .select([
-                'notification.id',
-                'notification.status',
-                'notification.created_at',
-
-                'user.name',
-
-                'patient.id',
-                'patient.fullname',
-                'patient.gender',
-                'patient.birthday',
-
-                'hospital.name',
-                'department.name',
-                'city.name',
-                'district.name',
-                'doctor.name',
-                'puser.name',
-                'media.url',
-            ])
-
-            // 🔹 Nếu bạn vẫn cần chatPatients.user.name
-            .leftJoin('patient.chatPatients', 'chatPatients')
-            .leftJoin('chatPatients.user', 'chatUser')
-            .addSelect(['chatPatients.id', 'chatUser.name'])
-
-            .orderBy('notification.id', 'DESC')
-            .limit(limit + 1); // keyset pagination: lấy thêm 1 để biết có trang sau
+        const qb = this.noticationRepository.createQueryBuilder('notification')
+            .leftJoinAndSelect('notification.user', 'user')
+            .leftJoinAndSelect('notification.patient', 'patient')
+            .leftJoinAndSelect('patient.diseases', 'diseases')
+            .leftJoinAndSelect('patient.department', 'department')
+            .leftJoinAndSelect('patient.city', 'city')
+            .leftJoinAndSelect('patient.district', 'district')
+            .leftJoinAndSelect('patient.doctor', 'doctor')
+            .leftJoinAndSelect('patient.user', 'puser')
+            .leftJoinAndSelect('patient.hospital', 'hospital')
+            .leftJoinAndSelect('patient.media', 'media')
+            .leftJoinAndSelect('patient.chatPatients', 'chatPatients')
+            .leftJoinAndSelect('chatPatients.user', 'chatUser')
+            .orderBy('notification.id', 'DESC').limit(limit + 1); //
 
         if (conditions.length) {
             qb.where(conditions.join(' AND '), params);
