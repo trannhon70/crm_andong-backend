@@ -17,10 +17,12 @@ export class NotificationService {
         private readonly jwtService: JwtService
     ) { }
 
-    async getPaging(req: any, query: any) {
+    async getpaging(req: any, query: any) {
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
-        if (!token) throw new Error('Authorization token is missing');
+        if (!token) {
+            throw new Error('Authorization token is missing');
+        }
 
         const decoded = await this.jwtService.verify(token);
         const userId = decoded.id;
@@ -28,42 +30,69 @@ export class NotificationService {
         const pageIndex = query.pageIndex ? parseInt(query.pageIndex, 10) : 1;
         const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 10;
         const hospitalId = query.hospitalId || 0;
+
         const skip = (pageIndex - 1) * pageSize;
 
-        const qb = this.noticationRepository
-            .createQueryBuilder('notification')
-            .leftJoinAndSelect('notification.user', 'user')
-            .leftJoinAndSelect('notification.patient', 'patient')
-            .leftJoinAndSelect('patient.diseases', 'diseases')
-            .leftJoinAndSelect('patient.department', 'department')
-            .leftJoinAndSelect('patient.city', 'city')
-            .leftJoinAndSelect('patient.district', 'district')
-            .leftJoinAndSelect('patient.doctor', 'doctor')
-            .leftJoinAndSelect('patient.user', 'pUser')
-            .leftJoinAndSelect('patient.hospital', 'hospital')
-            .leftJoinAndSelect('patient.media', 'media')
-            .leftJoinAndSelect('patient.chatPatients', 'chatPatients')
-            .leftJoinAndSelect('chatPatients.user', 'chatUser')
+        let whereCondition = '';
+        const parameters: any = {};
+
+        if (hospitalId !== 0) {
+            whereCondition += 'notification.hospitalId = :hospitalId';
+            parameters.hospitalId = hospitalId;
+        }
+
+        if (userId) {
+            if (whereCondition) whereCondition += ' AND ';
+            whereCondition += 'notification.userId = :userId';
+            parameters.userId = userId;
+        }
+
+        const qb = this.noticationRepository.createQueryBuilder('notification')
             .skip(skip)
             .take(pageSize)
             .orderBy('notification.id', 'DESC');
-
-        if (hospitalId !== 0) qb.andWhere('notification.hospitalId = :hospitalId', { hospitalId });
-        if (userId) qb.andWhere('notification.userId = :userId', { userId });
+        if (whereCondition) {
+            qb.where(whereCondition, parameters);
+        }
 
         const [result, total] = await qb.getManyAndCount();
 
-        // chỉ cần tính totalStatus
-        const totalStatus = await this.noticationRepository.count({
-            where: { status: 0, userId, ...(hospitalId ? { hospitalId } : {}) },
-        });
+        const enrichedResult = await Promise.all(
+            result.map(async (item: any) => {
+                const user = await this.userRepository.findOne({
+                    where: { id: item.userId },
+                    select: ['id', 'fullName', 'email']
+                });
+
+                const patient = await this.patientRepository.createQueryBuilder('patient')
+                    .where({ id: item.patientId })
+                    .leftJoinAndSelect('patient.diseases', 'diseases')
+                    .leftJoinAndSelect('patient.department', 'department')
+                    .leftJoinAndSelect('patient.city', 'city')
+                    .leftJoinAndSelect('patient.district', 'district')
+                    .leftJoinAndSelect('patient.doctor', 'doctor')
+                    .leftJoinAndSelect('patient.user', 'user')
+                    .leftJoinAndSelect('patient.hospital', 'hospital')
+                    .leftJoinAndSelect('patient.media', 'media')
+                    .leftJoinAndSelect('patient.chatPatients', 'chatPatients')
+                    .leftJoinAndSelect('chatPatients.user', 'chatUser')
+                    .getOne()
+
+                return {
+                    ...item,
+                    user: user,
+                    patient: patient
+                };
+            })
+        );
+
 
         return {
-            totalStatus,
-            data: result,
-            total,
-            pageIndex,
-            pageSize,
+            totalStatus: result.filter(item => item.status === 0).length,
+            data: enrichedResult,
+            total: total,
+            pageIndex: pageIndex,
+            pageSize: pageSize,
             totalPages: Math.ceil(total / pageSize),
         };
     }
